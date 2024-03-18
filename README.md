@@ -6,8 +6,8 @@
 
 |  #  | Chapter               | Completed |
 | :-: | --------------------- | :-------: |
-|  1  | Boolean Logic         |    ✅     |
-|  2  | Boolean Arithmetic    |    ✅     |
+|  1  | Boolean Logic         |           |
+|  2  | Boolean Arithmetic    |           |
 |  3  | Memory                |           |
 |  4  | Machine Language      |           |
 |  5  | Computer Architecture |           |

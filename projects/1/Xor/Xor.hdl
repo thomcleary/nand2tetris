@@ -11,11 +11,4 @@ CHIP Xor {
     OUT out;
 
     PARTS:
-    Or(a=a, b=b, out=aOrB);
-    And(a=a, b=b, out=aAndB);
-    Not(in=aAndB, out=notAAndB);
-    And(a=aOrB, b=notAAndB, out=out);
 }
-
-// Optimal is 4 NAND gates
-// see: https://en.wikipedia.org/wiki/NAND_logic
