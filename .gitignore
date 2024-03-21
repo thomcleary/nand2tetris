@@ -2,7 +2,6 @@
 
 projects/**/*.out
 
-projects/4
 projects/5
 projects/6
 projects/7
@@ -13,4 +12,4 @@ projects/11
 projects/12
 projects/13
 
-tools/**/*.dat
+tools
