@@ -1,5 +1,7 @@
 .DS_Store
 
+documents
+
 projects/**/*.out
 
 projects/5
