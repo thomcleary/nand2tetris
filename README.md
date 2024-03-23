@@ -10,7 +10,7 @@
 |  2  | Boolean Arithmetic    |    ✅     |
 |  3  | Memory                |    ✅     |
 |  4  | Machine Language      |    ✅     |
-|  5  | Computer Architecture |           |
+|  5  | Computer Architecture |    ✅     |
 |  6  | Assembler             |           |
 
 ## Part 2: Software

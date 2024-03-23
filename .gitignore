@@ -1,9 +1,5 @@
 .DS_Store
 
-documents
-
-projects/**/*.out
-
 projects/6
 projects/7
 projects/8
@@ -13,4 +9,10 @@ projects/11
 projects/12
 projects/13
 
+documents
 tools
+
+**/*.tst
+**/*.cmp
+**/*.out
+**/*.hack
