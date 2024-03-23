@@ -1,6 +1,5 @@
 .DS_Store
 
-projects/6
 projects/7
 projects/8
 projects/9
@@ -15,4 +14,3 @@ tools
 **/*.tst
 **/*.cmp
 **/*.out
-**/*.hack
