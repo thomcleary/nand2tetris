@@ -1,0 +1,16 @@
+{
+  "name": "hack-assembler",
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": "20.x"
+  },
+  "scripts": {
+    "assembler": "tsx assembler.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "tsx": "^4.7.1",
+    "typescript": "5.4.3"
+  }
+}

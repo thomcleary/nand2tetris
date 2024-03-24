@@ -1,5 +1,7 @@
 .DS_Store
+**/node_modules
 
+projects/6/programs/*.hack
 projects/7
 projects/8
 projects/9
