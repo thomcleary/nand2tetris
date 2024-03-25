@@ -2,31 +2,31 @@ import { readFileSync } from "fs";
 
 type Result<T extends Record<PropertyKey, unknown>> = ({ success: true } & T) | { success: false; message: string };
 
-const PREDEFINED_SYMBOLS = [
-  ["R0", 0],
-  ["R1", 1],
-  ["R2", 2],
-  ["R3", 3],
-  ["R4", 4],
-  ["R5", 5],
-  ["R6", 6],
-  ["R7", 7],
-  ["R8", 8],
-  ["R9", 9],
-  ["R10", 10],
-  ["R11", 11],
-  ["R12", 12],
-  ["R13", 13],
-  ["R14", 14],
-  ["R15", 15],
-  ["SP", 0],
-  ["LCL", 1],
-  ["ARG", 2],
-  ["THIS", 3],
-  ["THAT", 4],
-  ["SCREEN", 16384],
-  ["KBD", 24576],
-] as const satisfies [string, number][];
+const PREDEFINED_SYMBOLS = {
+  RO: 0,
+  R1: 1,
+  R2: 2,
+  R3: 3,
+  R4: 4,
+  R5: 5,
+  R6: 6,
+  R7: 7,
+  R8: 8,
+  R9: 9,
+  R10: 10,
+  R11: 11,
+  R12: 12,
+  R13: 13,
+  R14: 14,
+  R15: 15,
+  SP: 0,
+  LCL: 1,
+  ARG: 2,
+  THIS: 3,
+  THAT: 4,
+  SCREEN: 16384,
+  KBD: 24576,
+} as const;
 
 const getAssemblyFilePath = (): Result<{ filePath: string }> => {
   const filePath = process.argv[2];
@@ -62,7 +62,7 @@ const getAssemblyProgram = (filePath: string): Result<{ assemblyProgram: readonl
 };
 
 const getSymbolTable = (assemblyProgram: readonly string[]): Result<{ symbolTable: Map<string, number> }> => {
-  const symbolTable = new Map<string, number>(PREDEFINED_SYMBOLS);
+  const symbolTable = new Map<string, number>(Object.entries(PREDEFINED_SYMBOLS));
 
   let instructionCount = -1;
 
@@ -70,7 +70,7 @@ const getSymbolTable = (assemblyProgram: readonly string[]): Result<{ symbolTabl
     if (line.startsWith("(")) {
       const label = line.replace("(", "").replace(")", "");
 
-      if (PREDEFINED_SYMBOLS.map(([key, _]): string => key).includes(label)) {
+      if (Object.keys(PREDEFINED_SYMBOLS).includes(label)) {
         return { success: false, message: `error: predefined symbol ${label} cannot be used as a label` };
       }
       if (symbolTable.has(label)) {
