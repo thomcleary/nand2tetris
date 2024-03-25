@@ -61,7 +61,7 @@ const getAssemblyProgram = (filePath: string): Result<{ assemblyProgram: readonl
   }
 };
 
-const getSymbolTable = (assemblyProgram: readonly string[]): Result<{ symbolTable: ReadonlyMap<string, number> }> => {
+const getSymbolTable = (assemblyProgram: readonly string[]): Result<{ symbolTable: Map<string, number> }> => {
   const symbolTable = new Map<string, number>(PREDEFINED_SYMBOLS);
 
   let instructionCount = -1;
@@ -86,6 +86,45 @@ const getSymbolTable = (assemblyProgram: readonly string[]): Result<{ symbolTabl
   return { success: true, symbolTable };
 };
 
+const aToHack = (a: number): string => a.toString(2).padStart(16, "0");
+
+const parse = ({
+  assemblyProgram,
+  symbolTable,
+}: {
+  assemblyProgram: readonly string[];
+  symbolTable: Map<string, number>;
+}): { hackInstructions: readonly string[] } => {
+  const assemblyInstructions = assemblyProgram.filter((i) => !i.startsWith("("));
+  const hackInstructions: string[] = [];
+  let nextVariableAddress = 16;
+
+  for (const instruction of assemblyInstructions) {
+    if (instruction.startsWith("@")) {
+      const address = instruction.slice(1);
+
+      if (/^\d+$/.test(address)) {
+        hackInstructions.push(aToHack(Number(address)));
+      } else {
+        const symbolAddress = symbolTable.get(address);
+
+        if (symbolAddress !== undefined) {
+          hackInstructions.push(aToHack(symbolAddress));
+        } else {
+          symbolTable.set(address, nextVariableAddress);
+          hackInstructions.push(aToHack(nextVariableAddress));
+          nextVariableAddress++;
+        }
+      }
+    } else {
+      // TODO: C instructions
+    }
+  }
+
+  console.log(hackInstructions);
+  return { hackInstructions };
+};
+
 const main = () => {
   const assemblyFilePathResult = getAssemblyFilePath();
 
@@ -103,7 +142,6 @@ const main = () => {
   }
 
   const { assemblyProgram } = assemblyProgramResult;
-  console.log(assemblyProgram);
   const symbolTableResult = getSymbolTable(assemblyProgram);
 
   if (!symbolTableResult.success) {
@@ -112,9 +150,7 @@ const main = () => {
   }
 
   const { symbolTable } = symbolTableResult;
-  console.log(symbolTable);
-
-  // TODO: convert assembly program to binary hack instructions
+  const { hackInstructions } = parse({ assemblyProgram, symbolTable });
 
   // TODO: write binary hack instructions to a new file ./path/to/program.hack
 };
