@@ -17,6 +17,7 @@ const isValidJumpCode = (code: string): code is keyof typeof JUMP_CODES => Objec
 const isMemoryCompCode = (code: keyof typeof COMP_CODES) => code.includes("M");
 
 const isEmptyLine = (line: string) => /^\s*$/.test(line);
+const isDigitsOnly = (line: string) => /^\d+$/.test(line);
 const isComment = (line: string) => line.startsWith("//");
 const isLabel = (line: string) => line.startsWith("(");
 const isInstruction = (line: string) => !(isEmptyLine(line) || isComment(line) || isLabel(line));
@@ -157,7 +158,7 @@ const parse = ({
     if (line.startsWith("@")) {
       const address = line.slice(1);
 
-      if (/^\d+$/.test(address)) {
+      if (isDigitsOnly(address)) {
         hackInstructions.push(aToHack(Number(address)));
       } else {
         const symbolAddress = symbolTable.get(address);
