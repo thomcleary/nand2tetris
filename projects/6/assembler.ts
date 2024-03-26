@@ -28,6 +28,55 @@ const PREDEFINED_SYMBOLS = {
   KBD: 24576,
 } as const;
 
+const C_INSTRUCTION_PREFIX = 0b1110_0000_0000_0000;
+const MEMORY_COMP_CODE = 0b0001_0000_0000_0000;
+
+const DEST_CODES = {
+  A: 0b10_0000,
+  D: 0b01_0000,
+  M: 0b00_1000,
+} as const;
+
+const COMP_CODES = {
+  0: 0b101010,
+  1: 0b111111,
+  "-1": 0b111010,
+  D: 0b001100,
+  A: 0b110000,
+  M: 0b110000,
+  "!D": 0b001101,
+  "!A": 0b110001,
+  "!M": 0b110001,
+  "-D": 0b001111,
+  "-A": 0b110011,
+  "-M": 0b110011,
+  "D+1": 0b011111,
+  "A+1": 0b110111,
+  "M+1": 0b110111,
+  "D-1": 0b001110,
+  "A-1": 0b110010,
+  "M-1": 0b110010,
+  "D+A": 0b000010,
+  "D+M": 0b000010,
+  "D-A": 0b010011,
+  "D-M": 0b010011,
+  "A-D": 0b000111,
+  "M-D": 0b000111,
+  "D&A": 0b000000,
+  "D&M": 0b000000,
+  "D|A": 0b010101,
+  "D|M": 0b010101,
+} as const;
+
+const JUMP_CODES = {
+  JGT: 0b001,
+  JEQ: 0b010,
+  JGE: 0b011,
+  JLT: 0b100,
+  JNE: 0b110,
+  JMP: 0b111,
+} as const;
+
 const getAssemblyFilePath = (): Result<{ filePath: string }> => {
   const filePath = process.argv[2];
 
@@ -118,6 +167,7 @@ const parse = ({
       }
     } else {
       // TODO: C instructions
+      const instruction = C_INSTRUCTION_PREFIX;
     }
   }
 
