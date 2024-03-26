@@ -1,4 +1,4 @@
-import { readFileSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 
 type Result<T extends Record<PropertyKey, unknown>> = ({ success: true } & T) | { success: false; message: string };
 
@@ -258,9 +258,13 @@ const main = () => {
   }
 
   const { hackInstructions } = parseResult;
-  console.log(hackInstructions);
+  const hackFileName = filePath.replace(".asm", ".hack");
 
-  // TODO: write binary hack instructions to a new file ./path/to/program.hack
+  try {
+    writeFileSync(hackFileName, hackInstructions.join("\n"));
+  } catch {
+    console.log(`error: unable to write file ${hackFileName}`);
+  }
 };
 
 main();
