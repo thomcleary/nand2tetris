@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync } from "fs";
 type Result<T extends Record<PropertyKey, unknown>> = ({ success: true } & T) | { success: false; message: string };
 
 const PREDEFINED_SYMBOLS = {
-  RO: 0,
+  R0: 0,
   R1: 1,
   R2: 2,
   R3: 3,
