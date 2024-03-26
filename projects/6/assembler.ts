@@ -83,6 +83,60 @@ const getSymbolTable = (assemblyProgram: readonly string[]): Result<{ symbolTabl
 
 const aToHack = (a: number): string => a.toString(2).padStart(16, "0");
 
+const getCInstructionParts = (instruction: string) => {
+  const destAndRest = instruction.split("=");
+  let dest = undefined;
+  let rest = undefined;
+
+  if (destAndRest.length === 2) {
+    dest = destAndRest[0];
+    rest = destAndRest[1];
+  } else {
+    rest = destAndRest[0];
+  }
+
+  const compAndJump = rest?.split(";");
+
+  return { dest, comp: compAndJump && compAndJump[0], jump: compAndJump && compAndJump[1] };
+};
+
+const cToHack = (instruction: string): Result<{ hackInstruction: string }> => {
+  let cInstruction = C_INSTRUCTION_PREFIX;
+  const { dest, comp, jump } = getCInstructionParts(instruction);
+
+  if (dest) {
+    for (const symbol of dest.split("")) {
+      if (isValidDestCode(symbol)) {
+        cInstruction |= DEST_CODES[symbol];
+      } else {
+        return { success: false, message: `${dest} is not a valid destination symbol` };
+      }
+    }
+  }
+
+  if (!comp) {
+    return { success: false, message: `instruction ${instruction} is missing comp symbol` };
+  }
+  if (!isValidCompCode(comp)) {
+    return { success: false, message: `${comp} is not a valid comp symbol` };
+  }
+
+  cInstruction |= COMP_CODES[comp];
+
+  if (isMemoryCompCode(comp)) {
+    cInstruction |= MEMORY_COMP_CODE;
+  }
+
+  if (jump) {
+    if (!isValidJumpCode(jump)) {
+      return { success: false, message: `${jump} is not a valid jump symbol` };
+    }
+    cInstruction |= JUMP_CODES[jump];
+  }
+
+  return { success: true, hackInstruction: cInstruction.toString(2) };
+};
+
 const parse = ({
   assemblyProgram,
   symbolTable,
@@ -117,62 +171,13 @@ const parse = ({
         }
       }
     } else {
-      let cInstruction = C_INSTRUCTION_PREFIX;
-      const destAndRest = line.split("=");
+      const cToHackResult = cToHack(line);
 
-      if (destAndRest.length < 1 || destAndRest.length > 3) {
-        return { success: false, message: error({ message: `instruction ${line} is invalid`, lineNumber }) };
+      if (!cToHackResult.success) {
+        return { ...cToHackResult, message: error({ message: cToHackResult.message, lineNumber }) };
       }
 
-      if (destAndRest.length === 2) {
-        const destSymbols = destAndRest.shift()?.split("") ?? [];
-
-        for (const dest of destSymbols) {
-          if (isValidDestCode(dest)) {
-            cInstruction |= DEST_CODES[dest];
-          } else {
-            return {
-              success: false,
-              message: error({ message: `${dest} is not a valid destination register`, lineNumber }),
-            };
-          }
-        }
-      }
-
-      const compAndJump = destAndRest.shift()?.split(";");
-      const comp = compAndJump?.shift();
-
-      if (!comp) {
-        return {
-          success: false,
-          message: error({ message: `instruction ${line} is missing comp symbol`, lineNumber }),
-        };
-      }
-
-      if (!isValidCompCode(comp)) {
-        return { success: false, message: error({ message: `${comp} is not a valid comp symbol`, lineNumber }) };
-      }
-
-      cInstruction |= COMP_CODES[comp];
-
-      if (isMemoryCompCode(comp)) {
-        cInstruction |= MEMORY_COMP_CODE;
-      }
-
-      const jump = compAndJump?.shift();
-
-      if (jump) {
-        if (!isValidJumpCode(jump)) {
-          return {
-            success: false,
-            message: error({ message: `${jump} is not a valid jump symbol`, lineNumber }),
-          };
-        }
-
-        cInstruction |= JUMP_CODES[jump];
-      }
-
-      hackInstructions.push(cInstruction.toString(2));
+      hackInstructions.push(cToHackResult.hackInstruction);
     }
   }
 
