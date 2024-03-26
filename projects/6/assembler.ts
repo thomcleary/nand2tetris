@@ -73,7 +73,7 @@ const JUMP_CODES = {
   JEQ: 0b010,
   JGE: 0b011,
   JLT: 0b100,
-  JNE: 0b110,
+  JNE: 0b101,
   JLE: 0b110,
   JMP: 0b111,
 } as const;
@@ -182,13 +182,15 @@ const parse = ({
       }
 
       if (destAndRest.length === 2) {
-        const dest = destAndRest.shift();
+        const destSymbols = destAndRest.shift()?.split("") ?? [];
 
-        if (!dest || !isValidDestCode(dest)) {
-          return { success: false, message: `error: ${dest} is not a valid destination register` };
+        for (const dest of destSymbols) {
+          if (isValidDestCode(dest)) {
+            cInstruction |= DEST_CODES[dest];
+          } else {
+            return { success: false, message: `error: ${dest} is not a valid destination register` };
+          }
         }
-
-        cInstruction |= DEST_CODES[dest];
       }
 
       const compAndJump = destAndRest.shift()?.split(";");
