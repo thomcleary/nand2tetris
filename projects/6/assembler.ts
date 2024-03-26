@@ -38,34 +38,34 @@ const DEST_CODES = {
 } as const;
 
 const COMP_CODES = {
-  0: 0b101010,
-  1: 0b111111,
-  "-1": 0b111010,
-  D: 0b001100,
-  A: 0b110000,
-  M: 0b110000,
-  "!D": 0b001101,
-  "!A": 0b110001,
-  "!M": 0b110001,
-  "-D": 0b001111,
-  "-A": 0b110011,
-  "-M": 0b110011,
-  "D+1": 0b011111,
-  "A+1": 0b110111,
-  "M+1": 0b110111,
-  "D-1": 0b001110,
-  "A-1": 0b110010,
-  "M-1": 0b110010,
-  "D+A": 0b000010,
-  "D+M": 0b000010,
-  "D-A": 0b010011,
-  "D-M": 0b010011,
-  "A-D": 0b000111,
-  "M-D": 0b000111,
-  "D&A": 0b000000,
-  "D&M": 0b000000,
-  "D|A": 0b010101,
-  "D|M": 0b010101,
+  "0": 0b1010_1000_0000,
+  "1": 0b1111_1100_0000,
+  "-1": 0b1110_1000_0000,
+  D: 0b0011_0000_0000,
+  A: 0b1100_0000_0000,
+  M: 0b1100_0000_0000,
+  "!D": 0b0011_0100_0000,
+  "!A": 0b1100_0100_0000,
+  "!M": 0b1100_0100_0000,
+  "-D": 0b0011_1100_0000,
+  "-A": 0b1100_1100_0000,
+  "-M": 0b1100_1100_0000,
+  "D+1": 0b0111_1100_0000,
+  "A+1": 0b1101_1100_0000,
+  "M+1": 0b1101_1100_0000,
+  "D-1": 0b0011_1000_0000,
+  "A-1": 0b1100_1000_0000,
+  "M-1": 0b1100_1000_0000,
+  "D+A": 0b0000_1000_0000,
+  "D+M": 0b0000_1000_0000,
+  "D-A": 0b0100_1100_0000,
+  "D-M": 0b0100_1100_0000,
+  "A-D": 0b0001_1100_0000,
+  "M-D": 0b0001_1100_0000,
+  "D&A": 0b0000_0000_0000,
+  "D&M": 0b0000_0000_0000,
+  "D|A": 0b0101_0100_0000,
+  "D|M": 0b0101_0100_0000,
 } as const;
 
 const JUMP_CODES = {
@@ -74,8 +74,14 @@ const JUMP_CODES = {
   JGE: 0b011,
   JLT: 0b100,
   JNE: 0b110,
+  JLE: 0b110,
   JMP: 0b111,
 } as const;
+
+const isValidDestCode = (code: string): code is keyof typeof DEST_CODES => Object.keys(DEST_CODES).includes(code);
+const isValidCompCode = (code: string): code is keyof typeof COMP_CODES => Object.keys(COMP_CODES).includes(code);
+const isValidJumpCode = (code: string): code is keyof typeof JUMP_CODES => Object.keys(JUMP_CODES).includes(code);
+const isMemoryCompCode = (code: keyof typeof COMP_CODES) => code.includes("M");
 
 const getAssemblyFilePath = (): Result<{ filePath: string }> => {
   const filePath = process.argv[2];
@@ -104,6 +110,7 @@ const getAssemblyProgram = (filePath: string): Result<{ assemblyProgram: readonl
         .split("\n")
         .map((line) => line.trim().replaceAll(" ", ""))
         .filter((line) => !!line && !line.startsWith("//")),
+      // TODO: dont remove whitespace or comments and improve error messages to include line number
     };
   } catch {
     return { success: false, message: `error: unable to read file ${filePath}` };
@@ -137,13 +144,14 @@ const getSymbolTable = (assemblyProgram: readonly string[]): Result<{ symbolTabl
 
 const aToHack = (a: number): string => a.toString(2).padStart(16, "0");
 
+// TODO: break down into separate functions for A/C
 const parse = ({
   assemblyProgram,
   symbolTable,
 }: {
   assemblyProgram: readonly string[];
   symbolTable: Map<string, number>;
-}): { hackInstructions: readonly string[] } => {
+}): Result<{ hackInstructions: readonly string[] }> => {
   const assemblyInstructions = assemblyProgram.filter((i) => !i.startsWith("("));
   const hackInstructions: string[] = [];
   let nextVariableAddress = 16;
@@ -166,13 +174,55 @@ const parse = ({
         }
       }
     } else {
-      // TODO: C instructions
-      const instruction = C_INSTRUCTION_PREFIX;
+      let cInstruction = C_INSTRUCTION_PREFIX;
+      const destAndRest = instruction.split("=");
+
+      if (destAndRest.length < 1 || destAndRest.length > 3) {
+        return { success: false, message: `error: instruction ${instruction} is invalid` };
+      }
+
+      if (destAndRest.length === 2) {
+        const dest = destAndRest.shift();
+
+        if (!dest || !isValidDestCode(dest)) {
+          return { success: false, message: `error: ${dest} is not a valid destination register` };
+        }
+
+        cInstruction |= DEST_CODES[dest];
+      }
+
+      const compAndJump = destAndRest.shift()?.split(";");
+      const comp = compAndJump?.shift();
+
+      if (!comp) {
+        return { success: false, message: `error: instruction ${instruction} is missing comp symbol` };
+      }
+
+      if (!isValidCompCode(comp)) {
+        return { success: false, message: `error: ${comp} is not a valid comp symbol` };
+      }
+
+      cInstruction |= COMP_CODES[comp];
+
+      if (isMemoryCompCode(comp)) {
+        cInstruction |= MEMORY_COMP_CODE;
+      }
+
+      const jump = compAndJump?.shift();
+
+      if (jump) {
+        if (!isValidJumpCode(jump)) {
+          return { success: false, message: `error: ${jump} is not a valid jump symbol` };
+        }
+
+        cInstruction |= JUMP_CODES[jump];
+      }
+
+      hackInstructions.push(cInstruction.toString(2));
     }
   }
 
-  console.log(hackInstructions);
-  return { hackInstructions };
+  return { success: true, hackInstructions };
 };
 
 const main = () => {
@@ -200,7 +250,15 @@ const main = () => {
   }
 
   const { symbolTable } = symbolTableResult;
-  const { hackInstructions } = parse({ assemblyProgram, symbolTable });
+  const parseResult = parse({ assemblyProgram, symbolTable });
+
+  if (!parseResult.success) {
+    console.log(parseResult.message);
+    return;
+  }
+
+  const { hackInstructions } = parseResult;
+  console.log(hackInstructions);
 
   // TODO: write binary hack instructions to a new file ./path/to/program.hack
 };
