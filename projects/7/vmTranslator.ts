@@ -1,51 +1,16 @@
 import { readFileSync, writeFileSync } from "fs";
 import { ArithmeticLogicalCommand, INFINITE_LOOP, Pointer, Segment, StackCommand } from "./constants.js";
-
-type Result<T extends Record<PropertyKey, unknown>> = ({ success: true } & T) | { success: false; message: string };
-
-type PushInstruction = {
-  command: StackCommand.Push;
-  segment: Segment;
-  index: number;
-};
-
-type PopInstruction = {
-  command: StackCommand.Pop;
-  segment: Exclude<Segment, Segment.Constant>;
-  index: number;
-};
-
-type ArithmeticLogicalInstruction = {
-  command: ArithmeticLogicalCommand;
-};
-
-type VmInstruction = PushInstruction | PopInstruction | ArithmeticLogicalInstruction;
-
-const isEmptyLine = (line: string) => /^\s*$/.test(line);
-const isComment = (line: string) => line.startsWith("//");
-
-const isArithemticLogicalCommand = (command: string): command is ArithmeticLogicalCommand => {
-  const validCommands: string[] = Object.values(ArithmeticLogicalCommand);
-  return validCommands.includes(command);
-};
-
-const isStackCommand = (command: string): command is StackCommand => {
-  const validCommands: string[] = Object.values(StackCommand);
-  return validCommands.includes(command);
-};
-
-const isSegment = (segment: string): segment is Segment => {
-  const validSegments: string[] = Object.values(Segment);
-  return validSegments.includes(segment);
-};
-
-const isValidIndex = (index: string): boolean => {
-  const indexNum = Number(index);
-  return !isNaN(indexNum) && indexNum > 0;
-};
-
-const error = (message: string, { lineNumber }: { lineNumber?: number } = {}) =>
-  `error ${lineNumber !== undefined ? `(L${lineNumber}):` : ":"} ${message}`;
+import { ArithmeticLogicalInstruction, PopInstruction, PushInstruction, Result, VmInstruction } from "./types.js";
+import {
+  error,
+  isArithemticLogicalCommand,
+  isComment,
+  isEmptyLine,
+  isSegment,
+  isStackCommand,
+  isValidIndex,
+  toComment,
+} from "./utils.js";
 
 const getVmFilePath = (): Result<{ filePath: string }> => {
   const filePath = process.argv[2];
@@ -112,9 +77,7 @@ const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }>
   return { success: true, vmInstruction: { command, segment, index: indexNum } };
 };
 
-const toComment = (line: string) => `// ${line}` as const;
-const aInstruction = (address: Pointer | number) => `@${address}` as const;
-
+export const aInstruction = (address: Pointer | number) => `@${address}` as const;
 const decrementPointer = (pointer: Pointer) => [aInstruction(pointer), "AM=M-1"] as const;
 const incrementPointer = (pointer: Pointer) => [aInstruction(pointer), "M=M+1"] as const;
 
@@ -231,8 +194,6 @@ const main = () => {
 
   const { assemblyInstructions } = translateResult;
   const assemblyFileName = filePath.replace(".vm", ".asm");
-
-  assemblyInstructions.forEach((i) => console.log(i));
 
   try {
     writeFileSync(assemblyFileName, assemblyInstructions.join("\n"));
