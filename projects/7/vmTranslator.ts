@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync } from "fs";
-import { ArithmeticLogicalCommand, INFINITE_LOOP, Segment, StackCommand } from "./constants.js";
+import { ArithmeticLogicalCommand, INFINITE_LOOP, Pointer, Segment, StackCommand } from "./constants.js";
 
 type Result<T extends Record<PropertyKey, unknown>> = ({ success: true } & T) | { success: false; message: string };
 
@@ -79,8 +79,6 @@ const getVmProgram = (filePath: string): Result<{ vmProgram: readonly string[] }
   }
 };
 
-const toComment = (line: string) => `// ${line}`;
-
 const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }> => {
   const instructionParts = line.split(/\s+/);
 
@@ -114,27 +112,62 @@ const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }>
   return { success: true, vmInstruction: { command, segment, index: indexNum } };
 };
 
-const pushToAssembly = (instruction: PushInstruction): string[] => {
-  if (instruction.segment !== Segment.Constant) {
-    throw new Error(`${instruction.segment} is not implemented for push operations yet`);
+const toComment = (line: string) => `// ${line}` as const;
+const aInstruction = (address: Pointer | number) => `@${address}` as const;
+
+const decrementPointer = (pointer: Pointer) => [aInstruction(pointer), "AM=M-1"] as const;
+const incrementPointer = (pointer: Pointer) => [aInstruction(pointer), "M=M+1"] as const;
+
+const pushToAssembly = ({ command, segment, index }: PushInstruction): readonly string[] => {
+  if (segment !== Segment.Constant) {
+    throw new Error(`${segment} is not implemented for push operations yet`);
   }
 
-  return [`@${instruction.index}`, "D=A", "@SP", "A=M", "M=D", "@SP", "M=M+1"];
+  return [aInstruction(index), "D=A", aInstruction(Pointer.SP), "A=M", "M=D", ...incrementPointer(Pointer.SP)];
 };
 
-const popToAssembly = (instruction: PopInstruction): string[] => {
+const popToAssembly = ({ command, segment, index }: PopInstruction): readonly string[] => {
   return [];
 };
 
-const arithmeticLogicalToAssembly = (instruction: ArithmeticLogicalInstruction): string[] => {
-  if (instruction.command !== ArithmeticLogicalCommand.Add) {
-    throw new Error(`${instruction.command} is not implemented yet`);
+const arithmeticLogicalToAssembly = ({ command }: ArithmeticLogicalInstruction): readonly string[] => {
+  switch (command) {
+    case ArithmeticLogicalCommand.Add:
+      return [
+        ...decrementPointer(Pointer.SP),
+        "D=M",
+        ...decrementPointer(Pointer.SP),
+        "M=M+D",
+        ...incrementPointer(Pointer.SP),
+      ];
+    case ArithmeticLogicalCommand.Sub:
+      return [
+        ...decrementPointer(Pointer.SP),
+        "D=M",
+        ...decrementPointer(Pointer.SP),
+        "M=M-D",
+        ...incrementPointer(Pointer.SP),
+      ];
+    case ArithmeticLogicalCommand.Neg:
+      return [...decrementPointer(Pointer.SP), "M=-M", ...incrementPointer(Pointer.SP)];
+    // case ArithmeticLogicalCommand.Eq:
+    //   return [];
+    // case ArithmeticLogicalCommand.Gt:
+    //   return [];
+    // case ArithmeticLogicalCommand.Lt:
+    //   return [];
+    // case ArithmeticLogicalCommand.And:
+    //   return [];
+    // case ArithmeticLogicalCommand.Or:
+    //   return [];
+    // case ArithmeticLogicalCommand.Not:
+    //   return [];
+    default:
+      throw new Error(`${command} not implemented`);
   }
-
-  return ["@SP", "M=M-1", "A=M", "D=M", "@SP", "M=M-1", "A=M", "M=M+D", "@SP", "M=M+1"];
 };
 
-const toAssembly = (vmInstruction: VmInstruction): string[] => {
+const toAssembly = (vmInstruction: VmInstruction): readonly string[] => {
   console.log(vmInstruction);
 
   switch (vmInstruction.command) {
