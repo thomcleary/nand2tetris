@@ -1,22 +1,25 @@
 import { readFileSync, writeFileSync } from "fs";
-import { ArithmeticLogicalCommand, Segment, StackCommand } from "./constants.js";
+import { ArithmeticLogicalCommand, INFINITE_LOOP, Segment, StackCommand } from "./constants.js";
 
 type Result<T extends Record<PropertyKey, unknown>> = ({ success: true } & T) | { success: false; message: string };
 
-type VmInstruction =
-  | {
-      command: StackCommand.Push;
-      segment: Segment;
-      index: number;
-    }
-  | {
-      command: StackCommand.Pop;
-      segment: Exclude<Segment, Segment.Constant>;
-      index: number;
-    }
-  | {
-      command: ArithmeticLogicalCommand;
-    };
+type PushInstruction = {
+  command: StackCommand.Push;
+  segment: Segment;
+  index: number;
+};
+
+type PopInstruction = {
+  command: StackCommand.Pop;
+  segment: Exclude<Segment, Segment.Constant>;
+  index: number;
+};
+
+type ArithmeticLogicalInstruction = {
+  command: ArithmeticLogicalCommand;
+};
+
+type VmInstruction = PushInstruction | PopInstruction | ArithmeticLogicalInstruction;
 
 const isEmptyLine = (line: string) => /^\s*$/.test(line);
 const isComment = (line: string) => line.startsWith("//");
@@ -76,6 +79,8 @@ const getVmProgram = (filePath: string): Result<{ vmProgram: readonly string[] }
   }
 };
 
+const toComment = (line: string) => `// ${line}`;
+
 const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }> => {
   const instructionParts = line.split(/\s+/);
 
@@ -109,8 +114,37 @@ const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }>
   return { success: true, vmInstruction: { command, segment, index: indexNum } };
 };
 
-const toAssembly = (vmInstruction: VmInstruction): string[] => {
+const pushToAssembly = (instruction: PushInstruction): string[] => {
+  if (instruction.segment !== Segment.Constant) {
+    throw new Error(`${instruction.segment} is not implemented for push operations yet`);
+  }
+
+  return [`@${instruction.index}`, "D=A", "@SP", "A=M", "M=D", "@SP", "M=M+1"];
+};
+
+const popToAssembly = (instruction: PopInstruction): string[] => {
   return [];
+};
+
+const arithmeticLogicalToAssembly = (instruction: ArithmeticLogicalInstruction): string[] => {
+  if (instruction.command !== ArithmeticLogicalCommand.Add) {
+    throw new Error(`${instruction.command} is not implemented yet`);
+  }
+
+  return ["@SP", "M=M-1", "A=M", "D=M", "@SP", "M=M-1", "A=M", "M=M+D", "@SP", "M=M+1"];
+};
+
+const toAssembly = (vmInstruction: VmInstruction): string[] => {
+  console.log(vmInstruction);
+
+  switch (vmInstruction.command) {
+    case StackCommand.Push:
+      return pushToAssembly(vmInstruction);
+    case StackCommand.Pop:
+      return popToAssembly(vmInstruction);
+    default:
+      return arithmeticLogicalToAssembly(vmInstruction);
+  }
 };
 
 const translate = (vmProgram: readonly string[]): Result<{ assemblyInstructions: readonly string[] }> => {
@@ -129,9 +163,12 @@ const translate = (vmProgram: readonly string[]): Result<{ assemblyInstructions:
     }
 
     const { vmInstruction } = vmInstructionResult;
-    console.log({ vmInstruction });
+
+    assemblyInstructions.push(toComment(line));
     assemblyInstructions.push(...toAssembly(vmInstruction));
   }
+
+  assemblyInstructions.push(...INFINITE_LOOP);
 
   return { success: true, assemblyInstructions };
 };
@@ -161,6 +198,8 @@ const main = () => {
 
   const { assemblyInstructions } = translateResult;
   const assemblyFileName = filePath.replace(".vm", ".asm");
+
+  assemblyInstructions.forEach((i) => console.log(i));
 
   try {
     writeFileSync(assemblyFileName, assemblyInstructions.join("\n"));

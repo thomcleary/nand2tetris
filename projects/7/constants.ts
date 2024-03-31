@@ -25,3 +25,5 @@ export enum Segment {
   Pointer = "pointer",
   Temp = "temp",
 }
+
+export const INFINITE_LOOP = ["(END)", "@END", "0;JMP"] as const;
