@@ -1,30 +1,45 @@
 import { readFileSync, writeFileSync } from "fs";
+import { ArithmeticLogicalCommand, Segment, StackCommand } from "./constants.js";
 
 type Result<T extends Record<PropertyKey, unknown>> = ({ success: true } & T) | { success: false; message: string };
 
-type Segment = "argument" | "local" | "static" | "constant" | "this" | "that" | "pointer" | "temp";
-
-type ArithmeticCommand = "add" | "sub" | "neg";
-type ComparisonCommand = "eq" | "gt" | "lt";
-type LogicalCommand = "and" | "or" | "not";
-
 type VmInstruction =
   | {
-      command: "push";
+      command: StackCommand.Push;
       segment: Segment;
       index: number;
     }
   | {
-      command: "pop";
-      segment: Exclude<Segment, "constant">;
+      command: StackCommand.Pop;
+      segment: Exclude<Segment, Segment.Constant>;
       index: number;
     }
   | {
-      command: ArithmeticCommand | ComparisonCommand | LogicalCommand;
+      command: ArithmeticLogicalCommand;
     };
 
 const isEmptyLine = (line: string) => /^\s*$/.test(line);
 const isComment = (line: string) => line.startsWith("//");
+
+const isArithemticLogicalCommand = (command: string): command is ArithmeticLogicalCommand => {
+  const validCommands: string[] = Object.values(ArithmeticLogicalCommand);
+  return validCommands.includes(command);
+};
+
+const isStackCommand = (command: string): command is StackCommand => {
+  const validCommands: string[] = Object.values(StackCommand);
+  return validCommands.includes(command);
+};
+
+const isSegment = (segment: string): segment is Segment => {
+  const validSegments: string[] = Object.values(Segment);
+  return validSegments.includes(segment);
+};
+
+const isValidIndex = (index: string): boolean => {
+  const indexNum = Number(index);
+  return !isNaN(indexNum) && indexNum > 0;
+};
 
 const error = (message: string, { lineNumber }: { lineNumber?: number } = {}) =>
   `error ${lineNumber !== undefined ? `(L${lineNumber}):` : ":"} ${message}`;
@@ -62,7 +77,36 @@ const getVmProgram = (filePath: string): Result<{ vmProgram: readonly string[] }
 };
 
 const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }> => {
-  return { success: true, vmInstruction: { command: "add" } };
+  const instructionParts = line.split(/\s+/);
+
+  if (!(instructionParts.length === 3 || instructionParts.length === 1)) {
+    return { success: false, message: `${line} is not a valid VM instruction` };
+  }
+
+  if (instructionParts.length === 1) {
+    const command = instructionParts[0];
+    return command && isArithemticLogicalCommand(command)
+      ? { success: true, vmInstruction: { command: command } }
+      : { success: false, message: `${command} is not a valid Arithmetic-Logical command` };
+  }
+
+  const [command, segment, index] = instructionParts;
+
+  if (!command || !segment || !index || !isStackCommand(command) || !isSegment(segment) || !isValidIndex(index)) {
+    return { success: false, message: `${line} is not a valid VM instruction` };
+  }
+
+  const indexNum = Number(index);
+
+  if (command === StackCommand.Push) {
+    return { success: true, vmInstruction: { command, segment, index: indexNum } };
+  }
+
+  if (segment === Segment.Constant) {
+    return { success: false, message: `${Segment.Constant} is not a valid segment for ${StackCommand.Push} commands` };
+  }
+
+  return { success: true, vmInstruction: { command, segment, index: indexNum } };
 };
 
 const toAssembly = (vmInstruction: VmInstruction): string[] => {
@@ -78,7 +122,6 @@ const translate = (vmProgram: readonly string[]): Result<{ assemblyInstructions:
     }
 
     const lineNumber = i + 1;
-
     const vmInstructionResult = toVmInstruction(line);
 
     if (!vmInstructionResult.success) {
