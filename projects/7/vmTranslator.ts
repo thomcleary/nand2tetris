@@ -93,29 +93,33 @@ const popToAssembly = ({ command, segment, index }: PopInstruction): readonly st
   return [];
 };
 
-// TODO: create functions to reuse instructions
-// Add/Sub/And/Or all do the same thing exept for the operator in the M=M(+-&|)D instruction
-// Neg/Not do the same thing except for the operator in the M=(-!)M instruction
 const arithmeticLogicalToAssembly = ({ command }: ArithmeticLogicalInstruction): readonly string[] => {
   switch (command) {
     case ArithmeticLogicalCommand.Add:
-      return [
-        ...decrementPointer(Pointer.SP),
-        "D=M",
-        ...decrementPointer(Pointer.SP),
-        "M=M+D",
-        ...incrementPointer(Pointer.SP),
-      ];
     case ArithmeticLogicalCommand.Sub:
+    case ArithmeticLogicalCommand.Or:
+    case ArithmeticLogicalCommand.And:
       return [
         ...decrementPointer(Pointer.SP),
         "D=M",
         ...decrementPointer(Pointer.SP),
-        "M=M-D",
+        `M=M${
+          {
+            [ArithmeticLogicalCommand.Add]: "+",
+            [ArithmeticLogicalCommand.Sub]: "-",
+            [ArithmeticLogicalCommand.And]: "&",
+            [ArithmeticLogicalCommand.Or]: "|",
+          }[command]
+        }D`,
         ...incrementPointer(Pointer.SP),
       ];
     case ArithmeticLogicalCommand.Neg:
-      return [...decrementPointer(Pointer.SP), "M=-M", ...incrementPointer(Pointer.SP)];
+    case ArithmeticLogicalCommand.Not:
+      return [
+        ...decrementPointer(Pointer.SP),
+        `M=${{ [ArithmeticLogicalCommand.Neg]: "-", [ArithmeticLogicalCommand.Not]: "!" }[command]}M`,
+        ...incrementPointer(Pointer.SP),
+      ];
     // case ArithmeticLogicalCommand.Eq:
     //   TODO: will need to dynamically generate labels for jumping to assign M to true(-1) and false(0)
     //         as using this command multiple times in a program would otherwise cause multiple of the same
@@ -125,32 +129,12 @@ const arithmeticLogicalToAssembly = ({ command }: ArithmeticLogicalInstruction):
     //   return [];
     // case ArithmeticLogicalCommand.Lt:
     //   return [];
-    case ArithmeticLogicalCommand.And:
-      return [
-        ...decrementPointer(Pointer.SP),
-        "D=M",
-        ...decrementPointer(Pointer.SP),
-        "M=M&D",
-        ...incrementPointer(Pointer.SP),
-      ];
-    case ArithmeticLogicalCommand.Or:
-      return [
-        ...decrementPointer(Pointer.SP),
-        "D=M",
-        ...decrementPointer(Pointer.SP),
-        "M=M|D",
-        ...incrementPointer(Pointer.SP),
-      ];
-    case ArithmeticLogicalCommand.Not:
-      return [...decrementPointer(Pointer.SP), "M=!M", ...incrementPointer(Pointer.SP)];
     default:
       throw new Error(`${command} not implemented`);
   }
 };
 
 const toAssembly = (vmInstruction: VmInstruction): readonly string[] => {
-  console.log(vmInstruction);
-
   switch (vmInstruction.command) {
     case StackCommand.Push:
       return pushToAssembly(vmInstruction);
