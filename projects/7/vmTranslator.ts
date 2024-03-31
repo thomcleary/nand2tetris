@@ -2,6 +2,30 @@ import { readFileSync, writeFileSync } from "fs";
 
 type Result<T extends Record<PropertyKey, unknown>> = ({ success: true } & T) | { success: false; message: string };
 
+type Segment = "argument" | "local" | "static" | "constant" | "this" | "that" | "pointer" | "temp";
+
+type ArithmeticCommand = "add" | "sub" | "neg";
+type ComparisonCommand = "eq" | "gt" | "lt";
+type LogicalCommand = "and" | "or" | "not";
+
+type VmInstruction =
+  | {
+      command: "push";
+      segment: Segment;
+      index: number;
+    }
+  | {
+      command: "pop";
+      segment: Exclude<Segment, "constant">;
+      index: number;
+    }
+  | {
+      command: ArithmeticCommand | ComparisonCommand | LogicalCommand;
+    };
+
+const isEmptyLine = (line: string) => /^\s*$/.test(line);
+const isComment = (line: string) => line.startsWith("//");
+
 const error = (message: string, { lineNumber }: { lineNumber?: number } = {}) =>
   `error ${lineNumber !== undefined ? `(L${lineNumber}):` : ":"} ${message}`;
 
@@ -37,8 +61,36 @@ const getVmProgram = (filePath: string): Result<{ vmProgram: readonly string[] }
   }
 };
 
+const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }> => {
+  return { success: true, vmInstruction: { command: "add" } };
+};
+
+const toAssembly = (vmInstruction: VmInstruction): string[] => {
+  return [];
+};
+
 const translate = (vmProgram: readonly string[]): Result<{ assemblyInstructions: readonly string[] }> => {
-  return { success: true, assemblyInstructions: [] };
+  const assemblyInstructions: string[] = [];
+
+  for (const [i, line] of vmProgram.entries()) {
+    if (isEmptyLine(line) || isComment(line)) {
+      continue;
+    }
+
+    const lineNumber = i + 1;
+
+    const vmInstructionResult = toVmInstruction(line);
+
+    if (!vmInstructionResult.success) {
+      return { ...vmInstructionResult, message: error(vmInstructionResult.message, { lineNumber }) };
+    }
+
+    const { vmInstruction } = vmInstructionResult;
+    console.log({ vmInstruction });
+    assemblyInstructions.push(...toAssembly(vmInstruction));
+  }
+
+  return { success: true, assemblyInstructions };
 };
 
 const main = () => {
