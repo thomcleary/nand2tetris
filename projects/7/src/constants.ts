@@ -26,7 +26,7 @@ export enum Segment {
   Temp = "temp",
 }
 
-export enum Pointer {
+export enum Symbol {
   SP = "SP",
   LCL = "LCL",
   ARG = "ARG",

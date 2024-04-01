@@ -1,4 +1,4 @@
-import { ArithmeticLogicalCommand, Pointer, Segment, StackCommand, TEMP_OFFSET } from "./constants.js";
+import { ArithmeticLogicalCommand, Symbol, Segment, StackCommand, TEMP_OFFSET } from "./constants.js";
 
 export const isEmptyLine = (line: string) => /^\s*$/.test(line);
 
@@ -29,12 +29,12 @@ export const error = (message: string, { lineNumber }: { lineNumber?: number } =
 
 export const toComment = (line: string) => `// ${line}` as const;
 
-export const segmentPointer = (
+export const segmentToSymbol = (
   segment: Extract<Segment, Segment.Argument | Segment.Local | Segment.This | Segment.That>
 ) =>
   ({
-    [Segment.Argument]: Pointer.ARG,
-    [Segment.Local]: Pointer.LCL,
-    [Segment.This]: Pointer.THIS,
-    [Segment.That]: Pointer.THAT,
+    [Segment.Argument]: Symbol.ARG,
+    [Segment.Local]: Symbol.LCL,
+    [Segment.This]: Symbol.THIS,
+    [Segment.That]: Symbol.THAT,
   }[segment]);

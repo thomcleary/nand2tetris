@@ -1,4 +1,4 @@
-import { ArithmeticLogicalCommand, INFINITE_LOOP, Pointer, Segment, StackCommand, TEMP_OFFSET } from "./constants.js";
+import { ArithmeticLogicalCommand, INFINITE_LOOP, Symbol, Segment, StackCommand, TEMP_OFFSET } from "./constants.js";
 import { ArithmeticLogicalInstruction, PopInstruction, PushInstruction, Result, VmInstruction } from "./types.js";
 import {
   error,
@@ -8,7 +8,7 @@ import {
   isSegment,
   isStackCommand,
   isValidIndex,
-  segmentPointer,
+  segmentToSymbol,
   toComment,
 } from "./utils.js";
 
@@ -73,7 +73,7 @@ const pushToAssembly = ({ segment, index }: PushInstruction): readonly string[] 
         // maybe reuse?
         `@${index}`,
         "D=A",
-        `@${segment === Segment.Temp ? TEMP_OFFSET : segmentPointer(segment)}`,
+        `@${segment === Segment.Temp ? TEMP_OFFSET : segmentToSymbol(segment)}`,
         `A=D+${segment === Segment.Temp ? "A" : "M"}`,
         "D=M",
         "@SP",
@@ -102,7 +102,7 @@ const popToAssembly = ({ segment, index }: PopInstruction): readonly string[] =>
       return [
         `@${index}`,
         "D=A",
-        `@${segment === Segment.Temp ? TEMP_OFFSET : segmentPointer(segment)}`,
+        `@${segment === Segment.Temp ? TEMP_OFFSET : segmentToSymbol(segment)}`,
         `D=D+${segment === Segment.Temp ? "A" : "M"}`,
         "@R13",
         "M=D",
@@ -171,7 +171,8 @@ const arithmeticLogicalToAssembly = ({
         "@SP",
         "AM=M-1",
         "D=M-D",
-        `@EQ.TRUE.${identifier}`,
+        // TODO: function to create a label?
+        `@${identifier}.EQ.TRUE`,
         `D;${
           {
             [ArithmeticLogicalCommand.Eq]: "JEQ",
@@ -182,13 +183,13 @@ const arithmeticLogicalToAssembly = ({
         "@SP",
         "A=M",
         "M=0",
-        `@EQ.END.${identifier}`,
+        `@${identifier}.EQ.END`,
         "0;JMP",
-        `(EQ.TRUE.${identifier})`,
+        `(${identifier}.EQ.TRUE)`,
         "@SP",
         "A=M",
         "M=-1",
-        `(EQ.END.${identifier})`,
+        `(${identifier}.EQ.END)`,
         "@SP",
         "M=M+1",
       ];
