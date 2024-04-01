@@ -32,6 +32,9 @@ export enum Pointer {
   ARG = "ARG",
   THIS = "THIS",
   THAT = "THAT",
+  R13 = "R13",
+  R14 = "R14",
+  R15 = "R15",
 }
 
 export const INFINITE_LOOP = ["(END)", "@END", "0;JMP"] as const;

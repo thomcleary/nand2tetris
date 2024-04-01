@@ -33,6 +33,10 @@ const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }>
 
   const indexNum = Number(index);
 
+  if ((segment === Segment.Temp && indexNum < 0) || indexNum > 7) {
+    return { success: false, message: `${Segment.Temp} index must be in range 0-7` };
+  }
+
   if (command === StackCommand.Push) {
     return { success: true, vmInstruction: { command, segment, index: indexNum } };
   }
@@ -47,15 +51,60 @@ const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }>
 // TODO: create helper functions for reused assembly instructions?
 
 const pushToAssembly = ({ segment, index }: PushInstruction): readonly string[] => {
-  if (segment !== Segment.Constant) {
-    throw new Error(`${segment} is not implemented for push operations yet`);
+  switch (segment) {
+    // case Segment.Argument:
+    //   return [];
+    // case Segment.Local:
+    //   return [];
+    // case Segment.Static:
+    //   return [];
+    case Segment.Constant:
+      return [`@${index}`, "D=A", "@SP", "A=M", "M=D", "@SP", "M=M+1"];
+    // case Segment.This:
+    //   return [];
+    // case Segment.That:
+    //   return [];
+    // case Segment.Pointer:
+    //   return [];
+    // case Segment.Temp:
+    //   return [];
+    default:
+      console.error(`${segment} is not implemented for push operations yet`);
+      return [];
   }
-
-  return [`@${index}`, "D=A", "@SP", "A=M", "M=D", "@SP", "M=M+1"];
 };
 
 const popToAssembly = ({ segment, index }: PopInstruction): readonly string[] => {
-  return [];
+  const tempOffset = 5;
+
+  switch (segment) {
+    case Segment.Argument:
+    case Segment.Local:
+    case Segment.This:
+    case Segment.That:
+    case Segment.Temp:
+      return [
+        `@${index}`,
+        "D=A",
+        `@${segment === Segment.Temp ? tempOffset : segment}`,
+        "D=D+M",
+        "@R13",
+        "M=D",
+        "@SP",
+        "AM=M-1",
+        "D=M",
+        "@R13",
+        "A=M",
+        "M=D",
+      ];
+    // case Segment.Static:
+    //   return []
+    // case Segment.Pointer:
+    //   return []
+    default:
+      console.error(`${segment} is not implemented for pop operations yet`);
+      return [];
+  }
 };
 
 const arithmeticLogicalToAssembly = ({

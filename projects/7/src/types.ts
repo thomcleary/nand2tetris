@@ -21,3 +21,5 @@ export type ArithmeticLogicalInstruction = {
 };
 
 export type VmInstruction = PushInstruction | PopInstruction | ArithmeticLogicalInstruction;
+
+// TODO: create an AssemblyInstruction type so that assembly instruction arrays can be strongly typed as AssemblyInstruction[]
