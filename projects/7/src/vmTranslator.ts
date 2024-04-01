@@ -69,11 +69,12 @@ const pushToAssembly = ({ segment, index }: PushInstruction): readonly string[] 
     case Segment.That:
     case Segment.Temp:
       return [
+        // TODO: creating address from segment + index is the same in popToAssembly
+        // maybe reuse?
         `@${index}`,
         "D=A",
-        `@${segmentPointer(segment)}`,
+        `@${segment === Segment.Temp ? TEMP_OFFSET : segmentPointer(segment)}`,
         `A=D+${segment === Segment.Temp ? "A" : "M"}`,
-
         "D=M",
         "@SP",
         "A=M",
@@ -101,7 +102,7 @@ const popToAssembly = ({ segment, index }: PopInstruction): readonly string[] =>
       return [
         `@${index}`,
         "D=A",
-        `@${segmentPointer(segment)}`,
+        `@${segment === Segment.Temp ? TEMP_OFFSET : segmentPointer(segment)}`,
         `D=D+${segment === Segment.Temp ? "A" : "M"}`,
         "@R13",
         "M=D",

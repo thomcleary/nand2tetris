@@ -30,12 +30,11 @@ export const error = (message: string, { lineNumber }: { lineNumber?: number } =
 export const toComment = (line: string) => `// ${line}` as const;
 
 export const segmentPointer = (
-  segment: Extract<Segment, Segment.Argument | Segment.Local | Segment.This | Segment.That | Segment.Temp>
+  segment: Extract<Segment, Segment.Argument | Segment.Local | Segment.This | Segment.That>
 ) =>
   ({
     [Segment.Argument]: Pointer.ARG,
     [Segment.Local]: Pointer.LCL,
     [Segment.This]: Pointer.THIS,
     [Segment.That]: Pointer.THAT,
-    [Segment.Temp]: TEMP_OFFSET,
   }[segment]);
