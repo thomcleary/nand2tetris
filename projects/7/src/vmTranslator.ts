@@ -82,9 +82,9 @@ const pushToAssembly = ({ segment, index }: PushInstruction): readonly string[] 
         "@SP",
         "M=M+1",
       ];
+    case Segment.Pointer:
+      return [`@${index === 0 ? Symbol.THIS : Symbol.THAT}`, "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1"];
     // case Segment.Static:
-    //   return [];
-    // case Segment.Pointer:
     //   return [];
     default:
       console.error(`${segment} is not implemented for push operations yet`);
@@ -113,9 +113,9 @@ const popToAssembly = ({ segment, index }: PopInstruction): readonly string[] =>
         "A=M",
         "M=D",
       ];
+    case Segment.Pointer:
+      return ["@SP", "AM=M-1", "D=M", `@${index === 0 ? Symbol.THIS : Symbol.THAT}`, "M=D"];
     // case Segment.Static:
-    //   return []
-    // case Segment.Pointer:
     //   return []
     default:
       console.error(`${segment} is not implemented for pop operations yet`);
