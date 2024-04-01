@@ -1,5 +1,4 @@
-import { readFileSync, writeFileSync } from "fs";
-import { ArithmeticLogicalCommand, INFINITE_LOOP, Pointer, Segment, StackCommand } from "./constants.js";
+import { ArithmeticLogicalCommand, INFINITE_LOOP, Segment, StackCommand } from "./constants.js";
 import { ArithmeticLogicalInstruction, PopInstruction, PushInstruction, Result, VmInstruction } from "./types.js";
 import {
   error,
@@ -11,38 +10,6 @@ import {
   isValidIndex,
   toComment,
 } from "./utils.js";
-
-const getVmFilePath = (): Result<{ filePath: string }> => {
-  const filePath = process.argv[2];
-
-  if (!filePath) {
-    return {
-      success: false,
-      message: error("missing program file path" + "\n" + "usage: pnpm vmTranslator ./path/to/Program.vm"),
-    };
-  }
-
-  if (!filePath.endsWith(".vm")) {
-    return { success: false, message: error(`file type of ${filePath} is not .vm`) };
-  }
-
-  return { success: true, filePath };
-};
-
-const getVmProgram = (filePath: string): Result<{ vmProgram: readonly string[] }> => {
-  try {
-    return {
-      success: true,
-      vmProgram: readFileSync(filePath)
-        .toString()
-        .trim()
-        .split("\n")
-        .map((line) => line.trim()),
-    };
-  } catch {
-    return { success: false, message: error(`unable to read file ${filePath}`) };
-  }
-};
 
 const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }> => {
   const instructionParts = line.split(/\s+/);
@@ -77,32 +44,36 @@ const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }>
   return { success: true, vmInstruction: { command, segment, index: indexNum } };
 };
 
-export const aInstruction = (address: Pointer | number) => `@${address}` as const;
-const decrementPointer = (pointer: Pointer) => [aInstruction(pointer), "AM=M-1"] as const;
-const incrementPointer = (pointer: Pointer) => [aInstruction(pointer), "M=M+1"] as const;
-
-const pushToAssembly = ({ command, segment, index }: PushInstruction): readonly string[] => {
+const pushToAssembly = ({ segment, index }: PushInstruction): readonly string[] => {
   if (segment !== Segment.Constant) {
     throw new Error(`${segment} is not implemented for push operations yet`);
   }
 
-  return [aInstruction(index), "D=A", aInstruction(Pointer.SP), "A=M", "M=D", ...incrementPointer(Pointer.SP)];
+  return [`@${index}`, "D=A", "@SP", "A=M", "M=D", "@SP", "M=M+1"];
 };
 
-const popToAssembly = ({ command, segment, index }: PopInstruction): readonly string[] => {
+const popToAssembly = ({ segment, index }: PopInstruction): readonly string[] => {
   return [];
 };
 
-const arithmeticLogicalToAssembly = ({ command }: ArithmeticLogicalInstruction): readonly string[] => {
+const arithmeticLogicalToAssembly = ({
+  command,
+  fileName,
+  lineNumber,
+}: ArithmeticLogicalInstruction & { fileName: string; lineNumber: number }): readonly string[] => {
+  const identifier = `${fileName}.${lineNumber}`;
+
   switch (command) {
     case ArithmeticLogicalCommand.Add:
     case ArithmeticLogicalCommand.Sub:
     case ArithmeticLogicalCommand.Or:
     case ArithmeticLogicalCommand.And:
       return [
-        ...decrementPointer(Pointer.SP),
+        "@SP",
+        "AM=M-1",
         "D=M",
-        ...decrementPointer(Pointer.SP),
+        "@SP",
+        "AM=M-1",
         `M=M${
           {
             [ArithmeticLogicalCommand.Add]: "+",
@@ -111,41 +82,77 @@ const arithmeticLogicalToAssembly = ({ command }: ArithmeticLogicalInstruction):
             [ArithmeticLogicalCommand.Or]: "|",
           }[command]
         }D`,
-        ...incrementPointer(Pointer.SP),
+        "@SP",
+        "M=M+1",
       ];
     case ArithmeticLogicalCommand.Neg:
     case ArithmeticLogicalCommand.Not:
       return [
-        ...decrementPointer(Pointer.SP),
+        "@SP",
+        "AM=M-1",
         `M=${{ [ArithmeticLogicalCommand.Neg]: "-", [ArithmeticLogicalCommand.Not]: "!" }[command]}M`,
-        ...incrementPointer(Pointer.SP),
+        "@SP",
+        "M=M+1",
       ];
-    // case ArithmeticLogicalCommand.Eq:
-    //   TODO: will need to dynamically generate labels for jumping to assign M to true(-1) and false(0)
-    //         as using this command multiple times in a program would otherwise cause multiple of the same
-    //         label to be created
-    //   return [];
+    case ArithmeticLogicalCommand.Eq:
+      return [
+        "@SP",
+        "AM=M-1",
+        "D=M",
+        "@SP",
+        "AM=M-1",
+        "D=M-D",
+        `@EQ.TRUE.${identifier}`,
+        "D;JEQ",
+        "@SP",
+        "A=M",
+        "M=0",
+        `@EQ.END.${identifier}`,
+        "0;JMP",
+        `(EQ.TRUE.${identifier})`,
+        "@SP",
+        "A=M",
+        "M=-1",
+        `(EQ.END.${identifier})`,
+        "@SP",
+        "M=M+1",
+      ];
     // case ArithmeticLogicalCommand.Gt:
     //   return [];
     // case ArithmeticLogicalCommand.Lt:
     //   return [];
     default:
-      throw new Error(`${command} not implemented`);
+      console.error(`${command} not implemented`);
+      return [];
   }
 };
 
-const toAssembly = (vmInstruction: VmInstruction): readonly string[] => {
+const toAssembly = ({
+  vmInstruction,
+  fileName,
+  lineNumber,
+}: {
+  vmInstruction: VmInstruction;
+  fileName: string;
+  lineNumber: number;
+}): readonly string[] => {
   switch (vmInstruction.command) {
     case StackCommand.Push:
       return pushToAssembly(vmInstruction);
     case StackCommand.Pop:
       return popToAssembly(vmInstruction);
     default:
-      return arithmeticLogicalToAssembly(vmInstruction);
+      return arithmeticLogicalToAssembly({ ...vmInstruction, fileName, lineNumber });
   }
 };
 
-const translate = (vmProgram: readonly string[]): Result<{ assemblyInstructions: readonly string[] }> => {
+export const translate = ({
+  vmProgram,
+  fileName,
+}: {
+  vmProgram: readonly string[];
+  fileName: string;
+}): Result<{ assemblyInstructions: readonly string[] }> => {
   const assemblyInstructions: string[] = [];
 
   for (const [i, line] of vmProgram.entries()) {
@@ -163,45 +170,10 @@ const translate = (vmProgram: readonly string[]): Result<{ assemblyInstructions:
     const { vmInstruction } = vmInstructionResult;
 
     assemblyInstructions.push(toComment(line));
-    assemblyInstructions.push(...toAssembly(vmInstruction));
+    assemblyInstructions.push(...toAssembly({ vmInstruction, fileName, lineNumber }));
   }
 
   assemblyInstructions.push(...INFINITE_LOOP);
 
   return { success: true, assemblyInstructions };
 };
-
-const main = () => {
-  const vmFilePathResult = getVmFilePath();
-
-  if (!vmFilePathResult.success) {
-    console.log(vmFilePathResult.message);
-    return;
-  }
-
-  const { filePath } = vmFilePathResult;
-  const vmProgramResult = getVmProgram(filePath);
-
-  if (!vmProgramResult.success) {
-    console.log(vmProgramResult.message);
-    return;
-  }
-
-  const translateResult = translate(vmProgramResult.vmProgram);
-
-  if (!translateResult.success) {
-    console.log(translateResult.message);
-    return;
-  }
-
-  const { assemblyInstructions } = translateResult;
-  const assemblyFileName = filePath.replace(".vm", ".asm");
-
-  try {
-    writeFileSync(assemblyFileName, assemblyInstructions.join("\n"));
-  } catch {
-    console.log(error(`unable to write assembly instructions to file ${assemblyFileName}`));
-  }
-};
-
-main();
