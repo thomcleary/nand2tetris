@@ -59,9 +59,11 @@ const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }>
 };
 
 const pushToAssembly = ({ segment, index, fileName }: PushInstruction & { fileName: string }): readonly string[] => {
+  const push = ["@SP", "A=M", "M=D", "@SP", "M=M+1"] as const;
+
   switch (segment) {
     case Segment.Constant:
-      return [`@${index}`, "D=A", "@SP", "A=M", "M=D", "@SP", "M=M+1"];
+      return [`@${index}`, "D=A", ...push];
     case Segment.Argument:
     case Segment.Local:
     case Segment.This:
@@ -73,16 +75,12 @@ const pushToAssembly = ({ segment, index, fileName }: PushInstruction & { fileNa
         `@${segment === Segment.Temp ? TEMP_OFFSET : segmentToSymbol(segment)}`,
         `A=D+${segment === Segment.Temp ? "A" : "M"}`,
         "D=M",
-        "@SP",
-        "A=M",
-        "M=D",
-        "@SP",
-        "M=M+1",
+        ...push,
       ];
     case Segment.Pointer:
-      return [`@${index === 0 ? Symbol.THIS : Symbol.THAT}`, "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1"];
+      return [`@${index === 0 ? Symbol.THIS : Symbol.THAT}`, "D=M", ...push];
     case Segment.Static:
-      return [`@${toVariableSymbol({ fileName, index })}`, "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1"];
+      return [`@${toVariableSymbol({ fileName, index })}`, "D=M", ...push];
   }
 };
 
