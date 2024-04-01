@@ -34,7 +34,7 @@ type OpPermutations<R extends Register, RUnion extends Register = R> = R extends
 
 type Register = "A" | "D" | "M";
 
-type Dest = Enumerate<"A" | "D" | "M">;
+type Dest = Enumerate<Register>;
 type Comp =
   | "0"
   | "1"
