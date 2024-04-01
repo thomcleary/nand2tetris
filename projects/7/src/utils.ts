@@ -1,4 +1,4 @@
-import { ArithmeticLogicalCommand, Pointer, Segment, StackCommand } from "./constants.js";
+import { ArithmeticLogicalCommand, Pointer, Segment, StackCommand, TEMP_OFFSET } from "./constants.js";
 
 export const isEmptyLine = (line: string) => /^\s*$/.test(line);
 
@@ -21,10 +21,21 @@ export const isSegment = (segment: string): segment is Segment => {
 
 export const isValidIndex = (index: string): boolean => {
   const indexNum = Number(index);
-  return !isNaN(indexNum) && indexNum > 0;
+  return !isNaN(indexNum) && indexNum >= 0;
 };
 
 export const error = (message: string, { lineNumber }: { lineNumber?: number } = {}) =>
   `error ${lineNumber !== undefined ? `(L${lineNumber}):` : ":"} ${message}`;
 
 export const toComment = (line: string) => `// ${line}` as const;
+
+export const segmentPointer = (
+  segment: Extract<Segment, Segment.Argument | Segment.Local | Segment.This | Segment.That | Segment.Temp>
+) =>
+  ({
+    [Segment.Argument]: Pointer.ARG,
+    [Segment.Local]: Pointer.LCL,
+    [Segment.This]: Pointer.THIS,
+    [Segment.That]: Pointer.THAT,
+    [Segment.Temp]: TEMP_OFFSET,
+  }[segment]);

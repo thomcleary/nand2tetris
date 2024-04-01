@@ -1,4 +1,4 @@
-import { ArithmeticLogicalCommand, INFINITE_LOOP, Segment, StackCommand } from "./constants.js";
+import { ArithmeticLogicalCommand, INFINITE_LOOP, Pointer, Segment, StackCommand, TEMP_OFFSET } from "./constants.js";
 import { ArithmeticLogicalInstruction, PopInstruction, PushInstruction, Result, VmInstruction } from "./types.js";
 import {
   error,
@@ -8,6 +8,7 @@ import {
   isSegment,
   isStackCommand,
   isValidIndex,
+  segmentPointer,
   toComment,
 } from "./utils.js";
 
@@ -15,7 +16,7 @@ const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }>
   const instructionParts = line.split(/\s+/);
 
   if (!(instructionParts.length === 3 || instructionParts.length === 1)) {
-    return { success: false, message: `${line} is not a valid VM instruction` };
+    return { success: false, message: `${line} is not a valid VM instruction (too many parts)` };
   }
 
   if (instructionParts.length === 1) {
@@ -27,13 +28,20 @@ const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }>
 
   const [command, segment, index] = instructionParts;
 
-  if (!command || !segment || !index || !isStackCommand(command) || !isSegment(segment) || !isValidIndex(index)) {
-    return { success: false, message: `${line} is not a valid VM instruction` };
+  if (
+    !command ||
+    !segment ||
+    index === undefined ||
+    !isStackCommand(command) ||
+    !isSegment(segment) ||
+    !isValidIndex(index)
+  ) {
+    return { success: false, message: `${line} is not a valid VM instruction (invalid command/segment/index)` };
   }
 
   const indexNum = Number(index);
 
-  if ((segment === Segment.Temp && indexNum < 0) || indexNum > 7) {
+  if (segment === Segment.Temp && (indexNum < 0 || indexNum > 7)) {
     return { success: false, message: `${Segment.Temp} index must be in range 0-7` };
   }
 
@@ -49,24 +57,33 @@ const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }>
 };
 
 // TODO: create helper functions for reused assembly instructions?
+// or just make a cool type to check the commands are valid?
 
 const pushToAssembly = ({ segment, index }: PushInstruction): readonly string[] => {
   switch (segment) {
-    // case Segment.Argument:
-    //   return [];
-    // case Segment.Local:
-    //   return [];
-    // case Segment.Static:
-    //   return [];
     case Segment.Constant:
       return [`@${index}`, "D=A", "@SP", "A=M", "M=D", "@SP", "M=M+1"];
-    // case Segment.This:
-    //   return [];
-    // case Segment.That:
+    case Segment.Argument:
+    case Segment.Local:
+    case Segment.This:
+    case Segment.That:
+    case Segment.Temp:
+      return [
+        `@${index}`,
+        "D=A",
+        `@${segmentPointer(segment)}`,
+        `A=D+${segment === Segment.Temp ? "A" : "M"}`,
+
+        "D=M",
+        "@SP",
+        "A=M",
+        "M=D",
+        "@SP",
+        "M=M+1",
+      ];
+    // case Segment.Static:
     //   return [];
     // case Segment.Pointer:
-    //   return [];
-    // case Segment.Temp:
     //   return [];
     default:
       console.error(`${segment} is not implemented for push operations yet`);
@@ -75,8 +92,6 @@ const pushToAssembly = ({ segment, index }: PushInstruction): readonly string[] 
 };
 
 const popToAssembly = ({ segment, index }: PopInstruction): readonly string[] => {
-  const tempOffset = 5;
-
   switch (segment) {
     case Segment.Argument:
     case Segment.Local:
@@ -86,8 +101,8 @@ const popToAssembly = ({ segment, index }: PopInstruction): readonly string[] =>
       return [
         `@${index}`,
         "D=A",
-        `@${segment === Segment.Temp ? tempOffset : segment}`,
-        "D=D+M",
+        `@${segmentPointer(segment)}`,
+        `D=D+${segment === Segment.Temp ? "A" : "M"}`,
         "@R13",
         "M=D",
         "@SP",

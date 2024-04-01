@@ -37,4 +37,6 @@ export enum Pointer {
   R15 = "R15",
 }
 
+export const TEMP_OFFSET = 5;
+
 export const INFINITE_LOOP = ["(END)", "@END", "0;JMP"] as const;
