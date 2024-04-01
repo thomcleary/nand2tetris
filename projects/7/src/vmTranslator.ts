@@ -44,6 +44,8 @@ const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }>
   return { success: true, vmInstruction: { command, segment, index: indexNum } };
 };
 
+// TODO: create helper functions for reused assembly instructions?
+
 const pushToAssembly = ({ segment, index }: PushInstruction): readonly string[] => {
   if (segment !== Segment.Constant) {
     throw new Error(`${segment} is not implemented for push operations yet`);
@@ -95,6 +97,8 @@ const arithmeticLogicalToAssembly = ({
         "M=M+1",
       ];
     case ArithmeticLogicalCommand.Eq:
+    case ArithmeticLogicalCommand.Gt:
+    case ArithmeticLogicalCommand.Lt:
       return [
         "@SP",
         "AM=M-1",
@@ -103,7 +107,13 @@ const arithmeticLogicalToAssembly = ({
         "AM=M-1",
         "D=M-D",
         `@EQ.TRUE.${identifier}`,
-        "D;JEQ",
+        `D;${
+          {
+            [ArithmeticLogicalCommand.Eq]: "JEQ",
+            [ArithmeticLogicalCommand.Gt]: "JGT",
+            [ArithmeticLogicalCommand.Lt]: "JLT",
+          }[command]
+        }`,
         "@SP",
         "A=M",
         "M=0",
@@ -117,13 +127,6 @@ const arithmeticLogicalToAssembly = ({
         "@SP",
         "M=M+1",
       ];
-    // case ArithmeticLogicalCommand.Gt:
-    //   return [];
-    // case ArithmeticLogicalCommand.Lt:
-    //   return [];
-    default:
-      console.error(`${command} not implemented`);
-      return [];
   }
 };
 
