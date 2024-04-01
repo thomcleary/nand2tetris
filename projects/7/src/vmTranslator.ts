@@ -10,6 +10,8 @@ import {
   isValidIndex,
   segmentToSymbol,
   toComment,
+  toLabel,
+  toVariableSymbol,
 } from "./utils.js";
 
 const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }> => {
@@ -56,9 +58,6 @@ const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }>
   return { success: true, vmInstruction: { command, segment, index: indexNum } };
 };
 
-// TODO: create helper functions for reused assembly instructions?
-// or just make a cool type to check the commands are valid?
-
 const pushToAssembly = ({ segment, index, fileName }: PushInstruction & { fileName: string }): readonly string[] => {
   switch (segment) {
     case Segment.Constant:
@@ -69,8 +68,6 @@ const pushToAssembly = ({ segment, index, fileName }: PushInstruction & { fileNa
     case Segment.That:
     case Segment.Temp:
       return [
-        // TODO: creating address from segment + index is the same in popToAssembly
-        // maybe reuse?
         `@${index}`,
         "D=A",
         `@${segment === Segment.Temp ? TEMP_OFFSET : segmentToSymbol(segment)}`,
@@ -85,7 +82,7 @@ const pushToAssembly = ({ segment, index, fileName }: PushInstruction & { fileNa
     case Segment.Pointer:
       return [`@${index === 0 ? Symbol.THIS : Symbol.THAT}`, "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1"];
     case Segment.Static:
-      return [`@${fileName}.STATIC.${index}`, "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1"];
+      return [`@${toVariableSymbol({ fileName, index })}`, "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1"];
   }
 };
 
@@ -113,7 +110,7 @@ const popToAssembly = ({ segment, index, fileName }: PopInstruction & { fileName
     case Segment.Pointer:
       return ["@SP", "AM=M-1", "D=M", `@${index === 0 ? Symbol.THIS : Symbol.THAT}`, "M=D"];
     case Segment.Static:
-      return ["@SP", "AM=M-1", "D=M", `@${fileName}.STATIC.${index}`, "M=D"];
+      return ["@SP", "AM=M-1", "D=M", `@${toVariableSymbol({ fileName, index })}`, "M=D"];
   }
 };
 
@@ -158,6 +155,8 @@ const arithmeticLogicalToAssembly = ({
     case ArithmeticLogicalCommand.Eq:
     case ArithmeticLogicalCommand.Gt:
     case ArithmeticLogicalCommand.Lt:
+      const trueLabel = toLabel(labelPrefix, command, "TRUE");
+      const endLabel = toLabel(labelPrefix, command, "END");
       return [
         "@SP",
         "AM=M-1",
@@ -165,8 +164,7 @@ const arithmeticLogicalToAssembly = ({
         "@SP",
         "AM=M-1",
         "D=M-D",
-        // TODO: function to create a label?
-        `@${labelPrefix}.EQ.TRUE`,
+        `@${trueLabel}`,
         `D;${
           {
             [ArithmeticLogicalCommand.Eq]: "JEQ",
@@ -177,13 +175,13 @@ const arithmeticLogicalToAssembly = ({
         "@SP",
         "A=M",
         "M=0",
-        `@${labelPrefix}.EQ.END`,
+        `@${endLabel}`,
         "0;JMP",
-        `(${labelPrefix}.EQ.TRUE)`,
+        `(${trueLabel})`,
         "@SP",
         "A=M",
         "M=-1",
-        `(${labelPrefix}.EQ.END)`,
+        `(${endLabel})`,
         "@SP",
         "M=M+1",
       ];

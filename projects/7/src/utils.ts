@@ -32,9 +32,17 @@ export const toComment = (line: string) => `// ${line}` as const;
 export const segmentToSymbol = (
   segment: Extract<Segment, Segment.Argument | Segment.Local | Segment.This | Segment.That>
 ) =>
-  ({
-    [Segment.Argument]: Symbol.ARG,
-    [Segment.Local]: Symbol.LCL,
-    [Segment.This]: Symbol.THIS,
-    [Segment.That]: Symbol.THAT,
-  }[segment]);
+  ((
+    {
+      [Segment.Argument]: Symbol.ARG,
+      [Segment.Local]: Symbol.LCL,
+      [Segment.This]: Symbol.THIS,
+      [Segment.That]: Symbol.THAT,
+    } as const
+  )[segment]);
+
+export const toVariableSymbol = ({ fileName, index }: { fileName: string; index: number }) =>
+  `${fileName}.STATIC.${index}` as const;
+
+export const toLabel = (identifier: string, part: string, ...parts: string[]) =>
+  `${identifier}.${part}${(parts ?? []).map((p) => `.${p}`).join("")}` as const;
