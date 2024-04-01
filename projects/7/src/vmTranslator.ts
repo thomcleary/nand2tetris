@@ -59,7 +59,7 @@ const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }>
 // TODO: create helper functions for reused assembly instructions?
 // or just make a cool type to check the commands are valid?
 
-const pushToAssembly = ({ segment, index }: PushInstruction): readonly string[] => {
+const pushToAssembly = ({ segment, index, fileName }: PushInstruction & { fileName: string }): readonly string[] => {
   switch (segment) {
     case Segment.Constant:
       return [`@${index}`, "D=A", "@SP", "A=M", "M=D", "@SP", "M=M+1"];
@@ -84,15 +84,12 @@ const pushToAssembly = ({ segment, index }: PushInstruction): readonly string[] 
       ];
     case Segment.Pointer:
       return [`@${index === 0 ? Symbol.THIS : Symbol.THAT}`, "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1"];
-    // case Segment.Static:
-    //   return [];
-    default:
-      console.error(`${segment} is not implemented for push operations yet`);
-      return [];
+    case Segment.Static:
+      return [`@${fileName}.STATIC.${index}`, "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1"];
   }
 };
 
-const popToAssembly = ({ segment, index }: PopInstruction): readonly string[] => {
+const popToAssembly = ({ segment, index, fileName }: PopInstruction & { fileName: string }): readonly string[] => {
   switch (segment) {
     case Segment.Argument:
     case Segment.Local:
@@ -115,11 +112,8 @@ const popToAssembly = ({ segment, index }: PopInstruction): readonly string[] =>
       ];
     case Segment.Pointer:
       return ["@SP", "AM=M-1", "D=M", `@${index === 0 ? Symbol.THIS : Symbol.THAT}`, "M=D"];
-    // case Segment.Static:
-    //   return []
-    default:
-      console.error(`${segment} is not implemented for pop operations yet`);
-      return [];
+    case Segment.Static:
+      return ["@SP", "AM=M-1", "D=M", `@${fileName}.STATIC.${index}`, "M=D"];
   }
 };
 
@@ -128,7 +122,7 @@ const arithmeticLogicalToAssembly = ({
   fileName,
   lineNumber,
 }: ArithmeticLogicalInstruction & { fileName: string; lineNumber: number }): readonly string[] => {
-  const identifier = `${fileName}.${lineNumber}`;
+  const labelPrefix = `${fileName}.${lineNumber}`;
 
   switch (command) {
     case ArithmeticLogicalCommand.Add:
@@ -172,7 +166,7 @@ const arithmeticLogicalToAssembly = ({
         "AM=M-1",
         "D=M-D",
         // TODO: function to create a label?
-        `@${identifier}.EQ.TRUE`,
+        `@${labelPrefix}.EQ.TRUE`,
         `D;${
           {
             [ArithmeticLogicalCommand.Eq]: "JEQ",
@@ -183,35 +177,27 @@ const arithmeticLogicalToAssembly = ({
         "@SP",
         "A=M",
         "M=0",
-        `@${identifier}.EQ.END`,
+        `@${labelPrefix}.EQ.END`,
         "0;JMP",
-        `(${identifier}.EQ.TRUE)`,
+        `(${labelPrefix}.EQ.TRUE)`,
         "@SP",
         "A=M",
         "M=-1",
-        `(${identifier}.EQ.END)`,
+        `(${labelPrefix}.EQ.END)`,
         "@SP",
         "M=M+1",
       ];
   }
 };
 
-const toAssembly = ({
-  vmInstruction,
-  fileName,
-  lineNumber,
-}: {
-  vmInstruction: VmInstruction;
-  fileName: string;
-  lineNumber: number;
-}): readonly string[] => {
-  switch (vmInstruction.command) {
+const toAssembly = (args: VmInstruction & { fileName: string; lineNumber: number }): readonly string[] => {
+  switch (args.command) {
     case StackCommand.Push:
-      return pushToAssembly(vmInstruction);
+      return pushToAssembly(args);
     case StackCommand.Pop:
-      return popToAssembly(vmInstruction);
+      return popToAssembly(args);
     default:
-      return arithmeticLogicalToAssembly({ ...vmInstruction, fileName, lineNumber });
+      return arithmeticLogicalToAssembly(args);
   }
 };
 
@@ -239,9 +225,10 @@ export const translate = ({
     const { vmInstruction } = vmInstructionResult;
 
     assemblyInstructions.push(toComment(line));
-    assemblyInstructions.push(...toAssembly({ vmInstruction, fileName, lineNumber }));
+    assemblyInstructions.push(...toAssembly({ ...vmInstruction, fileName, lineNumber }));
   }
 
+  assemblyInstructions.push(toComment("end program with infinite loop"));
   assemblyInstructions.push(...INFINITE_LOOP);
 
   return { success: true, assemblyInstructions };
