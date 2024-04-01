@@ -1,5 +1,12 @@
 import { ArithmeticLogicalCommand, INFINITE_LOOP, Symbol, Segment, StackCommand, TEMP_OFFSET } from "./constants.js";
-import { ArithmeticLogicalInstruction, PopInstruction, PushInstruction, Result, VmInstruction } from "./types.js";
+import {
+  ArithmeticLogicalInstruction,
+  AssemblyInstruction,
+  PopInstruction,
+  PushInstruction,
+  Result,
+  VmInstruction,
+} from "./types.js";
 import {
   error,
   isArithemticLogicalCommand,
@@ -58,8 +65,12 @@ const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }>
   return { success: true, vmInstruction: { command, segment, index: indexNum } };
 };
 
-const pushToAssembly = ({ segment, index, fileName }: PushInstruction & { fileName: string }): readonly string[] => {
-  const push = ["@SP", "A=M", "M=D", "@SP", "M=M+1"] as const;
+const pushToAssembly = ({
+  segment,
+  index,
+  fileName,
+}: PushInstruction & { fileName: string }): readonly AssemblyInstruction[] => {
+  const push = ["@SP", "A=M", "M=D", "@SP", "M=M+1"] as const satisfies AssemblyInstruction[];
 
   switch (segment) {
     case Segment.Constant:
@@ -84,7 +95,11 @@ const pushToAssembly = ({ segment, index, fileName }: PushInstruction & { fileNa
   }
 };
 
-const popToAssembly = ({ segment, index, fileName }: PopInstruction & { fileName: string }): readonly string[] => {
+const popToAssembly = ({
+  segment,
+  index,
+  fileName,
+}: PopInstruction & { fileName: string }): readonly AssemblyInstruction[] => {
   switch (segment) {
     case Segment.Argument:
     case Segment.Local:
@@ -116,7 +131,7 @@ const arithmeticLogicalToAssembly = ({
   command,
   fileName,
   lineNumber,
-}: ArithmeticLogicalInstruction & { fileName: string; lineNumber: number }): readonly string[] => {
+}: ArithmeticLogicalInstruction & { fileName: string; lineNumber: number }): readonly AssemblyInstruction[] => {
   const labelPrefix = `${fileName}.${lineNumber}`;
 
   switch (command) {
@@ -131,12 +146,14 @@ const arithmeticLogicalToAssembly = ({
         "@SP",
         "AM=M-1",
         `M=M${
-          {
-            [ArithmeticLogicalCommand.Add]: "+",
-            [ArithmeticLogicalCommand.Sub]: "-",
-            [ArithmeticLogicalCommand.And]: "&",
-            [ArithmeticLogicalCommand.Or]: "|",
-          }[command]
+          (
+            {
+              [ArithmeticLogicalCommand.Add]: "+",
+              [ArithmeticLogicalCommand.Sub]: "-",
+              [ArithmeticLogicalCommand.And]: "&",
+              [ArithmeticLogicalCommand.Or]: "|",
+            } as const
+          )[command]
         }D`,
         "@SP",
         "M=M+1",
@@ -146,7 +163,7 @@ const arithmeticLogicalToAssembly = ({
       return [
         "@SP",
         "AM=M-1",
-        `M=${{ [ArithmeticLogicalCommand.Neg]: "-", [ArithmeticLogicalCommand.Not]: "!" }[command]}M`,
+        `M=${({ [ArithmeticLogicalCommand.Neg]: "-", [ArithmeticLogicalCommand.Not]: "!" } as const)[command]}M`,
         "@SP",
         "M=M+1",
       ];
@@ -164,11 +181,13 @@ const arithmeticLogicalToAssembly = ({
         "D=M-D",
         `@${trueLabel}`,
         `D;${
-          {
-            [ArithmeticLogicalCommand.Eq]: "JEQ",
-            [ArithmeticLogicalCommand.Gt]: "JGT",
-            [ArithmeticLogicalCommand.Lt]: "JLT",
-          }[command]
+          (
+            {
+              [ArithmeticLogicalCommand.Eq]: "JEQ",
+              [ArithmeticLogicalCommand.Gt]: "JGT",
+              [ArithmeticLogicalCommand.Lt]: "JLT",
+            } as const
+          )[command]
         }`,
         "@SP",
         "A=M",
@@ -186,7 +205,7 @@ const arithmeticLogicalToAssembly = ({
   }
 };
 
-const toAssembly = (args: VmInstruction & { fileName: string; lineNumber: number }): readonly string[] => {
+const toAssembly = (args: VmInstruction & { fileName: string; lineNumber: number }): readonly AssemblyInstruction[] => {
   switch (args.command) {
     case StackCommand.Push:
       return pushToAssembly(args);
@@ -203,8 +222,8 @@ export const translate = ({
 }: {
   vmProgram: readonly string[];
   fileName: string;
-}): Result<{ assemblyInstructions: readonly string[] }> => {
-  const assemblyInstructions: string[] = [];
+}): Result<{ assemblyInstructions: readonly AssemblyInstruction[] }> => {
+  const assemblyInstructions: AssemblyInstruction[] = [];
 
   for (const [i, line] of vmProgram.entries()) {
     if (isEmptyLine(line) || isComment(line)) {
