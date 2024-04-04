@@ -45,8 +45,8 @@ export const arithmeticLogicalToAssembly = ({
     case ArithmeticLogicalCommand.Eq:
     case ArithmeticLogicalCommand.Gt:
     case ArithmeticLogicalCommand.Lt:
-      const trueLabel = toLabel(labelPrefix, command, "TRUE");
-      const endLabel = toLabel(labelPrefix, command, "END");
+      const trueLabel = toLabel({ fileName, label: `${command}TRUE`, lineNumber });
+      const endLabel = toLabel({ fileName, label: `${command}END`, lineNumber });
       return [
         "@SP",
         "AM=M-1",

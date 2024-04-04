@@ -49,5 +49,17 @@ export const segmentToSymbol = (
 export const toVariableSymbol = ({ fileName, index }: { fileName: string; index: number }) =>
   `${fileName}.STATIC.${index}` as const;
 
-export const toLabel = (identifier: string, part: string, ...parts: string[]) =>
-  `${identifier}.${part}${(parts ?? []).map((p) => `.${p}`).join("")}` as const;
+export const toLabel = ({
+  fileName,
+  label,
+  functionName,
+  lineNumber,
+}: {
+  fileName: string;
+  label: string;
+  functionName?: string;
+  lineNumber?: number;
+}) =>
+  `${fileName}${functionName ? `.${functionName}` : ""}$${label}${
+    lineNumber !== undefined ? `$L${lineNumber}` : ""
+  }` as const;
