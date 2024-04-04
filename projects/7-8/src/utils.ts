@@ -1,4 +1,4 @@
-import { ArithmeticLogicalCommand, Symbol, Segment, StackCommand, TEMP_OFFSET } from "./constants.js";
+import { ArithmeticLogicalCommand, Symbol, Segment, StackCommand, TEMP_OFFSET, BranchCommand } from "./constants.js";
 
 export const isEmptyLine = (line: string) => /^\s*$/.test(line);
 
@@ -11,6 +11,11 @@ export const isArithemticLogicalCommand = (command: string): command is Arithmet
 
 export const isStackCommand = (command: string): command is StackCommand => {
   const validCommands: string[] = Object.values(StackCommand);
+  return validCommands.includes(command);
+};
+
+export const isBranchCommand = (command: string): command is BranchCommand => {
+  const validCommands: string[] = Object.values(BranchCommand);
   return validCommands.includes(command);
 };
 

@@ -8,7 +8,7 @@
 // initialized by the caller of this code.
 
 	push constant 0    
-	pop local 0         // sum = 0
+	pop local 0         //sum = 0
 label LOOP
 	push argument 0     
 	push local 0

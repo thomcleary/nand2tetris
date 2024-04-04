@@ -1,4 +1,4 @@
-import { ArithmeticLogicalCommand, Segment, StackCommand } from "./constants.js";
+import { ArithmeticLogicalCommand, BranchCommand, Segment, StackCommand } from "./constants.js";
 
 export type Result<T extends Record<PropertyKey, unknown>> =
   | ({ success: true } & T)
@@ -20,7 +20,12 @@ export type ArithmeticLogicalInstruction = {
   command: ArithmeticLogicalCommand;
 };
 
-export type VmInstruction = PushInstruction | PopInstruction | ArithmeticLogicalInstruction;
+export type BranchInstruction = {
+  command: BranchCommand;
+  label: string;
+};
+
+export type VmInstruction = PushInstruction | PopInstruction | ArithmeticLogicalInstruction | BranchInstruction;
 
 type Enumerate<T extends string, TUnion extends string = T> = [T] extends [never]
   ? T

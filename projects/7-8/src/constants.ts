@@ -17,6 +17,13 @@ export enum ArithmeticLogicalCommand {
   Not = "not",
 }
 
+export enum BranchCommand {
+  Label = "label",
+  // TODO: Implement goto for FibonacciSeries test
+  // Goto = "goto",
+  IfGoto = "if-goto",
+}
+
 export enum Segment {
   Argument = "argument",
   Local = "local",
