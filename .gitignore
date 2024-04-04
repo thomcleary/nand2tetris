@@ -2,8 +2,7 @@
 **/node_modules
 
 projects/6/programs/*.hack
-projects/7/**/*.asm
-projects/8
+projects/7-8/**/*.asm
 projects/9
 projects/10
 projects/11
