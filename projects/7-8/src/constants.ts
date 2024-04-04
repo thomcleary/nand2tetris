@@ -19,8 +19,7 @@ export enum ArithmeticLogicalCommand {
 
 export enum BranchCommand {
   Label = "label",
-  // TODO: Implement goto for FibonacciSeries test
-  // Goto = "goto",
+  Goto = "goto",
   IfGoto = "if-goto",
 }
 

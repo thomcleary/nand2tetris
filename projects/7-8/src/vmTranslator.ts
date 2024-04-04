@@ -1,5 +1,5 @@
 import { arithmeticLogicalToAssembly } from "./arithmeticLogicalCommands.js";
-import { ifGotoToAssembly, labelToAssembly } from "./branchCommands.js";
+import { gotoToAssembly, labelToAssembly } from "./branchCommands.js";
 import { BranchCommand, INFINITE_LOOP, Segment, StackCommand } from "./constants.js";
 import { popToAssembly, pushToAssembly } from "./stackCommands.js";
 import { AssemblyInstruction, Result, VmInstruction } from "./types.js";
@@ -79,9 +79,9 @@ const toAssembly = (args: VmInstruction & { fileName: string; lineNumber: number
       return popToAssembly(args);
     case BranchCommand.Label:
       return labelToAssembly(args);
-    // case BranchCommand.Goto:
+    case BranchCommand.Goto:
     case BranchCommand.IfGoto:
-      return ifGotoToAssembly(args);
+      return gotoToAssembly(args);
     default:
       return arithmeticLogicalToAssembly(args);
   }

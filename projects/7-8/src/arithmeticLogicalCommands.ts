@@ -7,8 +7,6 @@ export const arithmeticLogicalToAssembly = ({
   fileName,
   lineNumber,
 }: ArithmeticLogicalInstruction & { fileName: string; lineNumber: number }): readonly AssemblyInstruction[] => {
-  const labelPrefix = `${fileName}.${lineNumber}`;
-
   switch (command) {
     case ArithmeticLogicalCommand.Add:
     case ArithmeticLogicalCommand.Sub:

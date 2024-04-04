@@ -27,10 +27,10 @@ export type BranchInstruction = {
 
 export type VmInstruction = PushInstruction | PopInstruction | ArithmeticLogicalInstruction | BranchInstruction;
 
-type Enumerate<T extends string, TUnion extends string = T> = [T] extends [never]
+type Permutations<T extends string, TUnion extends string = T> = [T] extends [never]
   ? T
   : T extends unknown
-  ? T | `${T}${Enumerate<Exclude<TUnion, T>>}`
+  ? T | `${T}${Permutations<Exclude<TUnion, T>>}`
   : never;
 
 type OpPermutations<R extends Register, RUnion extends Register = R> = R extends unknown
@@ -39,7 +39,7 @@ type OpPermutations<R extends Register, RUnion extends Register = R> = R extends
 
 type Register = "A" | "D" | "M";
 
-type Dest = Enumerate<Register>;
+type Dest = Permutations<Register>;
 type Comp =
   | "0"
   | "1"
