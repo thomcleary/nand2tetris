@@ -1,12 +1,14 @@
 import { ArithmeticLogicalCommand } from "./constants.js";
-import { ArithmeticLogicalInstruction, AssemblyInstruction } from "./types.js";
+import { ArithmeticLogicalInstruction, AssemblyInstruction, TranslationContext } from "./types.js";
 import { toLabel } from "./utils.js";
 
 export const arithmeticLogicalToAssembly = ({
-  command,
-  fileName,
-  lineNumber,
-}: ArithmeticLogicalInstruction & { fileName: string; lineNumber: number }): readonly AssemblyInstruction[] => {
+  instruction: { command },
+  context: { fileName, lineNumber },
+}: {
+  instruction: ArithmeticLogicalInstruction;
+  context: TranslationContext;
+}): readonly AssemblyInstruction[] => {
   switch (command) {
     case ArithmeticLogicalCommand.Add:
     case ArithmeticLogicalCommand.Sub:

@@ -1,17 +1,25 @@
 import { BranchCommand } from "./constants.js";
-import { AssemblyInstruction, BranchInstruction } from "./types.js";
+import { AssemblyInstruction, GotoInstruction, LabelInstruction, TranslationContext } from "./types.js";
 import { toLabel } from "./utils.js";
 
+// TODO:
+// - Labels within functions must have the form FileName.FunctionName$Label
+//   and goto/ifgoto commands within the function must use this label
 export const labelToAssembly = ({
-  label,
-  fileName,
-}: BranchInstruction & { fileName: string }): readonly AssemblyInstruction[] => [`(${toLabel({ fileName, label })})`];
+  instruction: { label },
+  context: { fileName },
+}: {
+  instruction: LabelInstruction;
+  context: TranslationContext;
+}): readonly AssemblyInstruction[] => [`(${toLabel({ fileName, label })})`];
 
 export const gotoToAssembly = ({
-  command,
-  label,
-  fileName,
-}: BranchInstruction & { fileName: string }): readonly AssemblyInstruction[] => [
+  instruction: { command, label },
+  context: { fileName },
+}: {
+  instruction: GotoInstruction;
+  context: TranslationContext;
+}): readonly AssemblyInstruction[] => [
   "@SP",
   "AM=M-1",
   "D=M",

@@ -1,8 +1,8 @@
 import { arithmeticLogicalToAssembly } from "./arithmeticLogicalCommands.js";
 import { gotoToAssembly, labelToAssembly } from "./branchCommands.js";
-import { BranchCommand, INFINITE_LOOP, Segment, StackCommand } from "./constants.js";
+import { BranchCommand, FunctionCommand, INFINITE_LOOP, Segment, StackCommand } from "./constants.js";
 import { popToAssembly, pushToAssembly } from "./stackCommands.js";
-import { AssemblyInstruction, Result, VmInstruction } from "./types.js";
+import { AssemblyInstruction, Result, TranslationContext, VmInstruction } from "./types.js";
 import {
   error,
   isArithemticLogicalCommand,
@@ -71,19 +71,31 @@ const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }>
   return { success: true, vmInstruction: { command, segment, index: indexNum } };
 };
 
-const toAssembly = (args: VmInstruction & { fileName: string; lineNumber: number }): readonly AssemblyInstruction[] => {
-  switch (args.command) {
+const toAssembly = ({
+  instruction,
+  context,
+}: {
+  instruction: VmInstruction;
+  context: TranslationContext;
+}): readonly AssemblyInstruction[] => {
+  switch (instruction.command) {
     case StackCommand.Push:
-      return pushToAssembly(args);
+      return pushToAssembly({ instruction, context });
     case StackCommand.Pop:
-      return popToAssembly(args);
+      return popToAssembly({ instruction, context });
     case BranchCommand.Label:
-      return labelToAssembly(args);
+      return labelToAssembly({ instruction, context });
     case BranchCommand.Goto:
     case BranchCommand.IfGoto:
-      return gotoToAssembly(args);
+      return gotoToAssembly({ instruction, context });
+    case FunctionCommand.Function:
+      // TODO
+      return [];
+    case FunctionCommand.Return:
+      // TODO
+      return [];
     default:
-      return arithmeticLogicalToAssembly(args);
+      return arithmeticLogicalToAssembly({ instruction, context });
   }
 };
 
@@ -94,7 +106,10 @@ export const translate = ({
   vmProgram: readonly string[];
   fileName: string;
 }): Result<{ assemblyInstructions: readonly AssemblyInstruction[] }> => {
-  const assemblyInstructions: AssemblyInstruction[] = [];
+  const assemblyInstructions: AssemblyInstruction[] = [
+    // TODO: bootstrap instructions
+  ];
+  let currentFunctionName: TranslationContext["functionName"] = undefined;
 
   for (const [i, line] of vmProgram.entries()) {
     if (isEmptyLine(line) || isComment(line)) {
@@ -110,8 +125,14 @@ export const translate = ({
 
     const { vmInstruction } = vmInstructionResult;
 
+    if (vmInstruction.command === FunctionCommand.Function) {
+      currentFunctionName = vmInstruction.name;
+    }
+
+    const context = { fileName, functionName: currentFunctionName, lineNumber } as const satisfies TranslationContext;
+
     assemblyInstructions.push(toComment(line));
-    assemblyInstructions.push(...toAssembly({ ...vmInstruction, fileName, lineNumber }));
+    assemblyInstructions.push(...toAssembly({ instruction: vmInstruction, context }));
   }
 
   assemblyInstructions.push(toComment("end program with infinite loop"));

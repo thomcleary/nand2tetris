@@ -1,8 +1,14 @@
-import { ArithmeticLogicalCommand, BranchCommand, Segment, StackCommand } from "./constants.js";
+import { ArithmeticLogicalCommand, BranchCommand, FunctionCommand, Segment, StackCommand } from "./constants.js";
 
 export type Result<T extends Record<PropertyKey, unknown>> =
   | ({ success: true } & T)
   | { success: false; message: string };
+
+export type TranslationContext = {
+  fileName: string;
+  functionName: string | undefined;
+  lineNumber: number;
+};
 
 export type PushInstruction = {
   command: StackCommand.Push;
@@ -20,12 +26,34 @@ export type ArithmeticLogicalInstruction = {
   command: ArithmeticLogicalCommand;
 };
 
-export type BranchInstruction = {
-  command: BranchCommand;
+export type LabelInstruction = {
+  command: BranchCommand.Label;
   label: string;
 };
 
-export type VmInstruction = PushInstruction | PopInstruction | ArithmeticLogicalInstruction | BranchInstruction;
+export type GotoInstruction = {
+  command: BranchCommand.Goto | BranchCommand.IfGoto;
+  label: string;
+};
+
+export type FunctionInstruction = {
+  command: FunctionCommand.Function;
+  name: string;
+  locals: number;
+};
+
+export type ReturnInstruction = {
+  command: FunctionCommand.Return;
+};
+
+export type VmInstruction =
+  | PushInstruction
+  | PopInstruction
+  | ArithmeticLogicalInstruction
+  | LabelInstruction
+  | GotoInstruction
+  | FunctionInstruction
+  | ReturnInstruction;
 
 type Permutations<T extends string, TUnion extends string = T> = [T] extends [never]
   ? T

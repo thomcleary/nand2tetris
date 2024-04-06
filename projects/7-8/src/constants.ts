@@ -23,6 +23,11 @@ export enum BranchCommand {
   IfGoto = "if-goto",
 }
 
+export enum FunctionCommand {
+  Function = "function",
+  Return = "return",
+}
+
 export enum Segment {
   Argument = "argument",
   Local = "local",
