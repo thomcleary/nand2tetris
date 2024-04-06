@@ -10,6 +10,11 @@ export type TranslationContext = {
   lineNumber: number;
 };
 
+export type ToAssembly<T extends VmInstruction> = {
+  vmInstruction: T;
+  context: TranslationContext;
+};
+
 export type PushInstruction = {
   command: StackCommand.Push;
   segment: Segment;

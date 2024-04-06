@@ -2,7 +2,7 @@ import { arithmeticLogicalToAssembly } from "./arithmeticLogicalCommands.js";
 import { gotoToAssembly, labelToAssembly } from "./branchCommands.js";
 import { BranchCommand, FunctionCommand, INFINITE_LOOP, Segment, StackCommand } from "./constants.js";
 import { popToAssembly, pushToAssembly } from "./stackCommands.js";
-import { AssemblyInstruction, Result, TranslationContext, VmInstruction } from "./types.js";
+import { AssemblyInstruction, Result, ToAssembly, TranslationContext, VmInstruction } from "./types.js";
 import {
   error,
   isArithemticLogicalCommand,
@@ -71,23 +71,17 @@ const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }>
   return { success: true, vmInstruction: { command, segment, index: indexNum } };
 };
 
-const toAssembly = ({
-  instruction,
-  context,
-}: {
-  instruction: VmInstruction;
-  context: TranslationContext;
-}): readonly AssemblyInstruction[] => {
-  switch (instruction.command) {
+const toAssembly = ({ vmInstruction, context }: ToAssembly<VmInstruction>): readonly AssemblyInstruction[] => {
+  switch (vmInstruction.command) {
     case StackCommand.Push:
-      return pushToAssembly({ instruction, context });
+      return pushToAssembly({ vmInstruction, context });
     case StackCommand.Pop:
-      return popToAssembly({ instruction, context });
+      return popToAssembly({ vmInstruction, context });
     case BranchCommand.Label:
-      return labelToAssembly({ instruction, context });
+      return labelToAssembly({ vmInstruction, context });
     case BranchCommand.Goto:
     case BranchCommand.IfGoto:
-      return gotoToAssembly({ instruction, context });
+      return gotoToAssembly({ vmInstruction, context });
     case FunctionCommand.Function:
       // TODO
       return [];
@@ -95,7 +89,7 @@ const toAssembly = ({
       // TODO
       return [];
     default:
-      return arithmeticLogicalToAssembly({ instruction, context });
+      return arithmeticLogicalToAssembly({ vmInstruction, context });
   }
 };
 
@@ -132,7 +126,7 @@ export const translate = ({
     const context = { fileName, functionName: currentFunctionName, lineNumber } as const satisfies TranslationContext;
 
     assemblyInstructions.push(toComment(line));
-    assemblyInstructions.push(...toAssembly({ instruction: vmInstruction, context }));
+    assemblyInstructions.push(...toAssembly({ vmInstruction, context }));
   }
 
   assemblyInstructions.push(toComment("end program with infinite loop"));
