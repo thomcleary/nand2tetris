@@ -1,4 +1,5 @@
 import { ArithmeticLogicalCommand, BranchCommand, Segment, StackCommand, Symbol } from "./constants.js";
+import { TranslationContext } from "./types.js";
 
 export const isEmptyLine = (line: string) => /^\s*$/.test(line);
 
@@ -46,6 +47,7 @@ export const segmentToSymbol = (
     } as const
   )[segment]);
 
+// TODO: the format of these labels should match the function $ format
 export const toVariableSymbol = ({ fileName, index }: { fileName: string; index: number }) =>
   `${fileName}.STATIC.${index}` as const;
 
@@ -54,12 +56,9 @@ export const toLabel = ({
   label,
   functionName,
   lineNumber,
-}: {
-  fileName: string;
-  label: string;
-  functionName?: string;
-  lineNumber?: number;
-}) =>
-  `${fileName}${functionName ? `.${functionName}` : ""}$${label}${
-    lineNumber !== undefined ? `$L${lineNumber}` : ""
-  }` as const;
+}: Omit<TranslationContext, "lineNumber"> & Partial<Pick<TranslationContext, "lineNumber">> & { label?: string }) => {
+  const prefix = functionName ? `${fileName}.${functionName}` : fileName;
+  const labelPart = lineNumber ? `${label}L${lineNumber}` : label;
+
+  return labelPart ? `${prefix}$${labelPart}` : prefix;
+};

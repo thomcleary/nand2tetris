@@ -7,16 +7,16 @@ import { toLabel } from "./utils.js";
 //   and goto/ifgoto commands within the function must use this label
 export const labelToAssembly = ({
   vmInstruction: { label },
-  context: { fileName },
-}: ToAssembly<LabelInstruction>): readonly AssemblyInstruction[] => [`(${toLabel({ fileName, label })})`];
+  context: { fileName, functionName },
+}: ToAssembly<LabelInstruction>): readonly AssemblyInstruction[] => [`(${toLabel({ fileName, functionName, label })})`];
 
 export const gotoToAssembly = ({
   vmInstruction: { command, label },
-  context: { fileName },
+  context: { fileName, functionName },
 }: ToAssembly<GotoInstruction>): readonly AssemblyInstruction[] => [
   "@SP",
   "AM=M-1",
   "D=M",
-  `@${toLabel({ fileName, label })}`,
+  `@${toLabel({ fileName, functionName, label })}`,
   `D;${command === BranchCommand.Goto ? "JMP" : "JNE"}`,
 ];

@@ -1,6 +1,7 @@
 import { arithmeticLogicalToAssembly } from "./arithmeticLogicalCommands.js";
 import { gotoToAssembly, labelToAssembly } from "./branchCommands.js";
 import { BranchCommand, FunctionCommand, INFINITE_LOOP, Segment, StackCommand } from "./constants.js";
+import { functionToAssembly } from "./functionCommands.js";
 import { popToAssembly, pushToAssembly } from "./stackCommands.js";
 import { AssemblyInstruction, Result, ToAssembly, TranslationContext, VmInstruction } from "./types.js";
 import {
@@ -103,8 +104,7 @@ const toAssembly = ({ vmInstruction, context }: ToAssembly<VmInstruction>): read
     case BranchCommand.IfGoto:
       return gotoToAssembly({ vmInstruction, context });
     case FunctionCommand.Function:
-      // TODO
-      return [];
+      return functionToAssembly({ vmInstruction, context });
     case FunctionCommand.Return:
       // TODO
       return [];
@@ -151,6 +151,7 @@ export const translate = ({
     assemblyInstructions.push(...toAssembly({ vmInstruction, context }));
   }
 
+  // TODO: might be able to remove this for last test? (Sys.Init should have an infinite loop?)
   assemblyInstructions.push(toComment("end program with infinite loop"));
   assemblyInstructions.push(...INFINITE_LOOP);
 
