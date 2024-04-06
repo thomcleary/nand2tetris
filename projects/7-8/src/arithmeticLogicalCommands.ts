@@ -1,5 +1,5 @@
 import { ArithmeticLogicalCommand } from "./constants.js";
-import { ArithmeticLogicalInstruction, AssemblyInstruction, ToAssembly, TranslationContext } from "./types.js";
+import { ArithmeticLogicalInstruction, AssemblyInstruction, ToAssembly } from "./types.js";
 import { toLabel } from "./utils.js";
 
 export const arithmeticLogicalToAssembly = ({

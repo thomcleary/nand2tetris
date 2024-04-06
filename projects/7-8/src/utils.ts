@@ -1,4 +1,4 @@
-import { ArithmeticLogicalCommand, Symbol, Segment, StackCommand, TEMP_OFFSET, BranchCommand } from "./constants.js";
+import { ArithmeticLogicalCommand, BranchCommand, Segment, StackCommand, Symbol } from "./constants.js";
 
 export const isEmptyLine = (line: string) => /^\s*$/.test(line);
 

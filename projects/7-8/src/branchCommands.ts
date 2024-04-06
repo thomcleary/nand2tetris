@@ -1,5 +1,5 @@
 import { BranchCommand } from "./constants.js";
-import { AssemblyInstruction, GotoInstruction, LabelInstruction, ToAssembly, TranslationContext } from "./types.js";
+import { AssemblyInstruction, GotoInstruction, LabelInstruction, ToAssembly } from "./types.js";
 import { toLabel } from "./utils.js";
 
 // TODO:

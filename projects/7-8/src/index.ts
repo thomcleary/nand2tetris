@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "fs";
+import path from "path";
 import { Result } from "./types.js";
 import { error } from "./utils.js";
-import path from "path";
 import { translate } from "./vmTranslator.js";
 
 const getVmFilePath = (): Result<{ filePath: string }> => {

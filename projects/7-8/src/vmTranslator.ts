@@ -29,9 +29,16 @@ const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }>
 
   if (instructionParts.length === 1) {
     const command = instructionParts[0];
-    return command && isArithemticLogicalCommand(command)
-      ? { success: true, vmInstruction: { command: command } }
-      : { success: false, message: `"${command}" is not a valid Arithmetic-Logical command` };
+
+    if (!command) {
+      return { success: false, message: `"${command}" is not a valid Arithmetic-Logical command` };
+    }
+
+    if (isArithemticLogicalCommand(command) || command === FunctionCommand.Return) {
+      return { success: true, vmInstruction: { command: command } };
+    }
+
+    return { success: false, message: `"${command}" is not a valid VM command` };
   }
 
   if (instructionParts.length === 2) {
@@ -41,7 +48,20 @@ const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }>
       : { success: false, message: `"${command}" is not a valid Branch command` };
   }
 
-  const [command, segment, index] = instructionParts;
+  const [command] = instructionParts;
+
+  if (command && command === FunctionCommand.Function) {
+    const [_, name, locals] = instructionParts;
+    const localsNum = Number(locals);
+
+    if (!name || isNaN(localsNum)) {
+      return { success: false, message: `"${line} is not a valid Function command"` };
+    }
+
+    return { success: true, vmInstruction: { command, name, locals: localsNum } };
+  }
+
+  const [_, segment, index] = instructionParts;
 
   if (
     !command ||
@@ -122,6 +142,8 @@ export const translate = ({
     if (vmInstruction.command === FunctionCommand.Function) {
       currentFunctionName = vmInstruction.name;
     }
+
+    console.log({ currentFunctionName });
 
     const context = { fileName, functionName: currentFunctionName, lineNumber } as const satisfies TranslationContext;
 

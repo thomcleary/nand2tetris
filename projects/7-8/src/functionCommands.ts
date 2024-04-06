@@ -1,10 +1,4 @@
-import {
-  AssemblyInstruction,
-  FunctionInstruction,
-  ReturnInstruction,
-  ToAssembly,
-  TranslationContext,
-} from "./types.js";
+import { AssemblyInstruction, FunctionInstruction, ReturnInstruction, ToAssembly } from "./types.js";
 
 export const functionToAssembly = ({}: ToAssembly<FunctionInstruction>): readonly AssemblyInstruction[] => {
   return [];
