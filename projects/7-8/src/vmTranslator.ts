@@ -107,7 +107,7 @@ const toAssembly = ({ vmInstruction, context }: ToAssembly<VmInstruction>): read
     case FunctionCommand.Function:
       return functionToAssembly({ vmInstruction, context });
     case FunctionCommand.Return:
-      return returnToAssembly({ vmInstruction, context });
+      return returnToAssembly();
     default:
       return arithmeticLogicalToAssembly({ vmInstruction, context });
   }

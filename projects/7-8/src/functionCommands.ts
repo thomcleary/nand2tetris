@@ -1,5 +1,5 @@
 import { Symbol } from "./constants.js";
-import { AssemblyInstruction, FunctionInstruction, ReturnInstruction, ToAssembly } from "./types.js";
+import { AssemblyInstruction, FunctionInstruction, ToAssembly } from "./types.js";
 import { toLabel } from "./utils.js";
 
 export const functionToAssembly = ({
@@ -15,7 +15,7 @@ export const functionToAssembly = ({
   return assemblyInstructions;
 };
 
-export const returnToAssembly = ({}: ToAssembly<ReturnInstruction>): readonly AssemblyInstruction[] => {
+export const returnToAssembly = (): readonly AssemblyInstruction[] => {
   return [
     // endframe = LCL
     `@${Symbol.LCL}`,
@@ -34,18 +34,26 @@ export const returnToAssembly = ({}: ToAssembly<ReturnInstruction>): readonly As
     "D=M+1",
     `@${Symbol.SP}`,
     "M=D",
-    // THAT = *(endFrame - 1)
-    // "",
-    // THIS = *(endFrame - 2)
-    // "",
-    // ARG = *(endFrame - 3)
-    // "",
-    // LCL = *(endFrame - 4)
-    // "",
+    // Symbol = *(endFrame - offset)
+    ...([Symbol.THAT, Symbol.THIS, Symbol.ARG, Symbol.LCL] as const).flatMap(
+      (s) =>
+        [
+          `@${{ [Symbol.THAT]: 1, [Symbol.THIS]: 2, [Symbol.ARG]: 3, [Symbol.LCL]: 4 }[s]}`,
+          "D=A",
+          `@${Symbol.R13}`,
+          "A=M-D",
+          "D=M",
+          `@${s}`,
+          "M=D",
+        ] as const satisfies AssemblyInstruction[]
+    ),
     // returnAddress = *(endFrame - 5)
-    // "@5",
-    // "A=D-A",
+    "@5",
+    "D=A",
+    `@${Symbol.R13}`,
+    "A=M-D",
+    "A=M",
     // goto returnAddress
-    // "",
+    "0;JMP",
   ];
 };
