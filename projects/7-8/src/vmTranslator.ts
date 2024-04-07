@@ -56,25 +56,25 @@ const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }>
   }
 
   if (command === FunctionCommand.Function) {
-    const [_, name, locals] = instructionParts;
+    const [_, functionName, locals] = instructionParts;
     const localsNum = Number(locals);
 
-    if (!name || isNaN(localsNum)) {
+    if (!functionName || isNaN(localsNum)) {
       return { success: false, message: `"${line} is not a valid Function command"` };
     }
 
-    return { success: true, vmInstruction: { command, name, locals: localsNum } };
+    return { success: true, vmInstruction: { command, functionName, locals: localsNum } };
   }
 
   if (command === FunctionCommand.Call) {
-    const [_, func, args] = instructionParts;
+    const [_, functionName, args] = instructionParts;
     const argsNum = Number(args);
 
-    if (!func || isNaN(argsNum)) {
+    if (!functionName || isNaN(argsNum)) {
       return { success: false, message: `"${line} is not a valid Call command"` };
     }
 
-    return { success: true, vmInstruction: { command, func, args: argsNum } };
+    return { success: true, vmInstruction: { command, functionName, args: argsNum } };
   }
 
   const [_, segment, index] = instructionParts;
@@ -150,7 +150,7 @@ export const translate = ({
     const { vmInstruction } = vmInstructionResult;
 
     if (vmInstruction.command === FunctionCommand.Function) {
-      currentFunctionName = vmInstruction.name;
+      currentFunctionName = vmInstruction.functionName;
     }
 
     console.log({ currentFunctionName });

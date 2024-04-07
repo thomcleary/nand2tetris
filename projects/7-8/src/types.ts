@@ -43,7 +43,7 @@ export type GotoInstruction = {
 
 export type FunctionInstruction = {
   command: FunctionCommand.Function;
-  name: string;
+  functionName: string;
   locals: number;
 };
 
@@ -53,7 +53,7 @@ export type ReturnInstruction = {
 
 export type CallInstruction = {
   command: FunctionCommand.Call;
-  func: string;
+  functionName: string;
   args: number;
 };
 

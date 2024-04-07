@@ -58,8 +58,51 @@ export const returnToAssembly = (): readonly AssemblyInstruction[] => [
 
 // TODO: NestedCall test
 export const callToAssembly = ({
-  vmInstruction: { func, args },
-  context,
+  vmInstruction: { functionName, args },
+  context: { fileName, lineNumber },
 }: ToAssembly<CallInstruction>): readonly AssemblyInstruction[] => {
-  return [];
+  const returnAddressLabel = toLabel({ fileName, functionName, lineNumber, label: "ret" });
+
+  return [
+    // push RETURN_ADDRESS_LABEL
+    `@${returnAddressLabel}`,
+    "D=A",
+    `@${Symbol.SP}`,
+    "A=M",
+    "M=D",
+    `@${Symbol.SP}`,
+    "M=M+1",
+    // push stack frame
+    ...([Symbol.LCL, Symbol.ARG, Symbol.THIS, Symbol.THAT] as const).flatMap(
+      (s) =>
+        [
+          `@${s}`,
+          "D=M",
+          `@${Symbol.SP}`,
+          "A=M",
+          "M=D",
+          `@${Symbol.SP}`,
+          "M=M+1",
+        ] as const satisfies AssemblyInstruction[]
+    ),
+    // ARG = SP - 5 - args
+    "@5",
+    "D=A",
+    `@${args}`,
+    "D=D+A",
+    `@${Symbol.SP}`,
+    "D=M-D",
+    `@${Symbol.ARG}`,
+    "M=D",
+    // LCL = SP
+    `@${Symbol.SP}`,
+    "D=M",
+    `@${Symbol.LCL}`,
+    "M=D",
+    // goto func
+    `@${toLabel({ fileName, functionName })}`,
+    "0;JMP",
+    // (RETURN_ADDRESS_LABEL)
+    `(${returnAddressLabel})`,
+  ];
 };
