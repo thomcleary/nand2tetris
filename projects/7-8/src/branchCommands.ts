@@ -11,6 +11,9 @@ export const gotoToAssembly = ({
   vmInstruction: { command, label },
   context: { fileName, functionName },
 }: ToAssembly<GotoInstruction>): readonly AssemblyInstruction[] => [
+  // TODO: Don't pop a value off the stack if command is goto
+  // only pop off for ifgoto
+  // Then try NestedCall.tst again
   `@${Symbol.SP}`,
   "AM=M-1",
   "D=M",

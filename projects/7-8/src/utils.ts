@@ -51,6 +51,8 @@ export const segmentToSymbol = (
 export const toVariableSymbol = ({ fileName, index }: { fileName: string; index: number }) =>
   `${fileName}.STATIC.${index}` as const;
 
+// TODO: might not need fileName in label once translating multiple vm files
+// As functions will have className appeneded by compiler
 export const toLabel = ({
   fileName,
   label,
