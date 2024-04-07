@@ -6,7 +6,7 @@ export const pushToAssembly = ({
   vmInstruction: { segment, index },
   context: { fileName },
 }: ToAssembly<PushInstruction>): readonly AssemblyInstruction[] => {
-  const push = ["@SP", "A=M", "M=D", "@SP", "M=M+1"] as const satisfies AssemblyInstruction[];
+  const push = [`@${Symbol.SP}`, "A=M", "M=D", `@${Symbol.SP}`, "M=M+1"] as const satisfies AssemblyInstruction[];
 
   switch (segment) {
     case Segment.Constant:
@@ -46,18 +46,18 @@ export const popToAssembly = ({
         "D=A",
         `@${segment === Segment.Temp ? TEMP_OFFSET : segmentToSymbol(segment)}`,
         `D=D+${segment === Segment.Temp ? "A" : "M"}`,
-        "@R13",
+        `@${Symbol.R13}`,
         "M=D",
-        "@SP",
+        `@${Symbol.SP}`,
         "AM=M-1",
         "D=M",
-        "@R13",
+        `@${Symbol.R13}`,
         "A=M",
         "M=D",
       ];
     case Segment.Pointer:
-      return ["@SP", "AM=M-1", "D=M", `@${index === 0 ? Symbol.THIS : Symbol.THAT}`, "M=D"];
+      return [`@${Symbol.SP}`, "AM=M-1", "D=M", `@${index === 0 ? Symbol.THIS : Symbol.THAT}`, "M=D"];
     case Segment.Static:
-      return ["@SP", "AM=M-1", "D=M", `@${toVariableSymbol({ fileName, index })}`, "M=D"];
+      return [`@${Symbol.SP}`, "AM=M-1", "D=M", `@${toVariableSymbol({ fileName, index })}`, "M=D"];
   }
 };

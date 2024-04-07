@@ -1,7 +1,7 @@
 import { arithmeticLogicalToAssembly } from "./arithmeticLogicalCommands.js";
 import { gotoToAssembly, labelToAssembly } from "./branchCommands.js";
 import { BranchCommand, FunctionCommand, INFINITE_LOOP, Segment, StackCommand } from "./constants.js";
-import { functionToAssembly } from "./functionCommands.js";
+import { functionToAssembly, returnToAssembly } from "./functionCommands.js";
 import { popToAssembly, pushToAssembly } from "./stackCommands.js";
 import { AssemblyInstruction, Result, ToAssembly, TranslationContext, VmInstruction } from "./types.js";
 import {
@@ -92,6 +92,7 @@ const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }>
   return { success: true, vmInstruction: { command, segment, index: indexNum } };
 };
 
+// TODO: add comments inside each of these functions explaining what the Assembly instructions are doing
 const toAssembly = ({ vmInstruction, context }: ToAssembly<VmInstruction>): readonly AssemblyInstruction[] => {
   switch (vmInstruction.command) {
     case StackCommand.Push:
@@ -106,8 +107,7 @@ const toAssembly = ({ vmInstruction, context }: ToAssembly<VmInstruction>): read
     case FunctionCommand.Function:
       return functionToAssembly({ vmInstruction, context });
     case FunctionCommand.Return:
-      // TODO
-      return [];
+      return returnToAssembly({ vmInstruction, context });
     default:
       return arithmeticLogicalToAssembly({ vmInstruction, context });
   }

@@ -1,10 +1,10 @@
-import { ArithmeticLogicalCommand } from "./constants.js";
+import { ArithmeticLogicalCommand, Symbol } from "./constants.js";
 import { ArithmeticLogicalInstruction, AssemblyInstruction, ToAssembly } from "./types.js";
 import { toLabel } from "./utils.js";
 
 export const arithmeticLogicalToAssembly = ({
   vmInstruction: { command },
-  context: { fileName, lineNumber },
+  context: { fileName, functionName, lineNumber },
 }: ToAssembly<ArithmeticLogicalInstruction>): readonly AssemblyInstruction[] => {
   switch (command) {
     case ArithmeticLogicalCommand.Add:
@@ -12,10 +12,10 @@ export const arithmeticLogicalToAssembly = ({
     case ArithmeticLogicalCommand.Or:
     case ArithmeticLogicalCommand.And:
       return [
-        "@SP",
+        `@${Symbol.SP}`,
         "AM=M-1",
         "D=M",
-        "@SP",
+        `@${Symbol.SP}`,
         "AM=M-1",
         `M=M${
           (
@@ -27,28 +27,28 @@ export const arithmeticLogicalToAssembly = ({
             } as const
           )[command]
         }D`,
-        "@SP",
+        `@${Symbol.SP}`,
         "M=M+1",
       ];
     case ArithmeticLogicalCommand.Neg:
     case ArithmeticLogicalCommand.Not:
       return [
-        "@SP",
+        `@${Symbol.SP}`,
         "AM=M-1",
         `M=${({ [ArithmeticLogicalCommand.Neg]: "-", [ArithmeticLogicalCommand.Not]: "!" } as const)[command]}M`,
-        "@SP",
+        `@${Symbol.SP}`,
         "M=M+1",
       ];
     case ArithmeticLogicalCommand.Eq:
     case ArithmeticLogicalCommand.Gt:
     case ArithmeticLogicalCommand.Lt:
-      const trueLabel = toLabel({ fileName, label: `${command}TRUE`, lineNumber });
-      const endLabel = toLabel({ fileName, label: `${command}END`, lineNumber });
+      const trueLabel = toLabel({ fileName, functionName, label: `${command}TRUE`, lineNumber });
+      const endLabel = toLabel({ fileName, functionName, label: `${command}END`, lineNumber });
       return [
-        "@SP",
+        `@${Symbol.SP}`,
         "AM=M-1",
         "D=M",
-        "@SP",
+        `@${Symbol.SP}`,
         "AM=M-1",
         "D=M-D",
         `@${trueLabel}`,
@@ -61,17 +61,17 @@ export const arithmeticLogicalToAssembly = ({
             } as const
           )[command]
         }`,
-        "@SP",
+        `@${Symbol.SP}`,
         "A=M",
         "M=0",
         `@${endLabel}`,
         "0;JMP",
         `(${trueLabel})`,
-        "@SP",
+        `@${Symbol.SP}`,
         "A=M",
         "M=-1",
         `(${endLabel})`,
-        "@SP",
+        `@${Symbol.SP}`,
         "M=M+1",
       ];
   }
