@@ -1,5 +1,4 @@
 import { ArithmeticLogicalCommand, BranchCommand, Segment, StackCommand, Symbol } from "./constants.js";
-import { TranslationContext } from "./types.js";
 
 export const isEmptyLine = (line: string) => /^\s*$/.test(line);
 
@@ -55,7 +54,12 @@ export const toLabel = ({
   functionName,
   label,
   lineNumber,
-}: Omit<TranslationContext, "lineNumber"> & Partial<Pick<TranslationContext, "lineNumber">> & { label?: string }) => {
+}: {
+  fileName: string;
+  functionName?: string;
+  label?: string;
+  lineNumber?: number;
+}) => {
   const prefix = functionName ?? fileName;
   const suffix = lineNumber ? `${label}L${lineNumber}` : label;
 

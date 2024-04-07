@@ -4,9 +4,9 @@ import { toLabel } from "./utils.js";
 
 export const functionToAssembly = ({
   vmInstruction: { locals },
-  context: { fileName, functionName },
+  context: { fileName, currentFunction },
 }: ToAssembly<FunctionInstruction>): readonly AssemblyInstruction[] => {
-  const assemblyInstructions: AssemblyInstruction[] = [`(${toLabel({ fileName, functionName })})`];
+  const assemblyInstructions: AssemblyInstruction[] = [`(${toLabel({ fileName, functionName: currentFunction })})`];
 
   for (let i = 0; i < locals; i++) {
     assemblyInstructions.push(`@${Symbol.SP}`, "A=M", "M=0", `@${Symbol.SP}`, "M=M+1");
@@ -66,10 +66,10 @@ export const returnToAssembly = (): readonly AssemblyInstruction[] => [
 ];
 
 export const callToAssembly = ({
-  vmInstruction: { functionName, args },
-  context: { fileName, lineNumber },
+  vmInstruction: { func, args },
+  context: { fileName, currentFunction, lineNumber },
 }: ToAssembly<CallInstruction>): readonly AssemblyInstruction[] => {
-  const returnAddressLabel = toLabel({ fileName, functionName, lineNumber, label: "ret" });
+  const returnAddressLabel = toLabel({ fileName, functionName: currentFunction, lineNumber, label: "ret" });
 
   return [
     // push returnAddress
@@ -108,7 +108,7 @@ export const callToAssembly = ({
     `@${Symbol.LCL}`,
     "M=D",
     // goto func
-    `@${toLabel({ fileName, functionName })}`,
+    `@${toLabel({ fileName, functionName: func })}`,
     "0;JMP",
     // (returnAddress)
     `(${returnAddressLabel})`,

@@ -38,6 +38,9 @@ const getVmProgram = (filePath: string): Result<{ vmProgram: readonly string[] }
 
 const main = () => {
   // TODO: FibonacciElement.tst - translate single VM file or each VM file in a directory
+  // 1. Test on /NestedCall first (only 1 file in dir)
+  // 2. Make sure single file also still works, SimpleFunction/SimpleFunction.vm
+  // 3. Start testing on /FibonacciElement
   const vmFilePathResult = getVmFilePath();
 
   if (!vmFilePathResult.success) {

@@ -6,8 +6,8 @@ export type Result<T extends Record<PropertyKey, unknown>> =
 
 export type TranslationContext = {
   fileName: string;
-  functionName: string | undefined;
-  lineNumber: number;
+  currentFunction?: string;
+  lineNumber?: number;
 };
 
 export type ToAssembly<T extends VmInstruction> = {
@@ -32,7 +32,7 @@ export type BranchInstruction<T extends BranchCommand> = {
 
 export type FunctionInstruction = {
   command: FunctionCommand.Function;
-  functionName: string;
+  func: string;
   locals: number;
 };
 
@@ -42,7 +42,7 @@ export type ReturnInstruction = {
 
 export type CallInstruction = {
   command: FunctionCommand.Call;
-  functionName: string;
+  func: string;
   args: number;
 };
 

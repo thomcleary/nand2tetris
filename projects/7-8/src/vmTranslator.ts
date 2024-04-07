@@ -1,6 +1,6 @@
 import { arithmeticLogicalToAssembly } from "./arithmeticLogicalCommands.js";
 import { gotoToAssembly, ifGotoToAssembly, labelToAssembly } from "./branchCommands.js";
-import { BranchCommand, FunctionCommand, Segment, StackCommand } from "./constants.js";
+import { BranchCommand, FunctionCommand, Segment, StackCommand, Symbol } from "./constants.js";
 import { callToAssembly, functionToAssembly, returnToAssembly } from "./functionCommands.js";
 import { popToAssembly, pushToAssembly } from "./stackCommands.js";
 import { AssemblyInstruction, Result, ToAssembly, TranslationContext, VmInstruction } from "./types.js";
@@ -15,6 +15,19 @@ import {
   isValidIndex,
   toComment,
 } from "./utils.js";
+
+const bootstrap = (): AssemblyInstruction[] => [
+  // SP = 256
+  "@256",
+  "D=A",
+  `@${Symbol.SP}`,
+  "M=D",
+  // call Sys.init,
+  ...callToAssembly({
+    vmInstruction: { command: FunctionCommand.Call, func: "Sys.init", args: 0 },
+    context: { fileName: `Bootstrap.Sys.init` },
+  }),
+];
 
 const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }> => {
   const instructionParts = line.split(/\s+/);
@@ -56,25 +69,25 @@ const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }>
   }
 
   if (command === FunctionCommand.Function) {
-    const [_, functionName, locals] = instructionParts;
+    const [_, func, locals] = instructionParts;
     const localsNum = Number(locals);
 
-    if (!functionName || isNaN(localsNum)) {
+    if (!func || isNaN(localsNum)) {
       return { success: false, message: `"${line} is not a valid Function command"` };
     }
 
-    return { success: true, vmInstruction: { command, functionName, locals: localsNum } };
+    return { success: true, vmInstruction: { command, func, locals: localsNum } };
   }
 
   if (command === FunctionCommand.Call) {
-    const [_, functionName, args] = instructionParts;
+    const [_, func, args] = instructionParts;
     const argsNum = Number(args);
 
-    if (!functionName || isNaN(argsNum)) {
+    if (!func || isNaN(argsNum)) {
       return { success: false, message: `"${line} is not a valid Call command"` };
     }
 
-    return { success: true, vmInstruction: { command, functionName, args: argsNum } };
+    return { success: true, vmInstruction: { command, func, args: argsNum } };
   }
 
   const [_, segment, index] = instructionParts;
@@ -131,10 +144,8 @@ export const translate = ({
   vmProgram: readonly string[];
   fileName: string;
 }): Result<{ assemblyInstructions: readonly AssemblyInstruction[] }> => {
-  const assemblyInstructions: AssemblyInstruction[] = [
-    // TODO: FibonacciElement.tst
-  ];
-  let currentFunctionName: TranslationContext["functionName"] = undefined;
+  const assemblyInstructions = bootstrap();
+  let currentFunction: TranslationContext["currentFunction"] = undefined;
 
   for (const [i, line] of vmProgram.entries()) {
     if (isEmptyLine(line) || isComment(line)) {
@@ -151,10 +162,10 @@ export const translate = ({
     const { vmInstruction } = vmInstructionResult;
 
     if (vmInstruction.command === FunctionCommand.Function) {
-      currentFunctionName = vmInstruction.functionName;
+      currentFunction = vmInstruction.func;
     }
 
-    const context = { fileName, functionName: currentFunctionName, lineNumber } as const satisfies TranslationContext;
+    const context = { fileName, currentFunction, lineNumber } as const satisfies TranslationContext;
 
     assemblyInstructions.push(toComment(line));
     assemblyInstructions.push(...toAssembly({ vmInstruction, context }));

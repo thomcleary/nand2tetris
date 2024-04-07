@@ -4,7 +4,7 @@ import { toLabel } from "./utils.js";
 
 export const arithmeticLogicalToAssembly = ({
   vmInstruction: { command },
-  context: { fileName, functionName, lineNumber },
+  context: { fileName, currentFunction, lineNumber },
 }: ToAssembly<ArithmeticLogicalInstruction>): readonly AssemblyInstruction[] => {
   switch (command) {
     case ArithmeticLogicalCommand.Add:
@@ -42,8 +42,8 @@ export const arithmeticLogicalToAssembly = ({
     case ArithmeticLogicalCommand.Eq:
     case ArithmeticLogicalCommand.Gt:
     case ArithmeticLogicalCommand.Lt:
-      const trueLabel = toLabel({ fileName, functionName, label: `${command}TRUE`, lineNumber });
-      const endLabel = toLabel({ fileName, functionName, label: `${command}END`, lineNumber });
+      const trueLabel = toLabel({ fileName, functionName: currentFunction, label: `${command}TRUE`, lineNumber });
+      const endLabel = toLabel({ fileName, functionName: currentFunction, label: `${command}END`, lineNumber });
       return [
         `@${Symbol.SP}`,
         "AM=M-1",

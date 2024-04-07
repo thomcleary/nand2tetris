@@ -1,5 +1,3 @@
-import { AssemblyInstruction } from "./types.js";
-
 export enum StackCommand {
   Push = "push",
   Pop = "pop",
@@ -52,5 +50,3 @@ export enum Symbol {
 }
 
 export const TEMP_OFFSET = 5;
-
-export const INFINITE_LOOP = ["(END)", "@END", "0;JMP"] as const satisfies AssemblyInstruction[];
