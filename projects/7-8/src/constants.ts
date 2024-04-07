@@ -26,6 +26,7 @@ export enum BranchCommand {
 export enum FunctionCommand {
   Function = "function",
   Return = "return",
+  Call = "call",
 }
 
 export enum Segment {

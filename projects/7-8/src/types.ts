@@ -51,6 +51,12 @@ export type ReturnInstruction = {
   command: FunctionCommand.Return;
 };
 
+export type CallInstruction = {
+  command: FunctionCommand.Call;
+  func: string;
+  args: number;
+};
+
 export type VmInstruction =
   | PushInstruction
   | PopInstruction
@@ -58,7 +64,8 @@ export type VmInstruction =
   | LabelInstruction
   | GotoInstruction
   | FunctionInstruction
-  | ReturnInstruction;
+  | ReturnInstruction
+  | CallInstruction;
 
 type Permutations<T extends string, TUnion extends string = T> = [T] extends [never]
   ? T

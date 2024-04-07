@@ -1,7 +1,7 @@
 import { arithmeticLogicalToAssembly } from "./arithmeticLogicalCommands.js";
 import { gotoToAssembly, labelToAssembly } from "./branchCommands.js";
 import { BranchCommand, FunctionCommand, INFINITE_LOOP, Segment, StackCommand } from "./constants.js";
-import { functionToAssembly, returnToAssembly } from "./functionCommands.js";
+import { callToAssembly, functionToAssembly, returnToAssembly } from "./functionCommands.js";
 import { popToAssembly, pushToAssembly } from "./stackCommands.js";
 import { AssemblyInstruction, Result, ToAssembly, TranslationContext, VmInstruction } from "./types.js";
 import {
@@ -51,7 +51,11 @@ const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }>
 
   const [command] = instructionParts;
 
-  if (command && command === FunctionCommand.Function) {
+  if (!command) {
+    return { success: false, message: `command "${command}" in line "${line}" is not a valid command` };
+  }
+
+  if (command === FunctionCommand.Function) {
     const [_, name, locals] = instructionParts;
     const localsNum = Number(locals);
 
@@ -62,16 +66,20 @@ const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }>
     return { success: true, vmInstruction: { command, name, locals: localsNum } };
   }
 
+  if (command === FunctionCommand.Call) {
+    const [_, func, args] = instructionParts;
+    const argsNum = Number(args);
+
+    if (!func || isNaN(argsNum)) {
+      return { success: false, message: `"${line} is not a valid Call command"` };
+    }
+
+    return { success: true, vmInstruction: { command, func, args: argsNum } };
+  }
+
   const [_, segment, index] = instructionParts;
 
-  if (
-    !command ||
-    !segment ||
-    index === undefined ||
-    !isStackCommand(command) ||
-    !isSegment(segment) ||
-    !isValidIndex(index)
-  ) {
+  if (!segment || index === undefined || !isStackCommand(command) || !isSegment(segment) || !isValidIndex(index)) {
     return { success: false, message: `"${line}" is not a valid VM instruction (invalid command/segment/index)` };
   }
 
@@ -108,6 +116,8 @@ const toAssembly = ({ vmInstruction, context }: ToAssembly<VmInstruction>): read
       return functionToAssembly({ vmInstruction, context });
     case FunctionCommand.Return:
       return returnToAssembly();
+    case FunctionCommand.Call:
+      return callToAssembly({ vmInstruction, context });
     default:
       return arithmeticLogicalToAssembly({ vmInstruction, context });
   }
@@ -121,7 +131,7 @@ export const translate = ({
   fileName: string;
 }): Result<{ assemblyInstructions: readonly AssemblyInstruction[] }> => {
   const assemblyInstructions: AssemblyInstruction[] = [
-    // TODO: bootstrap instructions
+    // TODO: NestedCall - add boostrap instructions after test passing without bootstrap
   ];
   let currentFunctionName: TranslationContext["functionName"] = undefined;
 
