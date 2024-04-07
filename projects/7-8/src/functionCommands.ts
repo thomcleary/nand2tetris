@@ -2,9 +2,16 @@ import { AssemblyInstruction, FunctionInstruction, ReturnInstruction, ToAssembly
 import { toLabel } from "./utils.js";
 
 export const functionToAssembly = ({
+  vmInstruction: { locals },
   context: { fileName, functionName },
 }: ToAssembly<FunctionInstruction>): readonly AssemblyInstruction[] => {
-  return [`(${toLabel({ fileName, functionName })})`];
+  const assemblyInstructions: AssemblyInstruction[] = [`(${toLabel({ fileName, functionName })})`];
+
+  for (let i = 0; i < locals; i++) {
+    assemblyInstructions.push("@SP", "A=M", "M=0", "@SP", "M=M+1");
+  }
+
+  return assemblyInstructions;
 };
 
 // TODO: SimpleFunction.tst
