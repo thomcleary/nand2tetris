@@ -47,20 +47,17 @@ export const segmentToSymbol = (
     } as const
   )[segment]);
 
-// TODO: the format of these labels should match the function $ format
 export const toVariableSymbol = ({ fileName, index }: { fileName: string; index: number }) =>
-  `${fileName}.STATIC.${index}` as const;
+  `${fileName}$STATIC.${index}` as const;
 
-// TODO: might not need fileName in label once translating multiple vm files
-// As functions will have className appeneded by compiler
 export const toLabel = ({
   fileName,
-  label,
   functionName,
+  label,
   lineNumber,
 }: Omit<TranslationContext, "lineNumber"> & Partial<Pick<TranslationContext, "lineNumber">> & { label?: string }) => {
-  const prefix = functionName ? `${fileName}.${functionName}` : fileName;
-  const labelPart = lineNumber ? `${label}L${lineNumber}` : label;
+  const prefix = functionName ?? fileName;
+  const suffix = lineNumber ? `${label}L${lineNumber}` : label;
 
-  return labelPart ? `${prefix}$${labelPart}` : prefix;
+  return label ? `${prefix}$${suffix}` : prefix;
 };

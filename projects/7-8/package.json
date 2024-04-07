@@ -6,7 +6,8 @@
     "node": "20.x"
   },
   "scripts": {
-    "vmTranslator": "tsx ./src/index.ts"
+    "vmTranslator": "tsx ./src/index.ts",
+    "tsc": "tsc --watch -p ./tsconfig.json"
   },
   "devDependencies": {
     "@types/node": "^20.12.2",

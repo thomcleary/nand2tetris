@@ -1,11 +1,11 @@
-import { Segment, Symbol, TEMP_OFFSET } from "./constants.js";
-import { AssemblyInstruction, PopInstruction, PushInstruction, ToAssembly } from "./types.js";
+import { Segment, StackCommand, Symbol, TEMP_OFFSET } from "./constants.js";
+import { AssemblyInstruction, StackInstruction, ToAssembly } from "./types.js";
 import { segmentToSymbol, toVariableSymbol } from "./utils.js";
 
 export const pushToAssembly = ({
   vmInstruction: { segment, index },
   context: { fileName },
-}: ToAssembly<PushInstruction>): readonly AssemblyInstruction[] => {
+}: ToAssembly<StackInstruction<StackCommand.Push>>): readonly AssemblyInstruction[] => {
   const push = [`@${Symbol.SP}`, "A=M", "M=D", `@${Symbol.SP}`, "M=M+1"] as const satisfies AssemblyInstruction[];
 
   switch (segment) {
@@ -34,7 +34,7 @@ export const pushToAssembly = ({
 export const popToAssembly = ({
   vmInstruction: { segment, index },
   context: { fileName },
-}: ToAssembly<PopInstruction>): readonly AssemblyInstruction[] => {
+}: ToAssembly<StackInstruction<StackCommand.Pop>>): readonly AssemblyInstruction[] => {
   switch (segment) {
     case Segment.Argument:
     case Segment.Local:

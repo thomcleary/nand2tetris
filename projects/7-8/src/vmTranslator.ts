@@ -1,6 +1,6 @@
 import { arithmeticLogicalToAssembly } from "./arithmeticLogicalCommands.js";
-import { gotoToAssembly, labelToAssembly } from "./branchCommands.js";
-import { BranchCommand, FunctionCommand, INFINITE_LOOP, Segment, StackCommand } from "./constants.js";
+import { gotoToAssembly, ifGotoToAssembly, labelToAssembly } from "./branchCommands.js";
+import { BranchCommand, FunctionCommand, Segment, StackCommand } from "./constants.js";
 import { callToAssembly, functionToAssembly, returnToAssembly } from "./functionCommands.js";
 import { popToAssembly, pushToAssembly } from "./stackCommands.js";
 import { AssemblyInstruction, Result, ToAssembly, TranslationContext, VmInstruction } from "./types.js";
@@ -110,8 +110,9 @@ const toAssembly = ({ vmInstruction, context }: ToAssembly<VmInstruction>): read
     case BranchCommand.Label:
       return labelToAssembly({ vmInstruction, context });
     case BranchCommand.Goto:
-    case BranchCommand.IfGoto:
       return gotoToAssembly({ vmInstruction, context });
+    case BranchCommand.IfGoto:
+      return ifGotoToAssembly({ vmInstruction, context });
     case FunctionCommand.Function:
       return functionToAssembly({ vmInstruction, context });
     case FunctionCommand.Return:
@@ -131,7 +132,7 @@ export const translate = ({
   fileName: string;
 }): Result<{ assemblyInstructions: readonly AssemblyInstruction[] }> => {
   const assemblyInstructions: AssemblyInstruction[] = [
-    // TODO: NestedCall - add boostrap instructions after test passing without bootstrap
+    // TODO: FibonacciElement.tst
   ];
   let currentFunctionName: TranslationContext["functionName"] = undefined;
 
@@ -153,17 +154,11 @@ export const translate = ({
       currentFunctionName = vmInstruction.functionName;
     }
 
-    console.log({ currentFunctionName });
-
     const context = { fileName, functionName: currentFunctionName, lineNumber } as const satisfies TranslationContext;
 
     assemblyInstructions.push(toComment(line));
     assemblyInstructions.push(...toAssembly({ vmInstruction, context }));
   }
-
-  // TODO: might be able to remove this for last test? (Sys.Init should have an infinite loop?)
-  assemblyInstructions.push(toComment("end program with infinite loop"));
-  assemblyInstructions.push(...INFINITE_LOOP);
 
   return { success: true, assemblyInstructions };
 };

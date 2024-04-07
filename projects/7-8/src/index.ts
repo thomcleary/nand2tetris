@@ -37,6 +37,7 @@ const getVmProgram = (filePath: string): Result<{ vmProgram: readonly string[] }
 };
 
 const main = () => {
+  // TODO: FibonacciElement.tst - translate single VM file or each VM file in a directory
   const vmFilePathResult = getVmFilePath();
 
   if (!vmFilePathResult.success) {

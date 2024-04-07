@@ -21,6 +21,13 @@ export const returnToAssembly = (): readonly AssemblyInstruction[] => [
   "D=M",
   `@${Symbol.R13}`,
   "M=D",
+  // returnAddress = *(endFrame - 5)
+  // store in temp register in case arg count is zero (return value will overwrite return address)
+  "@5",
+  "A=D-A",
+  "D=M",
+  `@${Symbol.R14}`,
+  "M=D",
   // *ARG = pop()
   `@${Symbol.SP}`,
   "A=M-1",
@@ -53,10 +60,11 @@ export const returnToAssembly = (): readonly AssemblyInstruction[] => [
   "A=M-D",
   "A=M",
   // goto returnAddress
+  `@${Symbol.R14}`,
+  "A=M",
   "0;JMP",
 ];
 
-// TODO: NestedCall test
 export const callToAssembly = ({
   vmInstruction: { functionName, args },
   context: { fileName, lineNumber },
@@ -64,7 +72,7 @@ export const callToAssembly = ({
   const returnAddressLabel = toLabel({ fileName, functionName, lineNumber, label: "ret" });
 
   return [
-    // push RETURN_ADDRESS_LABEL
+    // push returnAddress
     `@${returnAddressLabel}`,
     "D=A",
     `@${Symbol.SP}`,
@@ -102,7 +110,7 @@ export const callToAssembly = ({
     // goto func
     `@${toLabel({ fileName, functionName })}`,
     "0;JMP",
-    // (RETURN_ADDRESS_LABEL)
+    // (returnAddress)
     `(${returnAddressLabel})`,
   ];
 };

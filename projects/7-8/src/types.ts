@@ -15,15 +15,9 @@ export type ToAssembly<T extends VmInstruction> = {
   context: TranslationContext;
 };
 
-export type PushInstruction = {
-  command: StackCommand.Push;
-  segment: Segment;
-  index: number;
-};
-
-export type PopInstruction = {
-  command: StackCommand.Pop;
-  segment: Exclude<Segment, Segment.Constant>;
+export type StackInstruction<T extends StackCommand> = {
+  command: T;
+  segment: T extends StackCommand.Push ? Segment : Exclude<Segment, Segment.Constant>;
   index: number;
 };
 
@@ -31,13 +25,8 @@ export type ArithmeticLogicalInstruction = {
   command: ArithmeticLogicalCommand;
 };
 
-export type LabelInstruction = {
-  command: BranchCommand.Label;
-  label: string;
-};
-
-export type GotoInstruction = {
-  command: BranchCommand.Goto | BranchCommand.IfGoto;
+export type BranchInstruction<T extends BranchCommand> = {
+  command: T;
   label: string;
 };
 
@@ -58,11 +47,12 @@ export type CallInstruction = {
 };
 
 export type VmInstruction =
-  | PushInstruction
-  | PopInstruction
+  | StackInstruction<StackCommand.Push>
+  | StackInstruction<StackCommand.Pop>
   | ArithmeticLogicalInstruction
-  | LabelInstruction
-  | GotoInstruction
+  | BranchInstruction<BranchCommand.Label>
+  | BranchInstruction<BranchCommand.Goto>
+  | BranchInstruction<BranchCommand.IfGoto>
   | FunctionInstruction
   | ReturnInstruction
   | CallInstruction;

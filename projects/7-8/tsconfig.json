@@ -1,4 +1,5 @@
 {
+  "include": ["./src/**/*.ts"],
   "compilerOptions": {
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -6,10 +7,10 @@
     "allowJs": true,
     "resolveJsonModule": true,
     "moduleDetection": "force",
+    "moduleResolution": "NodeNext",
     "isolatedModules": true,
     "strict": true,
     "noUncheckedIndexedAccess": true,
-    "moduleResolution": "NodeNext",
     "module": "NodeNext",
     "noEmit": true,
     "lib": ["es2022"]
