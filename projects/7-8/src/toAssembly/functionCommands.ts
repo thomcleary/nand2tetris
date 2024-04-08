@@ -1,6 +1,6 @@
-import { Symbol } from "./constants.js";
-import { AssemblyInstruction, CallInstruction, FunctionInstruction, ToAssembly } from "./types.js";
-import { toLabel } from "./utils.js";
+import { Symbol } from "../constants.js";
+import { AssemblyInstruction, CallInstruction, FunctionInstruction, ToAssembly } from "../types.js";
+import { toLabel } from "../utils.js";
 
 export const functionToAssembly = ({
   vmInstruction: { locals },
@@ -40,7 +40,7 @@ export const returnToAssembly = (): readonly AssemblyInstruction[] => [
   "D=M+1",
   `@${Symbol.SP}`,
   "M=D",
-  // Symbol = *(endFrame - symbolStackFrameOffset)
+  // restore stack frame
   ...([Symbol.THAT, Symbol.THIS, Symbol.ARG, Symbol.LCL] as const).flatMap(
     (s) =>
       [
@@ -80,7 +80,7 @@ export const callToAssembly = ({
     "M=D",
     `@${Symbol.SP}`,
     "M=M+1",
-    // push stack frame
+    // save stack frame
     ...([Symbol.LCL, Symbol.ARG, Symbol.THIS, Symbol.THAT] as const).flatMap(
       (s) =>
         [

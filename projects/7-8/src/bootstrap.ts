@@ -1,5 +1,5 @@
 import { FunctionCommand, Symbol } from "./constants.js";
-import { callToAssembly } from "./functionCommands.js";
+import { callToAssembly } from "./toAssembly/functionCommands.js";
 import { AssemblyInstruction } from "./types.js";
 
 export const bootstrap = (): AssemblyInstruction[] => [

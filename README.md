@@ -18,7 +18,7 @@
 |  #  | Chapter                       | Completed |
 | :-: | ----------------------------- | :-------: |
 |  7  | Virtual Machine I: Processing |    ✅     |
-|  8  | Virtual Machine II: Control   |           |
+|  8  | Virtual Machine II: Control   |    ✅     |
 |  9  | High Level Language           |           |
 | 10  | Compiler I: Syntax Analysis   |           |
 | 11  | Compiler II: Code Generation  |           |

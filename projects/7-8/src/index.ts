@@ -20,11 +20,9 @@ const getVmFiles = (): Result<{ vmFiles: readonly string[]; outfile: string }> =
   }
 
   if (!lstatSync(filePath).isDirectory()) {
-    if (!filePath.endsWith(".vm")) {
-      return { success: false, message: error(`file type of ${filePath} is not .vm`) };
-    }
-
-    return { success: true, vmFiles: [filePath], outfile: filePath.replace(".vm", ".asm") };
+    return !filePath.endsWith(".vm")
+      ? { success: false, message: error(`file type of ${filePath} is not .vm`) }
+      : { success: true, vmFiles: [filePath], outfile: filePath.replace(".vm", ".asm") };
   }
 
   const vmFiles = readdirSync(filePath)
@@ -52,19 +50,18 @@ const getVmProgram = (filePath: string): Result<{ vmProgram: readonly string[] }
 };
 
 const main = () => {
-  // TODO: FibonacciElement.tst - translate single VM file or each VM file in a directory
-  const vmFilePathResult = getVmFiles();
+  const vmFilesResult = getVmFiles();
 
-  if (!vmFilePathResult.success) {
-    console.log(vmFilePathResult.message);
+  if (!vmFilesResult.success) {
+    console.log(vmFilesResult.message);
     return;
   }
 
-  const { vmFiles, outfile } = vmFilePathResult;
+  const { vmFiles, outfile } = vmFilesResult;
   const assemblyInstructions = bootstrap();
 
-  for (const filePath of vmFiles) {
-    const vmProgramResult = getVmProgram(filePath);
+  for (const vmFilePath of vmFiles) {
+    const vmProgramResult = getVmProgram(vmFilePath);
 
     if (!vmProgramResult.success) {
       console.log(vmProgramResult.message);
@@ -72,7 +69,7 @@ const main = () => {
     }
 
     const { vmProgram } = vmProgramResult;
-    const fileName = path.basename(filePath).replace(".vm", "");
+    const fileName = path.basename(vmFilePath).replace(".vm", "");
     const translateResult = translate({ vmProgram, fileName });
 
     if (!translateResult.success) {

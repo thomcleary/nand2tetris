@@ -1,6 +1,6 @@
-import { BranchCommand, Symbol } from "./constants.js";
-import { AssemblyInstruction, BranchInstruction, ToAssembly } from "./types.js";
-import { toLabel } from "./utils.js";
+import { BranchCommand, Symbol } from "../constants.js";
+import { AssemblyInstruction, BranchInstruction, ToAssembly } from "../types.js";
+import { toLabel } from "../utils.js";
 
 export const labelToAssembly = ({
   vmInstruction: { label },

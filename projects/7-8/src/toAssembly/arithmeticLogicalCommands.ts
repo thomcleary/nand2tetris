@@ -1,6 +1,6 @@
-import { ArithmeticLogicalCommand, Symbol } from "./constants.js";
-import { ArithmeticLogicalInstruction, AssemblyInstruction, ToAssembly } from "./types.js";
-import { toLabel } from "./utils.js";
+import { ArithmeticLogicalCommand, Symbol } from "../constants.js";
+import { ArithmeticLogicalInstruction, AssemblyInstruction, ToAssembly } from "../types.js";
+import { toLabel } from "../utils.js";
 
 export const arithmeticLogicalToAssembly = ({
   vmInstruction: { command },

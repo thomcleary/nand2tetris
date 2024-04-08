@@ -1,8 +1,8 @@
-import { arithmeticLogicalToAssembly } from "./arithmeticLogicalCommands.js";
-import { gotoToAssembly, ifGotoToAssembly, labelToAssembly } from "./branchCommands.js";
 import { BranchCommand, FunctionCommand, Segment, StackCommand } from "./constants.js";
-import { callToAssembly, functionToAssembly, returnToAssembly } from "./functionCommands.js";
-import { popToAssembly, pushToAssembly } from "./stackCommands.js";
+import { arithmeticLogicalToAssembly } from "./toAssembly/arithmeticLogicalCommands.js";
+import { gotoToAssembly, ifGotoToAssembly, labelToAssembly } from "./toAssembly/branchCommands.js";
+import { callToAssembly, functionToAssembly, returnToAssembly } from "./toAssembly/functionCommands.js";
+import { popToAssembly, pushToAssembly } from "./toAssembly/stackCommands.js";
 import { AssemblyInstruction, Result, ToAssembly, TranslationContext, VmInstruction } from "./types.js";
 import {
   error,
@@ -100,7 +100,6 @@ const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }>
   return { success: true, vmInstruction: { command, segment, index: indexNum } };
 };
 
-// TODO: add comments inside each of these functions explaining what the Assembly instructions are doing
 const toAssembly = ({ vmInstruction, context }: ToAssembly<VmInstruction>): readonly AssemblyInstruction[] => {
   switch (vmInstruction.command) {
     case StackCommand.Push:
