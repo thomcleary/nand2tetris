@@ -1,6 +1,6 @@
 import { arithmeticLogicalToAssembly } from "./arithmeticLogicalCommands.js";
 import { gotoToAssembly, ifGotoToAssembly, labelToAssembly } from "./branchCommands.js";
-import { BranchCommand, FunctionCommand, Segment, StackCommand, Symbol } from "./constants.js";
+import { BranchCommand, FunctionCommand, Segment, StackCommand } from "./constants.js";
 import { callToAssembly, functionToAssembly, returnToAssembly } from "./functionCommands.js";
 import { popToAssembly, pushToAssembly } from "./stackCommands.js";
 import { AssemblyInstruction, Result, ToAssembly, TranslationContext, VmInstruction } from "./types.js";
@@ -15,19 +15,6 @@ import {
   isValidIndex,
   toComment,
 } from "./utils.js";
-
-const bootstrap = (): AssemblyInstruction[] => [
-  // SP = 256
-  "@256",
-  "D=A",
-  `@${Symbol.SP}`,
-  "M=D",
-  // call Sys.init,
-  ...callToAssembly({
-    vmInstruction: { command: FunctionCommand.Call, func: "Sys.init", args: 0 },
-    context: { fileName: `Bootstrap.Sys.init` },
-  }),
-];
 
 const toVmInstruction = (line: string): Result<{ vmInstruction: VmInstruction }> => {
   const instructionParts = line.split(/\s+/);
@@ -144,7 +131,7 @@ export const translate = ({
   vmProgram: readonly string[];
   fileName: string;
 }): Result<{ assemblyInstructions: readonly AssemblyInstruction[] }> => {
-  const assemblyInstructions = bootstrap();
+  const assemblyInstructions: AssemblyInstruction[] = [];
   let currentFunction: TranslationContext["currentFunction"] = undefined;
 
   for (const [i, line] of vmProgram.entries()) {
