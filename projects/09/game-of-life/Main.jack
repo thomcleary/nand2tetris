@@ -7,10 +7,11 @@ class Main {
         var Array grid, row;
 
         var int r, c;
+        var int keyCode;
 
         let SCREEN_WIDTH = 512;
         let SCREEN_HEIGHT = 256;
-        let CELL_SIZE = 16;
+        let CELL_SIZE = 32;
 
         let gridRows = SCREEN_HEIGHT / CELL_SIZE;
         let gridCols = SCREEN_WIDTH / CELL_SIZE;
@@ -24,25 +25,66 @@ class Main {
 
             let c = 0;
             while (c < gridCols) {
-                let row[c] = true;
+                let row[c] = false;
                 let c = c + 1;
             }
 
             let r = r + 1;
         }
-        
-        let r = 0;
-        while (r < gridRows) {
-            let row = grid[r];
 
-            let c = 0;
-            while (c < gridCols) {
-                do Screen.setColor(row[c]);
-                do Screen.drawRectangle((c * CELL_SIZE) + 1, (r * CELL_SIZE) + 1, ((c * CELL_SIZE) + (CELL_SIZE - 1)) - 1, ((r * CELL_SIZE) + (CELL_SIZE - 1)) - 1);
-                let c = c + 1;
+        let r = 0;
+        let c = 0;
+        let keyCode = 0;
+
+        while (~(keyCode = 128)) {
+            do Screen.setColor(true);
+            do Screen.drawLine(c * CELL_SIZE, r * CELL_SIZE, c * CELL_SIZE, (r * CELL_SIZE) + (CELL_SIZE - 1));
+            do Screen.drawLine((c * CELL_SIZE) + (CELL_SIZE - 1), r * CELL_SIZE, (c * CELL_SIZE) + (CELL_SIZE - 1), (r * CELL_SIZE) + (CELL_SIZE - 1));
+            do Screen.drawLine(c * CELL_SIZE, r * CELL_SIZE, (c * CELL_SIZE) + (CELL_SIZE - 1), r * CELL_SIZE);
+            do Screen.drawLine(c * CELL_SIZE, (r * CELL_SIZE) + (CELL_SIZE - 1), (c * CELL_SIZE) + (CELL_SIZE - 1), (r * CELL_SIZE) + (CELL_SIZE - 1));
+
+            while (~(keyCode = 0)) {
+                let keyCode = Keyboard.keyPressed();
             }
 
-            let r = r + 1;
+            while (~(keyCode = 32) & ~(keyCode = 128) & ~(keyCode = 130) & ~(keyCode = 131) & ~(keyCode = 132) & ~(keyCode = 133)) {
+                let keyCode = Keyboard.keyPressed();
+            }
+
+            do Screen.setColor(false);
+            do Screen.drawLine(c * CELL_SIZE, r * CELL_SIZE, c * CELL_SIZE, (r * CELL_SIZE) + (CELL_SIZE - 1));
+            do Screen.drawLine((c * CELL_SIZE) + (CELL_SIZE - 1), r * CELL_SIZE, (c * CELL_SIZE) + (CELL_SIZE - 1), (r * CELL_SIZE) + (CELL_SIZE - 1));
+            do Screen.drawLine(c * CELL_SIZE, r * CELL_SIZE, (c * CELL_SIZE) + (CELL_SIZE - 1), r * CELL_SIZE);
+            do Screen.drawLine(c * CELL_SIZE, (r * CELL_SIZE) + (CELL_SIZE - 1), (c * CELL_SIZE) + (CELL_SIZE - 1), (r * CELL_SIZE) + (CELL_SIZE - 1));
+
+            let row = grid[r];
+
+            if (keyCode = 32) {
+                let row[c] = ~row[c];
+                do Screen.setColor(row[c]);
+                do Screen.drawRectangle((c * CELL_SIZE) + 1, (r * CELL_SIZE) + 1, ((c * CELL_SIZE) + (CELL_SIZE - 1)) - 1, ((r * CELL_SIZE) + (CELL_SIZE - 1)) - 1);
+            } else {
+                if (keyCode = 130) {
+                    if (c > 0) {
+                        let c = c - 1;
+                    }
+                }
+                if (keyCode = 131) {
+                    if (r > 0) {
+                        let r = r - 1;
+                    }
+                }
+                if (keyCode = 132) {
+                    if (c < (gridCols - 1)) {
+                        let c = c + 1;
+                    }
+                }
+                if (keyCode = 133) {
+                    if (r < (gridRows - 1)) {
+                        let r = r + 1;
+                    }
+                }
+            }
         }
 
         return;

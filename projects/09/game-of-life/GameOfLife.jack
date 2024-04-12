@@ -1,0 +1,37 @@
+class GameOfLife {
+    field Array cells;
+
+    // TODO
+    constructor GameOfLife new() {
+        let cells = Array.new(1);
+        return this;
+    }
+
+    // TODO
+    method void dispose() {
+        do cells.dispose();
+        do Memory.deAlloc(this);
+
+        return;
+    }
+
+    // TODO
+    method void run() {
+        return;
+    }
+
+    // TODO
+    method void setup() {
+        return;
+    }
+
+    // TODO
+    method void simulate() {
+        return;
+    }
+
+    // TODO
+    method void reset() {
+        return;
+    }
+}
