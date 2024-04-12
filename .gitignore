@@ -1,13 +1,12 @@
 .DS_Store
 **/node_modules
 
-projects/6/**/*.hack
-projects/7-8/**/*.asm
-projects/9
+projects/06/**/*.hack
+projects/07-08/**/*.asm
+projects/09/**/*.vm
 projects/10
 projects/11
 projects/12
-projects/13
 
 documents
 tools

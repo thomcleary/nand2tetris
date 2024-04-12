@@ -23,4 +23,3 @@
 | 10  | Compiler I: Syntax Analysis   |           |
 | 11  | Compiler II: Code Generation  |           |
 | 12  | Operating System              |           |
-| 13  | More Fun to Go                |           |
