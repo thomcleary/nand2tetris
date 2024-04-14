@@ -1,0 +1,66 @@
+class Constants {
+    static int screenWidth, screenHeight;
+    static int cellSize;
+
+    field boolean initialised;
+
+    constructor Constants new() {
+        let screenWidth = 512;
+        let screenHeight = 256;
+        let cellSize = 16;
+
+        let initialised = true;
+
+        return this;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+
+        return;
+    }
+
+    function int screenWidth() {
+        return screenWidth;
+    }
+
+    function int screenHeight() {
+        return screenHeight;
+    }
+
+    function int cellSize() {
+        return cellSize;
+    }
+
+    function int numRows() {
+        return screenHeight / cellSize;
+    }
+
+    function int numColumns() {
+        return screenWidth / cellSize;
+    }
+
+    function int space() {
+        return 32;
+    }
+
+    function int enter() {
+        return 128;
+    }
+
+    function int leftArrow() {
+        return 130;
+    }
+
+    function int upArrow() {
+        return 131;
+    }
+
+    function int rightArrow() {
+        return 132;
+    }
+
+    function int downArrow() {
+        return 133;
+    }
+}

@@ -3,7 +3,7 @@ class GameOfLife {
 
     // TODO
     constructor GameOfLife new() {
-        let cells = Array.new(1);
+        do _reset();
         return this;
     }
 
@@ -11,27 +11,119 @@ class GameOfLife {
     method void dispose() {
         do cells.dispose();
         do Memory.deAlloc(this);
-
         return;
     }
 
     // TODO
     method void run() {
+        do _setup();
+
         return;
     }
 
     // TODO
-    method void setup() {
+    method void _setup() {
+        var int r, c, keyCode, cellSize;
+        var Array row;
+
+        let r = 0;
+        let c = 0;
+        let keyCode = 0;
+        let cellSize = Constants.cellSize();
+
+        while (~(keyCode = Constants.enter())) {
+            do _drawCursor(true, r, c);
+
+            while (~(keyCode = 0)) {
+                let keyCode = Keyboard.keyPressed();
+            }
+
+            while (~(keyCode = Constants.space()) & ~(keyCode = Constants.enter()) & ~(keyCode = Constants.leftArrow()) & ~(keyCode = Constants.upArrow()) & ~(keyCode = Constants.rightArrow()) & ~(keyCode = Constants.downArrow())) {
+                let keyCode = Keyboard.keyPressed();
+            }
+
+            do _drawCursor(false, r, c);
+
+            if (keyCode = Constants.space()) {
+                let row = cells[r];
+                let row[c] = ~row[c];
+                do Screen.setColor(row[c]);
+                do Screen.drawRectangle((c * cellSize) + 1, (r * cellSize) + 1, ((c * cellSize) + (cellSize - 1)) - 1, ((r * cellSize) + (cellSize - 1)) - 1);
+            } else {
+                if (keyCode = Constants.leftArrow()) {
+                    if (c > 0) {
+                        let c = c - 1;
+                    }
+                }
+                if (keyCode = Constants.upArrow()) {
+                    if (r > 0) {
+                        let r = r - 1;
+                    }
+                }
+                if (keyCode = Constants.rightArrow()) {
+                    if (c < (Constants.numColumns() - 1)) {
+                        let c = c + 1;
+                    }
+                }
+                if (keyCode = Constants.downArrow()) {
+                    if (r < (Constants.numRows() - 1)) {
+                        let r = r + 1;
+                    }
+                }
+            }
+        }
+
+        return;
+    }
+
+    // TODO: (maybe there should be a separate Simulator class?)
+    method void _simulate() {
         return;
     }
 
     // TODO
-    method void simulate() {
+    method void _reset() {
+        var int r, c;
+        var int numRows, numColumns;
+        var Array newCells, row;
+
+        let numRows = Constants.numRows();
+        let numColumns = Constants.numColumns();
+        let newCells = Array.new(numRows);
+
+        let r = 0;
+        while (r < numRows) {
+            let newCells[r] = Array.new(numColumns);
+            let row = newCells[r];
+
+            let c = 0;
+            while (c < numColumns) {
+                let row[c] = false;
+                let c = c + 1;
+            }
+
+            let r = r + 1;
+        }
+
+        let cells = newCells;
+
         return;
     }
 
-    // TODO
-    method void reset() {
+    method void _drawCursor(boolean color, int row, int column) {
+        var int size, length, rowPixel, columnPixel;
+        
+        let size = Constants.cellSize();
+        let length = size - 1;
+        let rowPixel = row * size;
+        let columnPixel = column * size;
+
+        do Screen.setColor(color);
+        do Screen.drawLine(columnPixel, rowPixel, columnPixel, rowPixel + length);
+        do Screen.drawLine(columnPixel + length, rowPixel, columnPixel + length, rowPixel + length);
+        do Screen.drawLine(columnPixel, rowPixel, columnPixel + length, rowPixel);
+        do Screen.drawLine(columnPixel, rowPixel + length, columnPixel + length, rowPixel + length);
+
         return;
     }
 }
