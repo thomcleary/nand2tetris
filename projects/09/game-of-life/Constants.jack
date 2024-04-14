@@ -40,11 +40,19 @@ class Constants {
         return screenWidth / cellSize;
     }
 
-    function int space() {
+    function int spaceKey() {
         return 32;
     }
 
-    function int enter() {
+    function int qKey() {
+        return 81;
+    }
+
+    function int rKey() {
+        return 82;
+    }
+
+    function int enterKey() {
         return 128;
     }
 

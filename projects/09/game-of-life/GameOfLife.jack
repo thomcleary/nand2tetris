@@ -1,54 +1,64 @@
 class GameOfLife {
     field Array cells;
 
-    // TODO
     constructor GameOfLife new() {
-        do _reset();
         return this;
     }
 
-    // TODO
     method void dispose() {
         do cells.dispose();
         do Memory.deAlloc(this);
         return;
     }
 
-    // TODO
     method void run() {
+        var int keyCode;
+
+        let keyCode = 0;
+
         do _setup();
+
+        while (~(keyCode = Constants.qKey())) {
+            if (keyCode = Constants.rKey()) {
+                do _setup();
+            }
+
+            do _simulate();
+            do Sys.wait(1000);
+
+            let keyCode = Keyboard.keyPressed();
+        }
 
         return;
     }
 
-    // TODO
     method void _setup() {
-        var int r, c, keyCode, cellSize;
+        var int r, c, keyCode;
         var Array row;
 
         let r = 0;
         let c = 0;
         let keyCode = 0;
-        let cellSize = Constants.cellSize();
 
-        while (~(keyCode = Constants.enter())) {
+        do _reset();
+
+        while (~(keyCode = Constants.enterKey())) {
             do _drawCursor(true, r, c);
 
             while (~(keyCode = 0)) {
                 let keyCode = Keyboard.keyPressed();
             }
 
-            while (~(keyCode = Constants.space()) & ~(keyCode = Constants.enter()) & ~(keyCode = Constants.leftArrow()) & ~(keyCode = Constants.upArrow()) & ~(keyCode = Constants.rightArrow()) & ~(keyCode = Constants.downArrow())) {
+            while (~(keyCode = Constants.spaceKey()) & ~(keyCode = Constants.enterKey()) & ~(keyCode = Constants.leftArrow()) & ~(keyCode = Constants.upArrow()) & ~(keyCode = Constants.rightArrow()) & ~(keyCode = Constants.downArrow())) {
                 let keyCode = Keyboard.keyPressed();
             }
 
             do _drawCursor(false, r, c);
 
-            if (keyCode = Constants.space()) {
+            if (keyCode = Constants.spaceKey()) {
                 let row = cells[r];
                 let row[c] = ~row[c];
-                do Screen.setColor(row[c]);
-                do Screen.drawRectangle((c * cellSize) + 1, (r * cellSize) + 1, ((c * cellSize) + (cellSize - 1)) - 1, ((r * cellSize) + (cellSize - 1)) - 1);
+                do _drawCell(row[c], r, c);
             } else {
                 if (keyCode = Constants.leftArrow()) {
                     if (c > 0) {
@@ -76,12 +86,25 @@ class GameOfLife {
         return;
     }
 
-    // TODO: (maybe there should be a separate Simulator class?)
     method void _simulate() {
+        var Array row;
+        var int r, c;
+
+        let r = 0;
+        while (r < Constants.numRows()) {
+            let row = cells[r];
+            let c = 0;
+            while (c < Constants.numColumns()) {
+                let row[c] = ~row[c];
+                do _drawCell(row[c], r, c);
+                let c = c + 1;
+            }
+            let r = r + 1;
+        }
+
         return;
     }
 
-    // TODO
     method void _reset() {
         var int r, c;
         var int numRows, numColumns;
@@ -90,6 +113,8 @@ class GameOfLife {
         let numRows = Constants.numRows();
         let numColumns = Constants.numColumns();
         let newCells = Array.new(numRows);
+
+        do Screen.clearScreen();
 
         let r = 0;
         while (r < numRows) {
@@ -123,6 +148,20 @@ class GameOfLife {
         do Screen.drawLine(columnPixel + length, rowPixel, columnPixel + length, rowPixel + length);
         do Screen.drawLine(columnPixel, rowPixel, columnPixel + length, rowPixel);
         do Screen.drawLine(columnPixel, rowPixel + length, columnPixel + length, rowPixel + length);
+
+        return;
+    }
+
+    method void _drawCell(boolean color, int row, int column) {
+        var int size, length, rowPixel, columnPixel;
+
+        let size = Constants.cellSize();
+        let length = size - 1;
+        let rowPixel = row * size;
+        let columnPixel = column * size;
+
+        do Screen.setColor(color);
+        do Screen.drawRectangle(columnPixel + 1, rowPixel + 1, (columnPixel + (size - 1)) - 1, (rowPixel + (size - 1)) - 1);
 
         return;
     }
