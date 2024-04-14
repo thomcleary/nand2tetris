@@ -2,6 +2,7 @@ class GameOfLife {
     field Array cells;
 
     constructor GameOfLife new() {
+        let cells = GameOfLife.newCells();
         return this;
     }
 
@@ -24,7 +25,7 @@ class GameOfLife {
             }
 
             do _simulate();
-            do Sys.wait(1000);
+            do Sys.wait(250);
 
             let keyCode = Keyboard.keyPressed();
         }
@@ -87,50 +88,67 @@ class GameOfLife {
     }
 
     method void _simulate() {
-        var Array row;
+        var Array next, nextRow;
         var int r, c;
+
+        let next = GameOfLife.newCells();
 
         let r = 0;
         while (r < Constants.numRows()) {
-            let row = cells[r];
+            let nextRow = next[r];
+
             let c = 0;
             while (c < Constants.numColumns()) {
-                let row[c] = ~row[c];
-                do _drawCell(row[c], r, c);
+                let nextRow[c] = _willSurvive(r, c);
+                do _drawCell(nextRow[c], r, c);
                 let c = c + 1;
             }
             let r = r + 1;
         }
+
+        do cells.dispose();
+        let cells = next;
 
         return;
     }
 
-    method void _reset() {
-        var int r, c;
-        var int numRows, numColumns;
-        var Array newCells, row;
+    method boolean _willSurvive(int row, int column) {
+        var Array cellRow;
+        var int currentRow, currentColumn, neighbours;
 
-        let numRows = Constants.numRows();
-        let numColumns = Constants.numColumns();
-        let newCells = Array.new(numRows);
+        let neighbours = 0;
 
-        do Screen.clearScreen();
-
-        let r = 0;
-        while (r < numRows) {
-            let newCells[r] = Array.new(numColumns);
-            let row = newCells[r];
-
-            let c = 0;
-            while (c < numColumns) {
-                let row[c] = false;
-                let c = c + 1;
+        let currentRow = row - 1;
+        while (currentRow < (row + 2)) {
+            if ((currentRow > (-1)) & (currentRow < (Constants.numRows()))) {
+                let cellRow = cells[currentRow];
+                let currentColumn = column - 1;
+                while (currentColumn < (column + 2)) {
+                    if ((currentColumn > (-1)) & (currentColumn < (Constants.numColumns()))) {
+                        if (~((currentRow = row) & (currentColumn = column)) & cellRow[currentColumn]) {
+                            let neighbours = neighbours + 1;
+                        }
+                    }
+                    let currentColumn = currentColumn + 1;
+                }
             }
-
-            let r = r + 1;
+            let currentRow = currentRow + 1;
         }
 
-        let cells = newCells;
+        let cellRow = cells[row];
+
+        if (cellRow[column]) {
+            return ((neighbours = 2) | (neighbours = 3));
+        }
+        return neighbours = 3;
+    }
+
+    method void _reset() {
+        do Screen.clearScreen();
+
+        do cells.dispose();
+
+        let cells = GameOfLife.newCells();
 
         return;
     }
@@ -164,5 +182,31 @@ class GameOfLife {
         do Screen.drawRectangle(columnPixel + 1, rowPixel + 1, (columnPixel + (size - 1)) - 1, (rowPixel + (size - 1)) - 1);
 
         return;
+    }
+
+    function Array newCells() {
+        var int r, c;
+        var int numRows, numColumns;
+        var Array newCells, row;
+
+        let numRows = Constants.numRows();
+        let numColumns = Constants.numColumns();
+        let newCells = Array.new(numRows);
+
+        let r = 0;
+        while (r < numRows) {
+            let newCells[r] = Array.new(numColumns);
+            let row = newCells[r];
+
+            let c = 0;
+            while (c < numColumns) {
+                let row[c] = false;
+                let c = c + 1;
+            }
+
+            let r = r + 1;
+        }
+
+        return newCells;
     }
 }

@@ -1,5 +1,7 @@
 # Project 9
 
+![Game of Life](./docs//game-of-life.gif);
+
 ## To Run
 
 First compile the program with the supplied Jack compiler
