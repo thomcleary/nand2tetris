@@ -1,0 +1,17 @@
+{
+  "name": "compiler",
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": "20.x"
+  },
+  "scripts": {
+    "test:tokenizer": "tsx ./src/tokenizer/tokenizeToXml.ts",
+    "tsc": "tsc --watch -p ./tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.2",
+    "tsx": "^4.7.1",
+    "typescript": "5.4.3"
+  }
+}
