@@ -29,9 +29,16 @@ const tokenizeToXml = () => {
 
     const { jackProgram } = jackProgramResult;
 
-    const tokens = tokenize(jackProgram);
+    const tokenizeResult = tokenize(jackProgram);
 
-    console.log({ tokens });
+    if (!tokenizeResult.success) {
+      console.log(tokenizeResult.message);
+      return;
+    }
+
+    const { tokens } = tokenizeResult;
+
+    console.log({ tokens: tokens.length });
 
     // TODO: Output tokens to XML file in same directory as filePath
   }
