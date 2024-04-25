@@ -24,7 +24,7 @@ export const getJackFiles = (filePath: string): Result<{ jackFiles: readonly str
     : { success: false, message: `No ${jackExtension} files found in ${filePath}` };
 };
 
-export const toJackProgram = (filePath: string): Result<{ jackProgram: string }> => {
+export const toJackProgram = (filePath: string): Result<{ jackProgram: string[] }> => {
   try {
     let jackProgram = readFileSync(filePath).toString();
     jackProgram = jackProgram.trim().replaceAll("\r", "");
@@ -32,7 +32,10 @@ export const toJackProgram = (filePath: string): Result<{ jackProgram: string }>
 
     return {
       success: true,
-      jackProgram,
+      jackProgram: jackProgram
+        .split("\n")
+        .map((l) => l.trim())
+        .filter((l) => !!l),
     };
   } catch {
     return { success: false, message: error(`unable to read file ${filePath}`) };
@@ -40,12 +43,16 @@ export const toJackProgram = (filePath: string): Result<{ jackProgram: string }>
 };
 
 const removeComments = (jackProgram: string) => {
-  const singleLineMatches = jackProgram.match(/\/\/.*\r?\n/gm) ?? [];
-  const multiLineMatches = jackProgram.match(/\/\*(.|\r?\n)*?\*\//gm) ?? [];
+  const singleLineMatches = jackProgram.match(/\/\/.*\r?\n/gm);
+  const multiLineMatches = jackProgram.match(/\/\*(.|\r?\n)*?\*\//gm);
 
   let jackProgramWithoutComments = jackProgram;
 
-  [...singleLineMatches, ...multiLineMatches].forEach((match) => {
+  singleLineMatches?.forEach((match) => {
+    jackProgramWithoutComments = jackProgramWithoutComments.replace(match, "\n");
+  });
+
+  multiLineMatches?.forEach((match) => {
     jackProgramWithoutComments = jackProgramWithoutComments.replace(match, "");
   });
 
