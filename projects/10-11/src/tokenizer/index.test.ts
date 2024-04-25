@@ -29,8 +29,6 @@ const tokenizeToXml = () => {
 
     const { jackProgram } = jackProgramResult;
 
-    console.log({ jackProgram });
-
     const tokens = tokenize(jackProgram);
 
     console.log({ tokens });

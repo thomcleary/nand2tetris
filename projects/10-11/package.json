@@ -6,7 +6,7 @@
     "node": "20.x"
   },
   "scripts": {
-    "test:tokenizer": "tsx ./src/tokenizer/tokenizeToXml.test.ts",
+    "test:tokenizer": "tsx ./src/tokenizer/index.test.ts",
     "tsc": "tsc --watch -p ./tsconfig.json"
   },
   "devDependencies": {

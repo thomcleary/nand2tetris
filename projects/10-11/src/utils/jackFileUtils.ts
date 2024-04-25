@@ -26,14 +26,28 @@ export const getJackFiles = (filePath: string): Result<{ jackFiles: readonly str
 
 export const toJackProgram = (filePath: string): Result<{ jackProgram: string }> => {
   try {
+    let jackProgram = readFileSync(filePath).toString();
+    jackProgram = jackProgram.trim().replaceAll("\r", "");
+    jackProgram = removeComments(jackProgram);
+
     return {
       success: true,
-      // TODO: strip out comments before returning
-      // - single line (can be after code or at start of line)
-      // - multiline (can start with /* or /**), (can have code after on the final line)
-      jackProgram: readFileSync(filePath).toString().trim(),
+      jackProgram,
     };
   } catch {
     return { success: false, message: error(`unable to read file ${filePath}`) };
   }
+};
+
+const removeComments = (jackProgram: string) => {
+  const singleLineMatches = jackProgram.match(/\/\/.*\r?\n/gm) ?? [];
+  const multiLineMatches = jackProgram.match(/\/\*(.|\r?\n)*?\*\//gm) ?? [];
+
+  let jackProgramWithoutComments = jackProgram;
+
+  [...singleLineMatches, ...multiLineMatches].forEach((match) => {
+    jackProgramWithoutComments = jackProgramWithoutComments.replace(match, "");
+  });
+
+  return jackProgramWithoutComments;
 };
