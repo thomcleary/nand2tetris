@@ -1,8 +1,26 @@
+import { writeFileSync } from "fs";
+import path from "path";
+import { Token } from "../types.js";
 import { error } from "../utils/index.js";
 import { getJackFiles, toJackProgram } from "../utils/jackFileUtils.js";
 import tokenize from "./index.js";
 
-const tokenizeToXml = () => {
+const XmlConflicts = {
+  "<": "&lt;",
+  ">": "&gt;",
+  [`"`]: "&quot;",
+  "&": "&amp;",
+} as const satisfies Record<"<" | ">" | '"' | "&", `&${string};`>;
+
+const isXmlConflict = (token: string): token is keyof typeof XmlConflicts => Object.keys(XmlConflicts).includes(token);
+
+const escapeToken = (token: string) => (isXmlConflict(token) ? XmlConflicts[token] : token);
+
+const tokenToXml = ({ type, token }: Token) => `<${type}> ${escapeToken(token)} </${type}>`;
+
+const tokensToXml = (tokens: readonly Token[]): string => `<tokens>\n${tokens.map(tokenToXml).join("\n")}\n</tokens>\n`;
+
+const test = () => {
   const filePath = process.argv[2];
 
   if (!filePath) {
@@ -38,10 +56,15 @@ const tokenizeToXml = () => {
 
     const { tokens } = tokenizeResult;
 
-    console.log({ tokens: tokens.length });
+    const xml = tokensToXml(tokens);
+    const outfile = `${filePath}/${path.basename(file).replace(".jack", "T.out.xml")}`;
 
-    // TODO: Output tokens to XML file in same directory as filePath
+    try {
+      writeFileSync(outfile, xml);
+    } catch {
+      console.log(error(`unable to test output to file ${outfile}`));
+    }
   }
 };
 
-tokenizeToXml();
+test();
