@@ -4,22 +4,22 @@
 
 ## Part 1: Hardware
 
-|  #  | Chapter               | Completed |
-| :-: | --------------------- | :-------: |
-|  1  | Boolean Logic         |    ✅     |
-|  2  | Boolean Arithmetic    |    ✅     |
-|  3  | Memory                |    ✅     |
-|  4  | Machine Language      |    ✅     |
-|  5  | Computer Architecture |    ✅     |
-|  6  | Assembler             |    ✅     |
+|  #  | Chapter               | Project        | Completed |
+| :-: | --------------------- | -------------- | :-------: |
+|  1  | Boolean Logic         | Logic Gates    |    ✅     |
+|  2  | Boolean Arithmetic    | ALU            |    ✅     |
+|  3  | Memory                | RAM            |    ✅     |
+|  4  | Machine Language      | Assembly       |    ✅     |
+|  5  | Computer Architecture | CPU            |    ✅     |
+|  6  | Assembler             | Hack Assembler |    ✅     |
 
 ## Part 2: Software
 
-|  #  | Chapter                       | Completed |
-| :-: | ----------------------------- | :-------: |
-|  7  | Virtual Machine I: Processing |    ✅     |
-|  8  | Virtual Machine II: Control   |    ✅     |
-|  9  | High Level Language           |    ✅     |
-| 10  | Compiler I: Syntax Analysis   |           |
-| 11  | Compiler II: Code Generation  |           |
-| 12  | Operating System              |           |
+|  #  | Chapter                       | Project                         | Completed |
+| :-: | ----------------------------- | ------------------------------- | :-------: |
+|  7  | Virtual Machine I: Processing | VM Translator                   |    ✅     |
+|  8  | Virtual Machine II: Control   | VM Translator                   |    ✅     |
+|  9  | High Level Language           | Jack Program (Game of Life)     |    ✅     |
+| 10  | Compiler I: Syntax Analysis   | Jack Compiler (Syntax Analyzer) |           |
+| 11  | Compiler II: Code Generation  | Jack Compiler (Code Generator)  |           |
+| 12  | Operating System              | Jack OS                         |           |
