@@ -2,6 +2,7 @@ import { Token } from "../tokenizer/types.js";
 import { Result } from "../types.js";
 import { error } from "../utils/index.js";
 import { JackParseTree } from "./JackParseTree.js";
+import { isTypeToken } from "./utils.js";
 
 export const parse = (tokens: readonly Token[]): Result<{ parseTree: JackParseTree }> => {
   const jackParser = new JackParser(tokens);
@@ -44,7 +45,15 @@ class JackParser {
     this.currentTokenIndex++;
   }
 
-  private error({ method, expected, actual }: { method: string; expected: Token; actual: Token }): never {
+  private error({
+    method,
+    expected,
+    actual,
+  }: {
+    method: string;
+    expected: Token | { type: string; token: string };
+    actual: Token;
+  }): never {
     throw new Error(`(${method}): expected ${expected.type}-${expected.token}, but was ${actual.type}-${actual.token}`);
   }
 
@@ -84,15 +93,8 @@ class JackParser {
     parseTree.insert(openingCurlyBracketToken);
     this.advanceToken();
 
-    const classVarDec = this.parseClassVarDec();
-    if (classVarDec) {
-      parseTree.insert(classVarDec);
-    }
-
-    const subroutineDec = this.parseSubroutineDec();
-    if (subroutineDec) {
-      parseTree.insert(subroutineDec);
-    }
+    this.parseClassVarDecs().forEach((tree) => parseTree.insert(tree));
+    this.parseSubroutineDecs().forEach((tree) => parseTree.insert(tree));
 
     const closingCurlyBracketToken = this.currentToken;
     if (closingCurlyBracketToken.type !== "symbol" || closingCurlyBracketToken.token !== "}") {
@@ -107,15 +109,80 @@ class JackParser {
     return parseTree;
   }
 
-  private parseClassVarDec(): JackParseTree | undefined {
-    return undefined;
+  private parseClassVarDecs(): JackParseTree[] {
+    const classVarDecTrees: JackParseTree[] = [];
 
-    const parseTree = new JackParseTree({ grammarRule: "classVarDec" });
+    let staticOrFieldToken = this.currentToken;
+    while (
+      staticOrFieldToken.type === "keyword" &&
+      (staticOrFieldToken.token === "static" || staticOrFieldToken.token === "field")
+    ) {
+      const classVarDec = new JackParseTree({ grammarRule: "classVarDec" });
+      classVarDec.insert(this.currentToken);
+      this.advanceToken();
+
+      const typeToken = this.currentToken;
+      if (!isTypeToken(typeToken)) {
+        this.error({
+          method: this.parseClassVarDecs.name,
+          expected: { type: "keyword/identifier", token: "(int|char|boolean)/_<identifier>" },
+          actual: typeToken,
+        });
+      }
+      classVarDec.insert(typeToken);
+      this.advanceToken();
+
+      const varNameToken = this.currentToken;
+      if (varNameToken.type !== "identifier") {
+        this.error({
+          method: this.parseClassVarDecs.name,
+          expected: { type: "identifier", token: "_<identifier>" },
+          actual: typeToken,
+        });
+      }
+      classVarDec.insert(varNameToken);
+      this.advanceToken();
+
+      let varDecSeparatorToken = this.currentToken;
+      while (varDecSeparatorToken.type === "symbol" && varDecSeparatorToken.token === ",") {
+        classVarDec.insert(varDecSeparatorToken);
+        this.advanceToken();
+
+        const varNameToken = this.currentToken;
+        if (varNameToken.type !== "identifier") {
+          this.error({
+            method: this.parseClassVarDecs.name,
+            expected: { type: "identifier", token: "_<identifier>" },
+            actual: varNameToken,
+          });
+        }
+        classVarDec.insert(varNameToken);
+        this.advanceToken();
+
+        varDecSeparatorToken = this.currentToken;
+      }
+
+      const semiColonToken = this.currentToken;
+      if (semiColonToken.type !== "symbol" || semiColonToken.token !== ";") {
+        this.error({
+          method: this.parseClassVarDecs.name,
+          expected: { type: "symbol", token: ";" },
+          actual: semiColonToken,
+        });
+      }
+      classVarDec.insert(semiColonToken);
+
+      classVarDecTrees.push(classVarDec);
+      staticOrFieldToken = this.currentToken;
+    }
+
+    this.advanceToken();
+
+    return classVarDecTrees;
   }
 
-  private parseSubroutineDec(): JackParseTree | undefined {
-    return undefined;
-
-    const parseTree = new JackParseTree({ grammarRule: "subroutineDec" });
+  // TODO
+  private parseSubroutineDecs(): JackParseTree[] {
+    return [];
   }
 }
