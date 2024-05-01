@@ -7,7 +7,12 @@ export class JackParseTree implements Tree<JackParseTreeNodeValue> {
     this.root = { value: rootValue, children: [] };
   }
 
-  insert(value: JackParseTreeNodeValue): Tree<JackParseTreeNodeValue> {
+  insert(value: JackParseTreeNodeValue | JackParseTree): JackParseTree {
+    if (value instanceof JackParseTree) {
+      this.root.children.push(value);
+      return value;
+    }
+
     const tree = new JackParseTree(value);
 
     this.root.children.push(tree);
