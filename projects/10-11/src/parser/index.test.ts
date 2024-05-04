@@ -1,7 +1,7 @@
 import tokenize from "../tokenizer/index.js";
 import { error } from "../utils/index.js";
 import { getJackFiles, toJackProgram } from "../utils/jackFileUtils.js";
-import { parse } from "./index.js";
+import { JackParser } from "./JackParser.js";
 
 const test = () => {
   const filePath = process.argv[2];
@@ -19,6 +19,7 @@ const test = () => {
   }
 
   const { jackFiles } = jackFilesResult;
+  const jackParser = new JackParser();
 
   for (const file of jackFiles) {
     const jackProgramResult = toJackProgram(file);
@@ -40,16 +41,16 @@ const test = () => {
     const { tokens } = tokenizeResult;
 
     // TODO: Parse tokens into parse tree
-    const parseTreeResult = parse(tokens);
+    const parseResult = jackParser.parse(tokens);
 
-    if (!parseTreeResult.success) {
-      console.log(parseTreeResult.message);
+    if (!parseResult.success) {
+      console.log(parseResult.message);
       return;
     }
 
-    const { parseTree } = parseTreeResult;
+    const { jackParseTree } = parseResult;
 
-    console.log(parseTree);
+    console.log(jackParseTree);
 
     // TODO: Convert parse tree to XML
 
