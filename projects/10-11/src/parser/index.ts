@@ -25,6 +25,7 @@ class JackParser {
       throw new RangeError("(nextToken): currentTokenIndex out of range for tokens");
     }
 
+    console.log({ currentToken: token });
     return token;
   }
 
@@ -42,6 +43,7 @@ class JackParser {
   }
 
   private advanceToken() {
+    console.log("advanceToken()");
     this.currentTokenIndex++;
   }
 
@@ -51,7 +53,7 @@ class JackParser {
     actual,
   }: {
     method: string;
-    expected: Token | { type: string; token: string };
+    expected: Partial<Token> | Partial<{ type: string; token: string }>;
     actual: Token;
   }): never {
     throw new Error(`(${method}): expected ${expected.type}-${expected.token}, but was ${actual.type}-${actual.token}`);
@@ -118,7 +120,7 @@ class JackParser {
       (staticOrFieldToken.token === "static" || staticOrFieldToken.token === "field")
     ) {
       const classVarDec = new JackParseTree({ grammarRule: "classVarDec" });
-      classVarDec.insert(this.currentToken);
+      classVarDec.insert(staticOrFieldToken);
       this.advanceToken();
 
       const typeToken = this.currentToken;
@@ -134,11 +136,7 @@ class JackParser {
 
       const varNameToken = this.currentToken;
       if (varNameToken.type !== "identifier") {
-        this.error({
-          method: this.parseClassVarDecs.name,
-          expected: { type: "identifier", token: "_<identifier>" },
-          actual: typeToken,
-        });
+        this.error({ method: this.parseClassVarDecs.name, expected: { type: "identifier" }, actual: typeToken });
       }
       classVarDec.insert(varNameToken);
       this.advanceToken();
@@ -150,11 +148,7 @@ class JackParser {
 
         const varNameToken = this.currentToken;
         if (varNameToken.type !== "identifier") {
-          this.error({
-            method: this.parseClassVarDecs.name,
-            expected: { type: "identifier", token: "_<identifier>" },
-            actual: varNameToken,
-          });
+          this.error({ method: this.parseClassVarDecs.name, expected: { type: "identifier" }, actual: varNameToken });
         }
         classVarDec.insert(varNameToken);
         this.advanceToken();
@@ -171,18 +165,82 @@ class JackParser {
         });
       }
       classVarDec.insert(semiColonToken);
+      this.advanceToken();
 
       classVarDecTrees.push(classVarDec);
       staticOrFieldToken = this.currentToken;
     }
 
-    this.advanceToken();
-
     return classVarDecTrees;
   }
 
-  // TODO
   private parseSubroutineDecs(): JackParseTree[] {
-    return [];
+    const subroutineDecTrees: JackParseTree[] = [];
+
+    let subroutineTypeToken = this.currentToken;
+
+    while (
+      subroutineTypeToken.type === "keyword" &&
+      (subroutineTypeToken.token === "constructor" ||
+        subroutineTypeToken.token === "function" ||
+        subroutineTypeToken.token === "method")
+    ) {
+      const subroutineDecTree = new JackParseTree({ grammarRule: "subroutineDec" });
+      subroutineDecTree.insert(subroutineTypeToken);
+      this.advanceToken();
+
+      const returnTypeToken = this.currentToken;
+      if (!isTypeToken(returnTypeToken) && !(returnTypeToken.type === "keyword" && returnTypeToken.token === "void")) {
+        this.error({
+          method: this.parseSubroutineDecs.name,
+          expected: { type: "type/void", token: "(int|char|boolean)/_<identifier>/void" },
+          actual: returnTypeToken,
+        });
+      }
+      subroutineDecTree.insert(returnTypeToken);
+      this.advanceToken();
+
+      const subroutineNameToken = this.currentToken;
+      if (subroutineNameToken.type !== "identifier") {
+        this.error({
+          method: this.parseSubroutineDecs.name,
+          expected: { type: "identifier" },
+          actual: returnTypeToken,
+        });
+      }
+      subroutineDecTree.insert(subroutineNameToken);
+      this.advanceToken();
+
+      const openingBracketToken = this.currentToken;
+      if (openingBracketToken.type !== "symbol" || openingBracketToken.token !== "(") {
+        this.error({
+          method: this.parseSubroutineDecs.name,
+          expected: { type: "symbol", token: "(" },
+          actual: openingBracketToken,
+        });
+      }
+      subroutineDecTree.insert(openingBracketToken);
+      this.advanceToken();
+
+      // TODO: parseParameterList()
+
+      const closingBracketToken = this.currentToken;
+      if (closingBracketToken.type !== "symbol" || closingBracketToken.token !== ")") {
+        this.error({
+          method: this.parseSubroutineDecs.name,
+          expected: { type: "symbol", token: ")" },
+          actual: closingBracketToken,
+        });
+      }
+      subroutineDecTree.insert(closingBracketToken);
+      this.advanceToken();
+
+      // TODO: parseSubroutineBody()
+
+      subroutineDecTrees.push(subroutineDecTree);
+      subroutineTypeToken = this.currentToken;
+    }
+
+    return subroutineDecTrees;
   }
 }
