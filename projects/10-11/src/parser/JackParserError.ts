@@ -1,6 +1,6 @@
 import { Token } from "../tokenizer/types.js";
 
-export class ParseError extends Error {
+export class JackParserError extends Error {
   constructor({
     caller,
     expected,
@@ -13,6 +13,8 @@ export class ParseError extends Error {
     const expectedMessage =
       expected.type && expected.token ? `${expected.type}-${expected.token}` : expected.type ?? expected.token ?? "";
     super(`[${caller}] expected ${expectedMessage}, but was ${actual.type}-${actual.token}`);
-    this.name = "ParseError";
+    this.name = "JackParserError";
   }
 }
+
+export default JackParserError;

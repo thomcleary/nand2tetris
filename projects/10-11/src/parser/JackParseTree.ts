@@ -1,13 +1,13 @@
-import { JackParseTreeNodeValue, Tree, TreeNode } from "./types.js";
+import { JackParseTreeNode, Tree, TreeNode } from "./types.js";
 
-export class JackParseTree implements Tree<JackParseTreeNodeValue> {
-  public root: TreeNode<JackParseTreeNodeValue>;
+export class JackParseTree implements Tree<JackParseTreeNode> {
+  public root: TreeNode<JackParseTreeNode>;
 
-  constructor(rootValue: JackParseTreeNodeValue) {
+  constructor(rootValue: JackParseTreeNode) {
     this.root = { value: rootValue, children: [] };
   }
 
-  insert(value: JackParseTreeNodeValue | JackParseTree): JackParseTree {
+  insert(value: JackParseTreeNode | JackParseTree): JackParseTree {
     if (value instanceof JackParseTree) {
       this.root.children.push(value);
       return value;
@@ -20,3 +20,5 @@ export class JackParseTree implements Tree<JackParseTreeNodeValue> {
     return tree;
   }
 }
+
+export default JackParseTree;

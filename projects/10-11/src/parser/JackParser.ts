@@ -1,10 +1,12 @@
 import { Token } from "../tokenizer/types.js";
 import { Result } from "../types.js";
 import { error } from "../utils/index.js";
-import { JackParseTree } from "./JackParseTree.js";
-import { ParseError } from "./ParseError.js";
+import JackParseTree from "./JackParseTree.js";
+import JackParserError from "./JackParserError.js";
 import { isTypeToken } from "./utils.js";
 
+// TODO: potentially could pull out individual token parsing into private methods for tokens
+// that are parsed frequently, like opening/closing brackets?
 export class JackParser {
   private tokens: readonly Token[] = [];
   private currentTokenIndex = 0;
@@ -47,7 +49,7 @@ export class JackParser {
 
     const classKeywordToken = this.currentToken;
     if (classKeywordToken.type !== "keyword" || classKeywordToken.token !== "class") {
-      throw new ParseError({
+      throw new JackParserError({
         caller: this.parseClass.name,
         expected: { type: "keyword", token: "class" },
         actual: classKeywordToken,
@@ -58,7 +60,7 @@ export class JackParser {
 
     const classNameToken = this.currentToken;
     if (classNameToken.type !== "identifier") {
-      throw new ParseError({
+      throw new JackParserError({
         caller: this.parseClass.name,
         expected: { type: "identifier", token: "_<identifier>" },
         actual: classKeywordToken,
@@ -69,7 +71,7 @@ export class JackParser {
 
     const openingCurlyBracketToken = this.currentToken;
     if (openingCurlyBracketToken.type !== "symbol" || openingCurlyBracketToken.token !== "{") {
-      throw new ParseError({
+      throw new JackParserError({
         caller: this.parseClass.name,
         expected: { type: "symbol", token: "{" },
         actual: openingCurlyBracketToken,
@@ -83,7 +85,7 @@ export class JackParser {
 
     const closingCurlyBracketToken = this.currentToken;
     if (closingCurlyBracketToken.type !== "symbol" || closingCurlyBracketToken.token !== "}") {
-      throw new ParseError({
+      throw new JackParserError({
         caller: this.parseClass.name,
         expected: { type: "symbol", token: "}" },
         actual: closingCurlyBracketToken,
@@ -108,7 +110,7 @@ export class JackParser {
 
       const typeToken = this.currentToken;
       if (!isTypeToken(typeToken)) {
-        throw new ParseError({
+        throw new JackParserError({
           caller: this.parseClassVarDecs.name,
           expected: { type: "keyword/identifier", token: "(int|char|boolean)/_<identifier>" },
           actual: typeToken,
@@ -119,7 +121,7 @@ export class JackParser {
 
       const varNameToken = this.currentToken;
       if (varNameToken.type !== "identifier") {
-        throw new ParseError({
+        throw new JackParserError({
           caller: this.parseClassVarDecs.name,
           expected: { type: "identifier" },
           actual: typeToken,
@@ -135,7 +137,7 @@ export class JackParser {
 
         const varNameToken = this.currentToken;
         if (varNameToken.type !== "identifier") {
-          throw new ParseError({
+          throw new JackParserError({
             caller: this.parseClassVarDecs.name,
             expected: { type: "identifier" },
             actual: varNameToken,
@@ -149,7 +151,7 @@ export class JackParser {
 
       const semiColonToken = this.currentToken;
       if (semiColonToken.type !== "symbol" || semiColonToken.token !== ";") {
-        throw new ParseError({
+        throw new JackParserError({
           caller: this.parseClassVarDecs.name,
           expected: { type: "symbol", token: ";" },
           actual: semiColonToken,
@@ -182,7 +184,7 @@ export class JackParser {
 
       const returnTypeToken = this.currentToken;
       if (!isTypeToken(returnTypeToken) && !(returnTypeToken.type === "keyword" && returnTypeToken.token === "void")) {
-        throw new ParseError({
+        throw new JackParserError({
           caller: this.parseSubroutineDecs.name,
           expected: { type: "type/void", token: "(int|char|boolean)/_<identifier>/void" },
           actual: returnTypeToken,
@@ -193,7 +195,7 @@ export class JackParser {
 
       const subroutineNameToken = this.currentToken;
       if (subroutineNameToken.type !== "identifier") {
-        throw new ParseError({
+        throw new JackParserError({
           caller: this.parseSubroutineDecs.name,
           expected: { type: "identifier" },
           actual: returnTypeToken,
@@ -204,7 +206,7 @@ export class JackParser {
 
       const openingBracketToken = this.currentToken;
       if (openingBracketToken.type !== "symbol" || openingBracketToken.token !== "(") {
-        throw new ParseError({
+        throw new JackParserError({
           caller: this.parseSubroutineDecs.name,
           expected: { type: "symbol", token: "(" },
           actual: openingBracketToken,
@@ -217,7 +219,7 @@ export class JackParser {
 
       const closingBracketToken = this.currentToken;
       if (closingBracketToken.type !== "symbol" || closingBracketToken.token !== ")") {
-        throw new ParseError({
+        throw new JackParserError({
           caller: this.parseSubroutineDecs.name,
           expected: { type: "symbol", token: ")" },
           actual: closingBracketToken,
@@ -226,7 +228,7 @@ export class JackParser {
       subroutineDecTree.insert(closingBracketToken);
       this.advanceToken();
 
-      // TODO: parseSubroutineBody()
+      subroutineDecTree.insert(this.parseSubroutineBody());
 
       subroutineDecTrees.push(subroutineDecTree);
       subroutineTypeToken = this.currentToken;
@@ -247,7 +249,7 @@ export class JackParser {
 
     const parameterNameToken = this.currentToken;
     if (parameterNameToken.type !== "identifier") {
-      throw new ParseError({
+      throw new JackParserError({
         caller: this.parseParameterList.name,
         expected: { type: "identifier" },
         actual: parameterNameToken,
@@ -264,7 +266,7 @@ export class JackParser {
 
       const parameterTypeToken = this.currentToken;
       if (!isTypeToken(parameterTypeToken)) {
-        throw new ParseError({
+        throw new JackParserError({
           caller: this.parseParameterList.name,
           expected: { type: "keyword/identifier", token: "(int|char|boolean)/_<identifier>" },
           actual: parameterTypeToken,
@@ -275,7 +277,7 @@ export class JackParser {
 
       const parameterNameToken = this.currentToken;
       if (parameterNameToken.type !== "identifier") {
-        throw new ParseError({
+        throw new JackParserError({
           caller: this.parseParameterList.name,
           expected: { type: "identifier" },
           actual: parameterNameToken,
@@ -289,4 +291,38 @@ export class JackParser {
 
     return parameterListTree;
   }
+
+  private parseSubroutineBody(): JackParseTree {
+    const subroutineBodyTree = new JackParseTree({ grammarRule: "subroutineBody" });
+
+    const openingCurlyBracketToken = this.currentToken;
+    if (openingCurlyBracketToken.type !== "symbol" || openingCurlyBracketToken.token !== "{") {
+      throw new JackParserError({
+        caller: this.parseSubroutineBody.name,
+        expected: { type: "symbol", token: "{" },
+        actual: openingCurlyBracketToken,
+      });
+    }
+    subroutineBodyTree.insert(openingCurlyBracketToken);
+    this.advanceToken();
+
+    // TODO: while currentToken is `var` parseVarDec
+
+    // TODO: parseStatements
+
+    const closingCurlyBracketToken = this.currentToken;
+    if (closingCurlyBracketToken.type !== "symbol" || closingCurlyBracketToken.token !== "}") {
+      throw new JackParserError({
+        caller: this.parseSubroutineBody.name,
+        expected: { type: "symbol", token: "}" },
+        actual: closingCurlyBracketToken,
+      });
+    }
+    subroutineBodyTree.insert(closingCurlyBracketToken);
+    this.advanceToken();
+
+    return subroutineBodyTree;
+  }
 }
+
+export default JackParser;

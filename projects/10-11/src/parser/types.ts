@@ -10,7 +10,7 @@ export type TreeNode<T> = {
   children: Tree<T>[];
 };
 
-export type JackParseTreeNodeValue =
+export type JackParseTreeNode =
   | {
       grammarRule:
         | "class"

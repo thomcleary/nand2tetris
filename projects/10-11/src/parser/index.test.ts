@@ -1,7 +1,7 @@
 import tokenize from "../tokenizer/index.js";
 import { error } from "../utils/index.js";
 import { getJackFiles, toJackProgram } from "../utils/jackFileUtils.js";
-import { JackParser } from "./JackParser.js";
+import JackParser from "./JackParser.js";
 
 const test = () => {
   const filePath = process.argv[2];
