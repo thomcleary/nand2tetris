@@ -3,7 +3,7 @@ import { Result } from "../types.js";
 import { error } from "../utils/index.js";
 import JackParseTree from "./JackParseTree.js";
 import JackParserError from "./JackParserError.js";
-import { isTypeToken } from "./utils.js";
+import { isStatementToken, isTypeToken } from "./utils.js";
 
 // TODO: potentially could pull out individual token parsing into private methods for tokens
 // that are parsed frequently, like opening/closing brackets?
@@ -307,7 +307,7 @@ export class JackParser {
     this.advanceToken();
 
     this.parseVarDecs().forEach((tree) => subroutineBodyTree.insert(tree));
-    // TODO: parseStatements
+    subroutineBodyTree.insert(this.parseStatements());
 
     const closingCurlyBracketToken = this.currentToken;
     if (closingCurlyBracketToken.type !== "symbol" || closingCurlyBracketToken.token !== "}") {
@@ -388,6 +388,81 @@ export class JackParser {
     }
 
     return varDecTrees;
+  }
+
+  // TODO: parseStatements (without expressions and arrays)
+  // TODO: parseStatements (with expressions and arrays)
+  private parseStatements(): JackParseTree {
+    const statementsTree = new JackParseTree({ grammarRule: "statements" });
+
+    let statementToken = this.currentToken;
+    while (isStatementToken(statementToken)) {
+      if (statementToken.token === "let") {
+        statementsTree.insert(this.parseLetStatement());
+      } else if (statementToken.token === "if") {
+        statementsTree.insert(this.parseIfStatement());
+      } else if (statementToken.token === "while") {
+        statementsTree.insert(this.parseWhileStatement());
+      } else if (statementToken.token === "do") {
+        statementsTree.insert(this.parseDoStatement());
+      } else {
+        statementsTree.insert(this.parseReturnStatement());
+      }
+
+      // TODO: need to advance token, or handled by statement methods already?
+      statementToken = this.currentToken;
+    }
+    return statementsTree;
+  }
+
+  // TODO: parseLetStatement (without expressions and arrays)
+  // TODO: parseLetStatement (with expressions and arrays)
+  private parseLetStatement(): JackParseTree {
+    const letStatementTree = new JackParseTree({ grammarRule: "letStatement" });
+
+    // TODO
+
+    return letStatementTree;
+  }
+
+  // TODO: parseIfStatement (without expressions and arrays)
+  // TODO: parseIfStatement (with expressions and arrays)
+  private parseIfStatement(): JackParseTree {
+    const ifStatementTree = new JackParseTree({ grammarRule: "ifStatement" });
+
+    // TODO
+
+    return ifStatementTree;
+  }
+
+  // TODO: parseWhileStatement (without expressions and arrays)
+  // TODO: parseWhileStatement (with expressions and arrays)
+  private parseWhileStatement(): JackParseTree {
+    const whileStatementTree = new JackParseTree({ grammarRule: "whileStatement" });
+
+    // TODO
+
+    return whileStatementTree;
+  }
+
+  // TODO: parseDoStatement (without expressions and arrays)
+  // TODO: parseDoStatement (with expressions and arrays)
+  private parseDoStatement(): JackParseTree {
+    const doStatementTree = new JackParseTree({ grammarRule: "doStatement" });
+
+    // TODO
+
+    return doStatementTree;
+  }
+
+  // TODO: parseReturnStatement (without expressions and arrays)
+  // TODO: parseReturnStatement (with expressions and arrays)
+  private parseReturnStatement(): JackParseTree {
+    const returnStatementTree = new JackParseTree({ grammarRule: "returnStatement" });
+
+    // TODO
+
+    return returnStatementTree;
   }
 }
 
