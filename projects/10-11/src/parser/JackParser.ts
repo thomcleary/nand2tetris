@@ -306,8 +306,7 @@ export class JackParser {
     subroutineBodyTree.insert(openingCurlyBracketToken);
     this.advanceToken();
 
-    // TODO: while currentToken is `var` parseVarDec
-
+    this.parseVarDecs().forEach((tree) => subroutineBodyTree.insert(tree));
     // TODO: parseStatements
 
     const closingCurlyBracketToken = this.currentToken;
@@ -322,6 +321,73 @@ export class JackParser {
     this.advanceToken();
 
     return subroutineBodyTree;
+  }
+
+  private parseVarDecs(): JackParseTree[] {
+    const varDecTrees: JackParseTree[] = [];
+
+    let varToken = this.currentToken;
+    while (varToken.type === "keyword" && varToken.token === "var") {
+      const varDecTree = new JackParseTree({ grammarRule: "varDec" });
+      this.advanceToken();
+
+      const typeToken = this.currentToken;
+      if (!isTypeToken(typeToken)) {
+        throw new JackParserError({
+          caller: this.parseVarDecs.name,
+          expected: { type: "keyword/identifier", token: "(int|char|boolean)/_<identifier>" },
+          actual: typeToken,
+        });
+      }
+      varDecTree.insert(typeToken);
+      this.advanceToken();
+
+      const varNameToken = this.currentToken;
+      if (varNameToken.type !== "identifier") {
+        throw new JackParserError({
+          caller: this.parseVarDecs.name,
+          expected: { type: "identifier", token: "_<identifier>" },
+          actual: varNameToken,
+        });
+      }
+      varDecTree.insert(varNameToken);
+      this.advanceToken();
+
+      let varDecSeparatorToken = this.currentToken;
+      while (varDecSeparatorToken.type === "symbol" && varDecSeparatorToken.token === ",") {
+        varDecTree.insert(varDecSeparatorToken);
+        this.advanceToken();
+
+        const varNameToken = this.currentToken;
+        if (varNameToken.type !== "identifier") {
+          throw new JackParserError({
+            caller: this.parseVarDecs.name,
+            expected: { type: "identifier" },
+            actual: varNameToken,
+          });
+        }
+        varDecTree.insert(varNameToken);
+        this.advanceToken();
+
+        varDecSeparatorToken = this.currentToken;
+      }
+
+      const semiColonToken = this.currentToken;
+      if (semiColonToken.type !== "symbol" || semiColonToken.token !== ";") {
+        throw new JackParserError({
+          caller: this.parseVarDecs.name,
+          expected: { type: "symbol", token: ";" },
+          actual: semiColonToken,
+        });
+      }
+      varDecTree.insert(semiColonToken);
+      this.advanceToken();
+
+      varDecTrees.push(varDecTree);
+      varToken = this.currentToken;
+    }
+
+    return varDecTrees;
   }
 }
 
