@@ -312,9 +312,16 @@ export class JackParser {
   }
 
   private parseWhileStatement(): JackParseTree {
+    const caller = this.parseWhileStatement;
     const whileStatementTree = new JackParseTree({ grammarRule: "whileStatement" });
 
-    // TODO
+    this.insertToken({ tree: whileStatementTree, expected: { type: "keyword", token: "while" }, caller });
+    this.insertToken({ tree: whileStatementTree, expected: { type: "symbol", token: "(" }, caller });
+    whileStatementTree.insert(this.parseExpression());
+    this.insertToken({ tree: whileStatementTree, expected: { type: "symbol", token: ")" }, caller });
+    this.insertToken({ tree: whileStatementTree, expected: { type: "symbol", token: "{" }, caller });
+    whileStatementTree.insert(this.parseStatements());
+    this.insertToken({ tree: whileStatementTree, expected: { type: "symbol", token: "}" }, caller });
 
     return whileStatementTree;
   }
