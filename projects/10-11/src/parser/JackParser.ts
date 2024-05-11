@@ -11,8 +11,6 @@ import {
   isTypeToken,
 } from "./utils.js";
 
-// TODO: potentially could pull out individual token parsing into private methods for tokens
-// that are parsed frequently, like opening/closing brackets?
 export class JackParser {
   private tokens: readonly Token[] = [];
   private currentTokenIndex = 0;
@@ -289,9 +287,26 @@ export class JackParser {
   }
 
   private parseIfStatement(): JackParseTree {
+    const caller = this.parseIfStatement;
     const ifStatementTree = new JackParseTree({ grammarRule: "ifStatement" });
 
-    // TODO
+    this.insertToken({ tree: ifStatementTree, expected: { type: "keyword", token: "if" }, caller });
+    this.insertToken({ tree: ifStatementTree, expected: { type: "symbol", token: "(" }, caller });
+    ifStatementTree.insert(this.parseExpression());
+    this.insertToken({ tree: ifStatementTree, expected: { type: "symbol", token: ")" }, caller });
+    this.insertToken({ tree: ifStatementTree, expected: { type: "symbol", token: "{" }, caller });
+    ifStatementTree.insert(this.parseStatements());
+    this.insertToken({ tree: ifStatementTree, expected: { type: "symbol", token: "}" }, caller });
+
+    const elseToken = this.currentToken;
+    if (elseToken.type === "keyword" && elseToken.token === "else") {
+      ifStatementTree.insert(elseToken);
+      this.advanceToken();
+
+      this.insertToken({ tree: ifStatementTree, expected: { type: "symbol", token: "{" }, caller });
+      ifStatementTree.insert(this.parseStatements());
+      this.insertToken({ tree: ifStatementTree, expected: { type: "symbol", token: "}" }, caller });
+    }
 
     return ifStatementTree;
   }
