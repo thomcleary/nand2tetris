@@ -14,7 +14,7 @@ pnpm i
 pnpm test:tokenizer ./tests/10/(ArrayTest | ExpressionLessSquare | Square)
 ```
 
-### Tokenizer Parser
+### Parser Test
 
 ```shell
 pnpm test:parser ./tests/10/(ArrayTest | ExpressionLessSquare | Square)
@@ -23,3 +23,4 @@ pnpm test:parser ./tests/10/(ArrayTest | ExpressionLessSquare | Square)
 ## Jack Grammar
 
 ![Jack Grammar](./docs/jackGrammar.png)
+![Jack Grammar Notation](./docs/jackGrammarNotation.png)
