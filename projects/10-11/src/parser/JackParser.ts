@@ -5,10 +5,10 @@ import JackParseTree from "./JackParseTree.js";
 import JackParserError from "./JackParserError.js";
 import {
   isClassVarKeywordToken,
+  isSeparatorToken,
   isStatementToken,
   isSubroutineTypeToken,
   isTypeToken,
-  isVarSeparatorToken,
 } from "./utils.js";
 
 // TODO: potentially could pull out individual token parsing into private methods for tokens
@@ -124,7 +124,7 @@ export class JackParser {
       this.insertToken({ tree: classVarDecTree, expected: { type: "identifier" }, caller });
 
       let varDecSeparatorToken = this.currentToken;
-      while (isVarSeparatorToken(varDecSeparatorToken)) {
+      while (isSeparatorToken(varDecSeparatorToken)) {
         classVarDecTree.insert(varDecSeparatorToken);
         this.advanceToken();
 
@@ -185,7 +185,7 @@ export class JackParser {
     this.insertToken({ tree: parameterListTree, expected: { type: "identifier" }, caller });
 
     let parameterSeparatorToken = this.currentToken;
-    while (isVarSeparatorToken(parameterSeparatorToken)) {
+    while (isSeparatorToken(parameterSeparatorToken)) {
       parameterListTree.insert(parameterSeparatorToken);
       this.advanceToken();
 
@@ -233,7 +233,7 @@ export class JackParser {
       this.insertToken({ tree: varDecTree, expected: { type: "identifier" }, caller });
 
       let varDecSeparatorToken = this.currentToken;
-      while (isVarSeparatorToken(varDecSeparatorToken)) {
+      while (isSeparatorToken(varDecSeparatorToken)) {
         varDecTree.insert(varDecSeparatorToken);
         this.advanceToken();
 
@@ -274,8 +274,6 @@ export class JackParser {
     return statementsTree;
   }
 
-  // TODO: parseLetStatement (without expressions and arrays)
-  // TODO: parseLetStatement (with expressions and arrays)
   private parseLetStatement(): JackParseTree {
     const caller = this.parseLetStatement;
     const letStatementTree = new JackParseTree({ grammarRule: "letStatement" });
@@ -290,8 +288,6 @@ export class JackParser {
     return letStatementTree;
   }
 
-  // TODO: parseIfStatement (without expressions and arrays)
-  // TODO: parseIfStatement (with expressions and arrays)
   private parseIfStatement(): JackParseTree {
     const ifStatementTree = new JackParseTree({ grammarRule: "ifStatement" });
 
@@ -300,8 +296,6 @@ export class JackParser {
     return ifStatementTree;
   }
 
-  // TODO: parseWhileStatement (without expressions and arrays)
-  // TODO: parseWhileStatement (with expressions and arrays)
   private parseWhileStatement(): JackParseTree {
     const whileStatementTree = new JackParseTree({ grammarRule: "whileStatement" });
 
@@ -310,18 +304,17 @@ export class JackParser {
     return whileStatementTree;
   }
 
-  // TODO: parseDoStatement (without expressions and arrays)
-  // TODO: parseDoStatement (with expressions and arrays)
   private parseDoStatement(): JackParseTree {
+    const caller = this.parseDoStatement;
     const doStatementTree = new JackParseTree({ grammarRule: "doStatement" });
 
-    // TODO
+    this.insertToken({ tree: doStatementTree, expected: { type: "keyword", token: "do" }, caller });
+    this.parseSubroutineCall({ tree: doStatementTree });
+    this.insertToken({ tree: doStatementTree, expected: { type: "symbol", token: ";" }, caller });
 
     return doStatementTree;
   }
 
-  // TODO: parseReturnStatement (without expressions and arrays)
-  // TODO: parseReturnStatement (with expressions and arrays)
   private parseReturnStatement(): JackParseTree {
     const returnStatementTree = new JackParseTree({ grammarRule: "returnStatement" });
 
@@ -348,6 +341,46 @@ export class JackParser {
     this.insertToken({ tree: termTree, expected: { type: "identifier" }, caller });
 
     return termTree;
+  }
+
+  private parseSubroutineCall({ tree }: { tree: JackParseTree }) {
+    const caller = this.parseSubroutineCall;
+
+    this.insertToken({ tree, expected: { type: "identifier" }, caller });
+
+    if (this.currentToken.type === "symbol" && this.currentToken.token === ".") {
+      tree.insert(this.currentToken);
+      this.advanceToken();
+
+      this.insertToken({ tree, expected: { type: "identifier" }, caller });
+    }
+
+    this.insertToken({ tree, expected: { type: "symbol", token: "(" }, caller });
+    tree.insert(this.parseExpressionList());
+    this.insertToken({ tree, expected: { type: "symbol", token: ")" }, caller });
+  }
+
+  private parseExpressionList(): JackParseTree {
+    const expressionListTree = new JackParseTree({ grammarRule: "expressionList" });
+
+    const nextToken = this.currentToken;
+    if (nextToken.type === "symbol" && nextToken.token === ")") {
+      return expressionListTree;
+    }
+
+    expressionListTree.insert(this.parseExpression());
+
+    let expressionSeparatorToken = this.currentToken;
+    while (isSeparatorToken(expressionSeparatorToken)) {
+      expressionListTree.insert(expressionSeparatorToken);
+      this.advanceToken();
+
+      expressionListTree.insert(this.parseExpression());
+
+      expressionSeparatorToken = this.currentToken;
+    }
+
+    return expressionListTree;
   }
 }
 

@@ -17,7 +17,7 @@ export const isClassVarKeywordToken = (t: Token): t is { type: "keyword"; token:
   return type === "keyword" && (token === "static" || token === "field");
 };
 
-export const isVarSeparatorToken = (t: Token): t is { type: "symbol"; token: "," } => {
+export const isSeparatorToken = (t: Token): t is { type: "symbol"; token: "," } => {
   const { type, token } = t;
   return type === "symbol" && token === ",";
 };
