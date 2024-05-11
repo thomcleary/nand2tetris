@@ -1,3 +1,4 @@
-export type Result<T extends Record<PropertyKey, unknown>> =
-  | ({ success: true } & T)
-  | { success: false; message: string };
+export type Result<
+  S extends Record<PropertyKey, unknown>,
+  F extends Record<PropertyKey, unknown> = { message: string }
+> = ({ success: true } & S) | ({ success: false } & F);

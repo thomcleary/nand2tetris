@@ -1,4 +1,4 @@
-import { Token } from "../tokenizer/types.js";
+import { KeywordToken, SymbolToken, Token } from "../tokenizer/types.js";
 import { Result } from "../types.js";
 import { error } from "../utils/index.js";
 import JackParseTree from "./JackParseTree.js";
@@ -44,54 +44,39 @@ export class JackParser {
     this.currentTokenIndex++;
   }
 
+  private insertToken({
+    tree,
+    expected,
+    caller,
+  }: {
+    tree: JackParseTree;
+    expected: KeywordToken | SymbolToken | Omit<Exclude<Token, KeywordToken | SymbolToken>, "token">;
+    caller: { name: string };
+  }) {
+    const token = this.currentToken;
+
+    const typeMatch = expected.type === token.type;
+    const expectingKeywordOrSymbol = expected.type === "keyword" || expected.type === "symbol";
+    const tokenMatch = expectingKeywordOrSymbol && token.token === expected.token;
+
+    if (!typeMatch || (expectingKeywordOrSymbol && !tokenMatch)) {
+      throw new JackParserError({ caller: caller.name, expected, actual: token });
+    }
+
+    tree.insert(token);
+    this.advanceToken();
+  }
+
   private parseClass(): JackParseTree {
     const parseTree = new JackParseTree({ grammarRule: "class" });
 
-    const classKeywordToken = this.currentToken;
-    if (classKeywordToken.type !== "keyword" || classKeywordToken.token !== "class") {
-      throw new JackParserError({
-        caller: this.parseClass.name,
-        expected: { type: "keyword", token: "class" },
-        actual: classKeywordToken,
-      });
-    }
-    parseTree.insert(classKeywordToken);
-    this.advanceToken();
-
-    const classNameToken = this.currentToken;
-    if (classNameToken.type !== "identifier") {
-      throw new JackParserError({
-        caller: this.parseClass.name,
-        expected: { type: "identifier", token: "_<identifier>" },
-        actual: classKeywordToken,
-      });
-    }
-    parseTree.insert(classNameToken);
-    this.advanceToken();
-
-    const openingCurlyBracketToken = this.currentToken;
-    if (openingCurlyBracketToken.type !== "symbol" || openingCurlyBracketToken.token !== "{") {
-      throw new JackParserError({
-        caller: this.parseClass.name,
-        expected: { type: "symbol", token: "{" },
-        actual: openingCurlyBracketToken,
-      });
-    }
-    parseTree.insert(openingCurlyBracketToken);
-    this.advanceToken();
-
-    this.parseClassVarDecs().forEach((tree) => parseTree.insert(tree));
-    this.parseSubroutineDecs().forEach((tree) => parseTree.insert(tree));
-
-    const closingCurlyBracketToken = this.currentToken;
-    if (closingCurlyBracketToken.type !== "symbol" || closingCurlyBracketToken.token !== "}") {
-      throw new JackParserError({
-        caller: this.parseClass.name,
-        expected: { type: "symbol", token: "}" },
-        actual: closingCurlyBracketToken,
-      });
-    }
-    parseTree.insert(closingCurlyBracketToken);
+    const caller = this.parseClass;
+    this.insertToken({ tree: parseTree, expected: { type: "keyword", token: "class" }, caller });
+    this.insertToken({ tree: parseTree, expected: { type: "identifier" }, caller });
+    this.insertToken({ tree: parseTree, expected: { type: "symbol", token: "{" }, caller });
+    parseTree.insert(this.parseClassVarDecs());
+    parseTree.insert(this.parseSubroutineDecs());
+    this.insertToken({ tree: parseTree, expected: { type: "symbol", token: "}" }, caller });
 
     return parseTree;
   }
@@ -520,18 +505,11 @@ export class JackParser {
 
   // TODO: parse terms instead of just returning identifier
   private parseTerm(): JackParseTree {
+    const caller = this.parseTerm;
+
     const termTree = new JackParseTree({ grammarRule: "term" });
 
-    const identifierToken = this.currentToken;
-    if (identifierToken.type !== "identifier") {
-      throw new JackParserError({
-        caller: this.parseTerm.name,
-        expected: { type: "identifier" },
-        actual: identifierToken,
-      });
-    }
-    termTree.insert(identifierToken);
-    this.advanceToken();
+    this.insertToken({ tree: termTree, expected: { type: "identifier" }, caller });
 
     return termTree;
   }

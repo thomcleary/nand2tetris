@@ -2,7 +2,7 @@ import { Token } from "../tokenizer/types.js";
 
 export type Tree<T> = {
   root: TreeNode<T>;
-  insert(value: T): Tree<T>;
+  insert(value: T): void;
 };
 
 export type TreeNode<T> = {
