@@ -50,9 +50,9 @@ export class JackParser {
 
   private insertToken({
     tree,
+    isExpected,
     expected,
     caller,
-    ...rest
   }:
     | {
         tree: JackParseTree;
@@ -63,13 +63,13 @@ export class JackParser {
     | {
         tree: JackParseTree;
         isExpected: (token: Token) => boolean;
-        expected: { type: string; token: string };
+        expected: { type: string; token?: string };
         caller: { name: string };
       }) {
     const token = this.currentToken;
 
-    if (rest.isExpected) {
-      if (!rest.isExpected(token)) {
+    if (isExpected) {
+      if (!isExpected(token)) {
         throw new JackParserError({ caller: caller.name, expected, actual: token });
       }
     } else {
@@ -96,8 +96,6 @@ export class JackParser {
     parseTree.insert(this.parseClassVarDecs());
     parseTree.insert(this.parseSubroutineDecs());
     this.insertToken({ tree: parseTree, expected: { type: "symbol", token: "}" }, caller });
-
-    // TODO: final insertToken might advance currentTokenIndex beyond array size, but probably fine?
 
     return parseTree;
   }
@@ -249,8 +247,6 @@ export class JackParser {
     return varDecTrees;
   }
 
-  // TODO: parseStatements (without expressions and arrays)
-  // TODO: parseStatements (with expressions and arrays)
   private parseStatements(): JackParseTree {
     const statementsTree = new JackParseTree({ grammarRule: "statements" });
 
@@ -265,7 +261,7 @@ export class JackParser {
     let statementToken = this.currentToken;
     while (isStatementToken(statementToken)) {
       statementsTree.insert(statementMap[statementToken.token].bind(this)());
-      // TODO: need to advance token, or handled by statement methods already?
+
       statementToken = this.currentToken;
     }
 
@@ -352,7 +348,6 @@ export class JackParser {
     return returnStatementTree;
   }
 
-  // TODO: parse expressions instead of just returning identifier
   private parseExpression(): JackParseTree {
     const expressionTree = new JackParseTree({ grammarRule: "expression" });
 
@@ -361,13 +356,29 @@ export class JackParser {
     return expressionTree;
   }
 
-  // TODO: parse terms instead of just returning identifier
+  // TODO: parse varName[expression]
+  // TODO: parse (expression)
+  // TODO: parse (unaryOp term)
+  // TODO: parse subroutineCall
   private parseTerm(): JackParseTree {
     const caller = this.parseTerm;
 
     const termTree = new JackParseTree({ grammarRule: "term" });
 
-    this.insertToken({ tree: termTree, expected: { type: "identifier" }, caller });
+    this.insertToken({
+      tree: termTree,
+      expected: { type: "integerConstant/stringConstant/identifier/true/false/null/this" },
+      isExpected: ({ type, token }) => {
+        const isIntegerConstant = type === "integerConstant";
+        const isStringConstant = type === "stringConstant";
+        const isIdentifier = type === "identifier";
+        const isKeywordConstant =
+          type === "keyword" && (token === "true" || token === "false" || token == "null" || token === "this");
+
+        return isIntegerConstant || isStringConstant || isIdentifier || isKeywordConstant;
+      },
+      caller,
+    });
 
     return termTree;
   }
