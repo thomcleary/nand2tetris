@@ -395,23 +395,21 @@ export class JackParser {
   private parseStatements(): JackParseTree {
     const statementsTree = new JackParseTree({ grammarRule: "statements" });
 
+    const statementMap = {
+      let: this.parseLetStatement,
+      if: this.parseIfStatement,
+      while: this.parseWhileStatement,
+      do: this.parseDoStatement,
+      return: this.parseReturnStatement,
+    } as const;
+
     let statementToken = this.currentToken;
     while (isStatementToken(statementToken)) {
-      if (statementToken.token === "let") {
-        statementsTree.insert(this.parseLetStatement());
-      } else if (statementToken.token === "if") {
-        statementsTree.insert(this.parseIfStatement());
-      } else if (statementToken.token === "while") {
-        statementsTree.insert(this.parseWhileStatement());
-      } else if (statementToken.token === "do") {
-        statementsTree.insert(this.parseDoStatement());
-      } else {
-        statementsTree.insert(this.parseReturnStatement());
-      }
-
+      statementsTree.insert(statementMap[statementToken.token].bind(this)());
       // TODO: need to advance token, or handled by statement methods already?
       statementToken = this.currentToken;
     }
+
     return statementsTree;
   }
 
@@ -420,7 +418,53 @@ export class JackParser {
   private parseLetStatement(): JackParseTree {
     const letStatementTree = new JackParseTree({ grammarRule: "letStatement" });
 
-    // TODO
+    const letToken = this.currentToken;
+    if (letToken.type !== "keyword" || letToken.token !== "let") {
+      throw new JackParserError({
+        caller: this.parseLetStatement.name,
+        expected: { type: "keyword", token: "let" },
+        actual: letToken,
+      });
+    }
+    letStatementTree.insert(letToken);
+    this.advanceToken();
+
+    const varNameToken = this.currentToken;
+    if (varNameToken.type !== "identifier") {
+      throw new JackParserError({
+        caller: this.parseLetStatement.name,
+        expected: { type: "identifier" },
+        actual: varNameToken,
+      });
+    }
+    letStatementTree.insert(varNameToken);
+    this.advanceToken();
+
+    // TODO: parse array indexing, varName[expression]
+
+    const varAssignmentToken = this.currentToken;
+    if (varAssignmentToken.type !== "symbol" || varAssignmentToken.token !== "=") {
+      throw new JackParserError({
+        caller: this.parseLetStatement.name,
+        expected: { type: "symbol", token: "=" },
+        actual: varAssignmentToken,
+      });
+    }
+    letStatementTree.insert(varAssignmentToken);
+    this.advanceToken();
+
+    letStatementTree.insert(this.parseExpression());
+
+    const semiColonToken = this.currentToken;
+    if (semiColonToken.type !== "symbol" || semiColonToken.token !== ";") {
+      throw new JackParserError({
+        caller: this.parseLetStatement.name,
+        expected: { type: "symbol", token: ";" },
+        actual: semiColonToken,
+      });
+    }
+    letStatementTree.insert(semiColonToken);
+    this.advanceToken();
 
     return letStatementTree;
   }
@@ -463,6 +507,33 @@ export class JackParser {
     // TODO
 
     return returnStatementTree;
+  }
+
+  // TODO: parse expressions instead of just returning identifier
+  private parseExpression(): JackParseTree {
+    const expressionTree = new JackParseTree({ grammarRule: "expression" });
+
+    expressionTree.insert(this.parseTerm());
+
+    return expressionTree;
+  }
+
+  // TODO: parse terms instead of just returning identifier
+  private parseTerm(): JackParseTree {
+    const termTree = new JackParseTree({ grammarRule: "term" });
+
+    const identifierToken = this.currentToken;
+    if (identifierToken.type !== "identifier") {
+      throw new JackParserError({
+        caller: this.parseTerm.name,
+        expected: { type: "identifier" },
+        actual: identifierToken,
+      });
+    }
+    termTree.insert(identifierToken);
+    this.advanceToken();
+
+    return termTree;
   }
 }
 
