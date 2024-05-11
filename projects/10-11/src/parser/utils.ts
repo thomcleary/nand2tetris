@@ -22,6 +22,13 @@ export const isVarSeparatorToken = (t: Token): t is { type: "symbol"; token: ","
   return type === "symbol" && token === ",";
 };
 
+export const isSubroutineTypeToken = (
+  t: Token
+): t is { type: "keyword"; token: "constructor" | "function" | "method" } => {
+  const { type, token } = t;
+  return type === "keyword" && (token === "constructor" || token === "function" || token === "method");
+};
+
 export const isStatementToken = (t: Token): t is StatementKeywordToken => {
   const { type, token } = t;
   return (
