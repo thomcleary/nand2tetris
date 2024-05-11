@@ -1,3 +1,5 @@
+import { writeFileSync } from "fs";
+import path from "path";
 import tokenize from "../tokenizer/index.js";
 import { error } from "../utils/index.js";
 import { getJackFiles, toJackProgram } from "../utils/jackFileUtils.js";
@@ -40,7 +42,6 @@ const test = () => {
 
     const { tokens } = tokenizeResult;
 
-    // TODO: Parse tokens into parse tree
     const parseResult = jackParser.parse(tokens);
 
     if (!parseResult.success) {
@@ -50,17 +51,13 @@ const test = () => {
 
     const { jackParseTree } = parseResult;
 
-    console.log(jackParseTree);
+    const outfile = `${filePath}/${path.basename(file).replace(".jack", ".out.xml")}`;
 
-    // TODO: Convert parse tree to XML
-
-    // const outfile = `${filePath}/${path.basename(file).replace(".jack", ".out.xml")}`;
-
-    // try {
-    //   writeFileSync(outfile, "TODO");
-    // } catch {
-    //   console.log(error(`unable to test output to file ${outfile}`));
-    // }
+    try {
+      writeFileSync(outfile, jackParseTree.toXmlString());
+    } catch {
+      console.log(error(`unable to test output to file ${outfile}`));
+    }
   }
 };
 

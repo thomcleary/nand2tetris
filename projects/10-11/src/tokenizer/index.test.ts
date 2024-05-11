@@ -1,20 +1,10 @@
 import { writeFileSync } from "fs";
 import path from "path";
-import { Token } from "../types.js";
 import { error } from "../utils/index.js";
 import { getJackFiles, toJackProgram } from "../utils/jackFileUtils.js";
+import { escapeToken } from "../utils/testing.js";
 import tokenize from "./index.js";
-
-const XmlConflicts = {
-  "<": "&lt;",
-  ">": "&gt;",
-  [`"`]: "&quot;",
-  "&": "&amp;",
-} as const satisfies Record<"<" | ">" | '"' | "&", `&${string};`>;
-
-const isXmlConflict = (token: string): token is keyof typeof XmlConflicts => Object.keys(XmlConflicts).includes(token);
-
-const escapeToken = (token: string) => (isXmlConflict(token) ? XmlConflicts[token] : token);
+import { Token } from "./types.js";
 
 const tokenToXml = ({ type, token }: Token) => `<${type}> ${escapeToken(token)} </${type}>`;
 

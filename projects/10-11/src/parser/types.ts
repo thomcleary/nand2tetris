@@ -1,18 +1,20 @@
 import { Token } from "../tokenizer/types.js";
 
-export type Tree<T> = {
-  root: TreeNode<T>;
+export type ParseTree<T> = {
+  root: ParseTreeNode<T>;
   insert(value: T): void;
+  toXmlString(options: { depth?: number }): string;
 };
 
-export type TreeNode<T> = {
+export type ParseTreeNode<T> = {
   value: T;
-  children: Tree<T>[];
+  children: ParseTree<T>[];
 };
 
 export type JackParseTreeNode =
   | {
-      grammarRule:
+      type: "grammarRule";
+      rule:
         | "class"
         | "classVarDec"
         | "type"
