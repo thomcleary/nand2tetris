@@ -316,9 +316,16 @@ export class JackParser {
   }
 
   private parseReturnStatement(): JackParseTree {
+    const caller = this.parseReturnStatement;
     const returnStatementTree = new JackParseTree({ grammarRule: "returnStatement" });
 
-    // TODO
+    this.insertToken({ tree: returnStatementTree, expected: { type: "keyword", token: "return" }, caller });
+
+    if (this.currentToken.type !== "symbol" || this.currentToken.token !== ";") {
+      returnStatementTree.insert(this.parseExpression());
+    }
+
+    this.insertToken({ tree: returnStatementTree, expected: { type: "symbol", token: ";" }, caller });
 
     return returnStatementTree;
   }
@@ -363,8 +370,7 @@ export class JackParser {
   private parseExpressionList(): JackParseTree {
     const expressionListTree = new JackParseTree({ grammarRule: "expressionList" });
 
-    const nextToken = this.currentToken;
-    if (nextToken.type === "symbol" && nextToken.token === ")") {
+    if (this.currentToken.type === "symbol" && this.currentToken.token === ")") {
       return expressionListTree;
     }
 
