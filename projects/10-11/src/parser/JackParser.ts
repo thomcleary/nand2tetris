@@ -3,7 +3,7 @@ import { Result } from "../types.js";
 import { error } from "../utils/index.js";
 import JackParseTree from "./JackParseTree.js";
 import JackParserError from "./JackParserError.js";
-import { isStatementToken, isTypeToken } from "./utils.js";
+import { isClassVarKeywordToken, isStatementToken, isTypeToken, isVarSeparatorToken } from "./utils.js";
 
 // TODO: potentially could pull out individual token parsing into private methods for tokens
 // that are parsed frequently, like opening/closing brackets?
@@ -48,19 +48,34 @@ export class JackParser {
     tree,
     expected,
     caller,
-  }: {
-    tree: JackParseTree;
-    expected: KeywordToken | SymbolToken | Omit<Exclude<Token, KeywordToken | SymbolToken>, "token">;
-    caller: { name: string };
-  }) {
+    ...rest
+  }:
+    | {
+        tree: JackParseTree;
+        isExpected?: never;
+        expected: KeywordToken | SymbolToken | Omit<Exclude<Token, KeywordToken | SymbolToken>, "token">;
+        caller: { name: string };
+      }
+    | {
+        tree: JackParseTree;
+        isExpected: (token: Token) => boolean;
+        expected: { type: string; token: string };
+        caller: { name: string };
+      }) {
     const token = this.currentToken;
 
-    const typeMatch = expected.type === token.type;
-    const expectingKeywordOrSymbol = expected.type === "keyword" || expected.type === "symbol";
-    const tokenMatch = expectingKeywordOrSymbol && token.token === expected.token;
+    if (rest.isExpected) {
+      if (!rest.isExpected(token)) {
+        throw new JackParserError({ caller: caller.name, expected, actual: token });
+      }
+    } else {
+      const typeMatch = expected.type === token.type;
+      const expectingKeywordOrSymbol = expected.type === "keyword" || expected.type === "symbol";
+      const tokenMatch = expectingKeywordOrSymbol && token.token === expected.token;
 
-    if (!typeMatch || (expectingKeywordOrSymbol && !tokenMatch)) {
-      throw new JackParserError({ caller: caller.name, expected, actual: token });
+      if (!typeMatch || (expectingKeywordOrSymbol && !tokenMatch)) {
+        throw new JackParserError({ caller: caller.name, expected, actual: token });
+      }
     }
 
     tree.insert(token);
@@ -68,9 +83,9 @@ export class JackParser {
   }
 
   private parseClass(): JackParseTree {
+    const caller = this.parseClass;
     const parseTree = new JackParseTree({ grammarRule: "class" });
 
-    const caller = this.parseClass;
     this.insertToken({ tree: parseTree, expected: { type: "keyword", token: "class" }, caller });
     this.insertToken({ tree: parseTree, expected: { type: "identifier" }, caller });
     this.insertToken({ tree: parseTree, expected: { type: "symbol", token: "{" }, caller });
@@ -78,75 +93,44 @@ export class JackParser {
     parseTree.insert(this.parseSubroutineDecs());
     this.insertToken({ tree: parseTree, expected: { type: "symbol", token: "}" }, caller });
 
+    // TODO: final insertToken might advance currentTokenIndex beyond array size, but probably fine?
+
     return parseTree;
   }
 
   private parseClassVarDecs(): JackParseTree[] {
+    const caller = this.parseClassVarDecs;
     const classVarDecTrees: JackParseTree[] = [];
 
-    let staticOrFieldToken = this.currentToken;
-    while (
-      staticOrFieldToken.type === "keyword" &&
-      (staticOrFieldToken.token === "static" || staticOrFieldToken.token === "field")
-    ) {
-      const classVarDec = new JackParseTree({ grammarRule: "classVarDec" });
-      classVarDec.insert(staticOrFieldToken);
+    let classVarKeywordToken = this.currentToken;
+    while (isClassVarKeywordToken(classVarKeywordToken)) {
+      const classVarDecTree = new JackParseTree({ grammarRule: "classVarDec" });
+
+      classVarDecTree.insert(classVarKeywordToken);
       this.advanceToken();
 
-      const typeToken = this.currentToken;
-      if (!isTypeToken(typeToken)) {
-        throw new JackParserError({
-          caller: this.parseClassVarDecs.name,
-          expected: { type: "keyword/identifier", token: "(int|char|boolean)/_<identifier>" },
-          actual: typeToken,
-        });
-      }
-      classVarDec.insert(typeToken);
-      this.advanceToken();
-
-      const varNameToken = this.currentToken;
-      if (varNameToken.type !== "identifier") {
-        throw new JackParserError({
-          caller: this.parseClassVarDecs.name,
-          expected: { type: "identifier" },
-          actual: typeToken,
-        });
-      }
-      classVarDec.insert(varNameToken);
-      this.advanceToken();
+      this.insertToken({
+        tree: classVarDecTree,
+        isExpected: isTypeToken,
+        expected: { type: "keyword/identifier", token: "(int|char|boolean)/_<identifier>" },
+        caller,
+      });
+      this.insertToken({ tree: classVarDecTree, expected: { type: "identifier" }, caller });
 
       let varDecSeparatorToken = this.currentToken;
-      while (varDecSeparatorToken.type === "symbol" && varDecSeparatorToken.token === ",") {
-        classVarDec.insert(varDecSeparatorToken);
+      while (isVarSeparatorToken(varDecSeparatorToken)) {
+        classVarDecTree.insert(varDecSeparatorToken);
         this.advanceToken();
 
-        const varNameToken = this.currentToken;
-        if (varNameToken.type !== "identifier") {
-          throw new JackParserError({
-            caller: this.parseClassVarDecs.name,
-            expected: { type: "identifier" },
-            actual: varNameToken,
-          });
-        }
-        classVarDec.insert(varNameToken);
-        this.advanceToken();
+        this.insertToken({ tree: classVarDecTree, expected: { type: "identifier" }, caller });
 
         varDecSeparatorToken = this.currentToken;
       }
 
-      const semiColonToken = this.currentToken;
-      if (semiColonToken.type !== "symbol" || semiColonToken.token !== ";") {
-        throw new JackParserError({
-          caller: this.parseClassVarDecs.name,
-          expected: { type: "symbol", token: ";" },
-          actual: semiColonToken,
-        });
-      }
-      classVarDec.insert(semiColonToken);
-      this.advanceToken();
+      this.insertToken({ tree: classVarDecTree, expected: { type: "symbol", token: ";" }, caller });
 
-      classVarDecTrees.push(classVarDec);
-      staticOrFieldToken = this.currentToken;
+      classVarDecTrees.push(classVarDecTree);
+      classVarKeywordToken = this.currentToken;
     }
 
     return classVarDecTrees;
