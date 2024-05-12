@@ -20,6 +20,6 @@
 |  7  | Virtual Machine I: Processing | VM Translator                   |    ✅     |
 |  8  | Virtual Machine II: Control   | VM Translator                   |    ✅     |
 |  9  | High Level Language           | Jack Program (Game of Life)     |    ✅     |
-| 10  | Compiler I: Syntax Analysis   | Jack Compiler (Syntax Analyzer) |           |
+| 10  | Compiler I: Syntax Analysis   | Jack Compiler (Syntax Analyzer) |    ✅     |
 | 11  | Compiler II: Code Generation  | Jack Compiler (Code Generator)  |           |
 | 12  | Operating System              | Jack OS                         |           |

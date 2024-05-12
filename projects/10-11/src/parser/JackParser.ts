@@ -25,7 +25,6 @@ export class JackParser {
       throw new RangeError("[currentToken] currentTokenIndex out of range for tokens");
     }
 
-    console.log({ currentToken: token });
     return token;
   }
 
@@ -47,7 +46,6 @@ export class JackParser {
   }
 
   private advanceToken() {
-    console.log("advanceToken()");
     this.currentTokenIndex++;
   }
 
