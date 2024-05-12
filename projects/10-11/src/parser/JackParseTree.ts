@@ -24,7 +24,7 @@ export class JackParseTree implements ParseTree<JackParseTreeNode> {
     return;
   }
 
-  public toXmlString({ depth = 0 }: { depth?: number }): string {
+  public toXmlString({ depth = 0 }: { depth?: number } = {}): string {
     const lines: string[] = [];
 
     const { value } = this.root;

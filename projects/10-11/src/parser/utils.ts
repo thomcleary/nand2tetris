@@ -44,6 +44,13 @@ export const isKeywordConstantToken = (
   return type === "keyword" && (token === "true" || token === "false" || token == "null" || token === "this");
 };
 
+export const isOperatorToken = (
+  t: Token
+): t is { type: "symbol"; token: "+" | "-" | "*" | "/" | "&" | "|" | "<" | ">" | "=" } => {
+  const { type, token } = t;
+  return type === "symbol" && ["+", "-", "*", "/", "&", "|", "<", ">", "="].includes(token);
+};
+
 export const isUnaryOperatorToken = (t: Token): t is { type: "symbol"; token: "-" | "~" } => {
   const { type, token } = t;
   return type === "symbol" && (token === "-" || token === "~");

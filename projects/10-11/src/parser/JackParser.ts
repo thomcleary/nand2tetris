@@ -6,6 +6,7 @@ import JackParserError from "./JackParserError.js";
 import {
   isClassVarKeywordToken,
   isKeywordConstantToken,
+  isOperatorToken,
   isSeparatorToken,
   isStatementToken,
   isSubroutineTypeToken,
@@ -287,7 +288,7 @@ export class JackParser {
 
     this.insertToken({ tree: letStatementTree, expected: { type: "keyword", token: "let" }, caller });
     this.insertToken({ tree: letStatementTree, expected: { type: "identifier" }, caller });
-    // TODO: parse array indexing, varName[expression]
+    this.parseArrayIndexing({ tree: letStatementTree });
     this.insertToken({ tree: letStatementTree, expected: { type: "symbol", token: "=" }, caller });
     letStatementTree.insert(this.parseExpression());
     this.insertToken({ tree: letStatementTree, expected: { type: "symbol", token: ";" }, caller });
@@ -366,6 +367,16 @@ export class JackParser {
 
     expressionTree.insert(this.parseTerm());
 
+    let operatorToken = this.currentToken;
+    while (isOperatorToken(operatorToken)) {
+      expressionTree.insert(operatorToken);
+      this.advanceToken();
+
+      expressionTree.insert(this.parseTerm());
+
+      operatorToken = this.currentToken;
+    }
+
     return expressionTree;
   }
 
@@ -373,25 +384,28 @@ export class JackParser {
     const caller = this.parseTerm;
     const termTree = new JackParseTree({ type: "grammarRule", rule: "term" });
 
+    const initialToken = this.currentToken;
+
     if (
-      this.currentToken.type === "integerConstant" ||
-      this.currentToken.type === "stringConstant" ||
-      isKeywordConstantToken(this.currentToken)
+      initialToken.type === "integerConstant" ||
+      initialToken.type === "stringConstant" ||
+      isKeywordConstantToken(initialToken)
     ) {
-      termTree.insert(this.currentToken);
+      termTree.insert(initialToken);
       this.advanceToken();
-    } else if (this.currentToken.type === "identifier") {
+    } else if (initialToken.type === "identifier") {
       const lookAheadToken = this.lookAhead();
 
       if (lookAheadToken.type === "symbol" && lookAheadToken.token === ".") {
         this.parseSubroutineCall({ tree: termTree });
       } else {
-        termTree.insert(this.currentToken);
+        termTree.insert(initialToken);
         this.advanceToken();
-        // TODO: parse varName[expression]
+
+        this.parseArrayIndexing({ tree: termTree });
       }
-    } else if (this.currentToken.type === "symbol" && this.currentToken.token === "(") {
-      termTree.insert(this.currentToken);
+    } else if (initialToken.type === "symbol" && initialToken.token === "(") {
+      termTree.insert(initialToken);
       this.advanceToken();
 
       termTree.insert(this.parseExpression());
@@ -447,6 +461,19 @@ export class JackParser {
     }
 
     return expressionListTree;
+  }
+
+  private parseArrayIndexing({ tree }: { tree: JackParseTree }) {
+    const caller = this.parseArrayIndexing;
+
+    const openingSquareBracketToken = this.currentToken;
+    if (openingSquareBracketToken.type === "symbol" && openingSquareBracketToken.token === "[") {
+      tree.insert(openingSquareBracketToken);
+      this.advanceToken();
+
+      tree.insert(this.parseExpression());
+      this.insertToken({ tree: tree, expected: { type: "symbol", token: "]" }, caller });
+    }
   }
 }
 
