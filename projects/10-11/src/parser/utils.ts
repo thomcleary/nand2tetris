@@ -36,3 +36,15 @@ export const isStatementToken = (t: Token): t is StatementKeywordToken => {
     (token === "let" || token === "if" || token === "while" || token === "do" || token === "return")
   );
 };
+
+export const isKeywordConstantToken = (
+  t: Token
+): t is { type: "keyword"; token: "true" | "false" | "null" | "this" } => {
+  const { type, token } = t;
+  return type === "keyword" && (token === "true" || token === "false" || token == "null" || token === "this");
+};
+
+export const isUnaryOperatorToken = (t: Token): t is { type: "symbol"; token: "-" | "~" } => {
+  const { type, token } = t;
+  return type === "symbol" && (token === "-" || token === "~");
+};
