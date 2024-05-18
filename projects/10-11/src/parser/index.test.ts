@@ -9,7 +9,7 @@ const test = () => {
   const filePath = process.argv[2];
 
   if (!filePath) {
-    console.log(error("missing program file path" + "\n" + "usage: pnpm vmTranslator ./path/to/Program.vm"));
+    console.log(error("missing program file path" + "\n" + "usage: pnpm test:parser ./path/to/program"));
     return;
   }
 

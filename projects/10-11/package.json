@@ -6,6 +6,7 @@
     "node": "20.x"
   },
   "scripts": {
+    "compile": "tsx ./src/compiler",
     "test:tokenizer": "tsx ./src/tokenizer/index.test.ts",
     "test:parser": "tsx ./src/parser/index.test.ts",
     "tsc": "tsc --watch -p ./tsconfig.json"

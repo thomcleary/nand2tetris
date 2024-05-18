@@ -7,8 +7,18 @@
  * at the top-left of the screen.  
  */
 class Main {
+   // TODO: remove class vars (only added for testing while building symbol table)
+   field int a, b, c;
+   static bool d;
+   field Test e;
+   static Array f, g;
 
-   function void main() {
+   // TODO: remove parameters (only added to test symbol table)
+   function void main(int h, int i) {
+   // TODO: remove var declarations (only added to test symbol table)
+      var int j;
+      var Test k, l;
+
       do Output.printInt(1 + (2 * 3));
       return;
    }
