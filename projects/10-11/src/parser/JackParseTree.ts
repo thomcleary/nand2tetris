@@ -2,7 +2,7 @@ import { escapeToken } from "../utils/testing.js";
 import { JackParseTreeNode, ParseTree, ParseTreeNode } from "./types.js";
 
 export class JackParseTree implements ParseTree<JackParseTreeNode> {
-  public root: ParseTreeNode<JackParseTreeNode>;
+  public readonly root: ParseTreeNode<JackParseTreeNode>;
 
   constructor(rootValue: JackParseTreeNode) {
     this.root = { value: rootValue, children: [] };
@@ -11,12 +11,12 @@ export class JackParseTree implements ParseTree<JackParseTreeNode> {
   public insert(value: JackParseTreeNode | JackParseTree | JackParseTree[]) {
     if (value instanceof JackParseTree) {
       this.root.children.push(value);
-      return value;
+      return;
     }
 
     if (value instanceof Array) {
       this.root.children.push(...value);
-      return value;
+      return;
     }
 
     const tree = new JackParseTree(value);

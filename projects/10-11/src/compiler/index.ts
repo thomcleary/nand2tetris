@@ -39,7 +39,7 @@ const compiler = () => {
 
     const { vmProgram } = compilationResult;
 
-    console.log({ vmProgram });
+    // console.log({ vmProgram });
 
     // TODO: output compilation result to .vm file
     // const outfile = `${filePath}/${path.basename(file).replace(".jack", ".vm")}`;
