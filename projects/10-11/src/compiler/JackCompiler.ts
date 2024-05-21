@@ -46,8 +46,7 @@ export class JackCompiler {
   }
 
   #compile(jackParseTree: JackParseTree): string {
-    // console.log("Before #compileClass");
-    // console.log(jackParseTree.toXmlString());
+    console.log(jackParseTree.toXmlString());
 
     const vmInstructions = this.#compileClass(jackParseTree);
 
@@ -65,6 +64,10 @@ export class JackCompiler {
     classNode.children
       .filter((c) => c.root.value.type === "grammarRule" && c.root.value.rule === "classVarDec")
       .forEach((dec) => this.#compileClassVarDec(dec));
+
+    classNode.children
+      .filter((c) => c.root.value.type === "grammarRule" && c.root.value.rule === "subroutineDec")
+      .forEach((dec) => this.#compileSubroutineDec(dec));
 
     return ["TODO"];
   }
@@ -99,7 +102,7 @@ export class JackCompiler {
     console.log(this.#classSymbolTable.toString());
   }
 
-  #compileSubroutine(): string[] {
+  #compileSubroutineDec(subroutineDecTree: JackParseTree): string[] {
     this.#resetSubroutineSymbolTable();
 
     // TODO: Parse each subroutine and add parameters / var declarations to subroutine-level symbol table
