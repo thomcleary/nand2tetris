@@ -11,7 +11,7 @@ export class JackCompiler {
   #classSymbolTable = new SymbolTable<ClassSymbolKind>();
   #subroutineSymbolTable = new SymbolTable<SubroutineSymbolKind>();
 
-  public compile(jackProgram: string[]): Result<{ vmProgram: string }> {
+  compile(jackProgram: string[]): Result<{ vmProgram: string }> {
     const tokenizeResult = tokenize(jackProgram);
 
     if (!tokenizeResult.success) {
