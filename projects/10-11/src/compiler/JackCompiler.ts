@@ -1,6 +1,6 @@
 import JackParseTree, { JackParseTreeNode } from "../parser/JackParseTree.js";
 import JackParser from "../parser/JackParser.js";
-import { isTypeToken } from "../parser/utils.js";
+import { isSeparatorToken, isTypeToken } from "../parser/utils.js";
 import tokenize from "../tokenizer/index.js";
 import { IdentifierToken } from "../tokenizer/types.js";
 import { Result } from "../types.js";
@@ -99,15 +99,62 @@ export class JackCompiler {
       .filter((token): token is IdentifierToken => token.type === "identifier")
       .forEach((identifier) => this.#classSymbolTable.add({ name: identifier.token, kind, type }));
 
+    console.log("ClassSymbolTable");
     console.log(this.#classSymbolTable.toString());
   }
 
   #compileSubroutineDec(subroutineDecNode: JackParseTreeNode): string[] {
     this.#resetSubroutineSymbolTable();
 
-    // TODO: Parse each subroutine and add parameters / var declarations to subroutine-level symbol table
-    // console.log(this.#subroutineSymbolTable)
+    // TODO: compile parameterList
+    const parameterListNode = subroutineDecNode.children.find(
+      (n) => n.value.type === "grammarRule" && n.value.rule === "parameterList"
+    );
+
+    if (!parameterListNode) {
+      throw new Error(`[#compileSubroutineDec]: no parameterList node found`);
+    }
+
+    this.#compileParameterList(parameterListNode);
+
+    // TODO: compile varDecs
+    const varDecNodes = subroutineDecNode.children.filter(
+      (c) => c.value.type === "grammarRule" && c.value.rule === "varDec"
+    );
+
+    console.log("SubroutineSymbolTable");
+    console.log(this.#subroutineSymbolTable.toString());
 
     return ["TODO"];
+  }
+
+  #compileParameterList(parameterListNode: JackParseTreeNode) {
+    const nodes = parameterListNode.children;
+
+    let currentNodeIndex = 0;
+    while (currentNodeIndex < nodes.length) {
+      const typeNode = nodes[currentNodeIndex];
+      if (!typeNode || typeNode.value.type === "grammarRule" || !isTypeToken(typeNode.value)) {
+        throw new Error(`[#compileParameterList]: expected type token but was ${typeNode?.value}`);
+      }
+
+      const type = typeNode.value.token;
+      currentNodeIndex++;
+
+      const argNameNode = nodes[currentNodeIndex];
+      if (!argNameNode || argNameNode.value.type !== "identifier") {
+        throw new Error(`[#compileParameterList]: expected identifier token but was ${argNameNode?.value}`);
+      }
+
+      const argName = argNameNode.value.token;
+      currentNodeIndex++;
+
+      this.#subroutineSymbolTable.add({ name: argName, kind: "arg", type });
+
+      const currentNode = nodes[currentNodeIndex];
+      if (currentNode && currentNode.value.type !== "grammarRule" && isSeparatorToken(currentNode.value)) {
+        currentNodeIndex++;
+      }
+    }
   }
 }

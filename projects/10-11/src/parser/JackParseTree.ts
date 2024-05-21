@@ -9,7 +9,7 @@ export class JackParseTree {
   }
 
   toXmlString() {
-    return this.root.toXmlString();
+    return this.root.toXmlString() + "\n";
   }
 }
 

@@ -22,6 +22,10 @@ export class SymbolTable<T extends string> {
   toString() {
     let str = "";
 
+    if (this.#table.size === 0) {
+      return "Empty";
+    }
+
     this.#table.forEach(
       ({ name, kind, type, index }) =>
         (str = str + `{ name: ${name}, kind: ${kind}, type: ${type}, index: ${index} }\n`)
