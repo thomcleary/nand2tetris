@@ -1,4 +1,4 @@
-import JackParseTree from "../parser/JackParseTree.js";
+import JackParseTree, { JackParseTreeNode } from "../parser/JackParseTree.js";
 import JackParser from "../parser/JackParser.js";
 import { isTypeToken } from "../parser/utils.js";
 import tokenize from "../tokenizer/index.js";
@@ -62,47 +62,47 @@ export class JackCompiler {
     }
 
     classNode.children
-      .filter((c) => c.root.value.type === "grammarRule" && c.root.value.rule === "classVarDec")
+      .filter((c) => c.value.type === "grammarRule" && c.value.rule === "classVarDec")
       .forEach((dec) => this.#compileClassVarDec(dec));
 
     classNode.children
-      .filter((c) => c.root.value.type === "grammarRule" && c.root.value.rule === "subroutineDec")
+      .filter((c) => c.value.type === "grammarRule" && c.value.rule === "subroutineDec")
       .forEach((dec) => this.#compileSubroutineDec(dec));
 
     return ["TODO"];
   }
 
-  #compileClassVarDec(classVarDecTree: JackParseTree): void {
-    const declaration = classVarDecTree.root.children;
+  #compileClassVarDec(classVarDecNode: JackParseTreeNode): void {
+    const declaration = classVarDecNode.children;
 
     const kindNode = declaration[0];
     if (
       !kindNode ||
-      kindNode.root.value.type !== "keyword" ||
-      (kindNode.root.value.token !== "static" && kindNode.root.value.token !== "field")
+      kindNode.value.type !== "keyword" ||
+      (kindNode.value.token !== "static" && kindNode.value.token !== "field")
     ) {
-      throw new Error(`[#compileClassVarDec]: expected static/field but was ${kindNode?.root.value}`);
+      throw new Error(`[#compileClassVarDec]: expected static/field but was ${kindNode?.value}`);
     }
 
-    const kind = kindNode.root.value.token;
+    const kind = kindNode.value.token;
 
     const typeNode = declaration[1];
-    if (!typeNode || typeNode.root.value.type === "grammarRule" || !isTypeToken(typeNode.root.value)) {
-      throw new Error(`[#compileClassVarDec]: expected type token but was ${typeNode?.root.value}`);
+    if (!typeNode || typeNode.value.type === "grammarRule" || !isTypeToken(typeNode.value)) {
+      throw new Error(`[#compileClassVarDec]: expected type token but was ${typeNode?.value}`);
     }
 
-    const type = typeNode.root.value.type;
+    const type = typeNode.value.type;
 
     declaration
       .slice(2)
-      .map((tree) => tree.root.value)
+      .map((node) => node.value)
       .filter((token): token is IdentifierToken => token.type === "identifier")
       .forEach((identifier) => this.#classSymbolTable.add({ name: identifier.token, kind, type }));
 
     console.log(this.#classSymbolTable.toString());
   }
 
-  #compileSubroutineDec(subroutineDecTree: JackParseTree): string[] {
+  #compileSubroutineDec(subroutineDecNode: JackParseTreeNode): string[] {
     this.#resetSubroutineSymbolTable();
 
     // TODO: Parse each subroutine and add parameters / var declarations to subroutine-level symbol table

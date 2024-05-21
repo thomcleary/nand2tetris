@@ -1,41 +1,41 @@
 import { escapeToken } from "../utils/testing.js";
-import { JackParseTreeNode, ParseTree, ParseTreeNode } from "./types.js";
+import { JackParseTreeNodeValue } from "./types.js";
 
-export class JackParseTree implements ParseTree<JackParseTreeNode> {
-  public readonly root: ParseTreeNode<JackParseTreeNode>;
+export class JackParseTree {
+  readonly root: JackParseTreeNode;
 
-  constructor(rootValue: JackParseTreeNode) {
-    this.root = { value: rootValue, children: [] };
+  constructor(root: JackParseTreeNodeValue) {
+    this.root = new JackParseTreeNode(root);
   }
 
-  public insert(value: JackParseTreeNode | JackParseTree | JackParseTree[]) {
-    if (value instanceof JackParseTree) {
-      this.root.children.push(value);
-      return;
-    }
+  toXmlString() {
+    return this.root.toXmlString();
+  }
+}
 
-    if (value instanceof Array) {
-      this.root.children.push(...value);
-      return;
-    }
+export class JackParseTreeNode {
+  readonly value: JackParseTreeNodeValue;
+  readonly children: JackParseTreeNode[];
 
-    const tree = new JackParseTree(value);
-    this.root.children.push(tree);
-    return;
+  constructor(value: JackParseTreeNodeValue) {
+    this.value = value;
+    this.children = [];
   }
 
-  public toXmlString({ depth = 0 }: { depth?: number } = {}): string {
+  insert(child: JackParseTreeNode | JackParseTreeNodeValue) {
+    this.children.push(child instanceof JackParseTreeNode ? child : new JackParseTreeNode(child));
+  }
+
+  toXmlString({ depth = 0 }: { depth?: number } = {}): string {
     const lines: string[] = [];
-
-    const { value } = this.root;
     const indentation = "  ".repeat(depth);
 
-    if (value.type === "grammarRule") {
-      lines.push(`${indentation}<${value.rule}>`);
-      lines.push(...this.root.children.flatMap((child) => child.toXmlString({ depth: depth + 1 })));
-      lines.push(`${indentation}</${value.rule}>`);
+    if (this.value.type === "grammarRule") {
+      lines.push(`${indentation}<${this.value.rule}>`);
+      lines.push(...this.children.flatMap((child) => child.toXmlString({ depth: depth + 1 })));
+      lines.push(`${indentation}</${this.value.rule}>`);
     } else {
-      lines.push(`${indentation}${`<${value.type}>`} ${escapeToken(value.token)} ${`</${value.type}>`}`);
+      lines.push(`${indentation}${`<${this.value.type}>`} ${escapeToken(this.value.token)} ${`</${this.value.type}>`}`);
     }
 
     return lines.join("\n");

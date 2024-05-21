@@ -1,17 +1,6 @@
 import { Token } from "../tokenizer/types.js";
 
-export type ParseTree<T> = {
-  root: ParseTreeNode<T>;
-  insert(value: T): void;
-  toXmlString(options: { depth?: number }): string;
-};
-
-export type ParseTreeNode<T> = {
-  value: T;
-  children: ParseTree<T>[];
-};
-
-export type JackParseTreeNode =
+export type JackParseTreeNodeValue =
   | {
       type: "grammarRule";
       rule:
