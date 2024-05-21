@@ -1,10 +1,14 @@
 import { IdentifierToken, Keyword, KeywordToken, Token } from "../tokenizer/types.js";
+import { JackParseTreeNodeValue } from "./types.js";
 
 type SpecificKeywordToken<T extends Keyword> = KeywordToken & { token: Extract<Keyword, T> };
 type TypeKeywordToken = SpecificKeywordToken<"int" | "char" | "boolean">;
 type StatementKeywordToken = SpecificKeywordToken<"let" | "if" | "while" | "do" | "return">;
 
-export const isTypeToken = (t: Token): t is IdentifierToken | TypeKeywordToken => {
+export const isTypeToken = (t: JackParseTreeNodeValue): t is IdentifierToken | TypeKeywordToken => {
+  if (t.type === "grammarRule") {
+    return false;
+  }
   const { type, token } = t;
   const isIntCharOrBoolean = type === "keyword" && (token === "int" || token === "char" || token === "boolean");
   const isClassName = type === "identifier";
@@ -12,7 +16,7 @@ export const isTypeToken = (t: Token): t is IdentifierToken | TypeKeywordToken =
   return isIntCharOrBoolean || isClassName;
 };
 
-export const isClassVarKeywordToken = (t: Token): t is { type: "keyword"; token: "class" | "field" } => {
+export const isClassVarKeywordToken = (t: Token): t is { type: "keyword"; token: "static" | "field" } => {
   const { type, token } = t;
   return type === "keyword" && (token === "static" || token === "field");
 };
