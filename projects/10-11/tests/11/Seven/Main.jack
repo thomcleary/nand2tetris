@@ -23,4 +23,11 @@ class Main {
       return;
    }
 
+   // TODO; remove function (only added to test compiler)
+   function int main() {
+      var int m, n;
+
+      return m + n;
+   }
+
 }
