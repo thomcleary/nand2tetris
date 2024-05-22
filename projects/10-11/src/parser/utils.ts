@@ -5,19 +5,24 @@ type SpecificKeywordToken<T extends Keyword> = KeywordToken & { token: Extract<K
 type TypeKeywordToken = SpecificKeywordToken<"int" | "char" | "boolean">;
 type StatementKeywordToken = SpecificKeywordToken<"let" | "if" | "while" | "do" | "return">;
 
-export const isTypeToken = (t: JackParseTreeNodeValue): t is IdentifierToken | TypeKeywordToken => {
-  if (t.type === "grammarRule") {
+export const isTypeToken = (v: JackParseTreeNodeValue): v is IdentifierToken | TypeKeywordToken => {
+  if (v.type === "grammarRule") {
     return false;
   }
-  const { type, token } = t;
+  const { type, token } = v;
   const isIntCharOrBoolean = type === "keyword" && (token === "int" || token === "char" || token === "boolean");
   const isClassName = type === "identifier";
 
   return isIntCharOrBoolean || isClassName;
 };
 
-export const isClassVarKeywordToken = (t: Token): t is { type: "keyword"; token: "static" | "field" } => {
-  const { type, token } = t;
+export const isClassVarKeywordToken = (
+  v: JackParseTreeNodeValue
+): v is { type: "keyword"; token: "static" | "field" } => {
+  if (v.type === "grammarRule") {
+    return false;
+  }
+  const { type, token } = v;
   return type === "keyword" && (token === "static" || token === "field");
 };
 
@@ -27,9 +32,12 @@ export const isSeparatorToken = (t: Token): t is { type: "symbol"; token: "," } 
 };
 
 export const isSubroutineTypeToken = (
-  t: Token
-): t is { type: "keyword"; token: "constructor" | "function" | "method" } => {
-  const { type, token } = t;
+  v: JackParseTreeNodeValue
+): v is { type: "keyword"; token: "constructor" | "function" | "method" } => {
+  if (v.type === "grammarRule") {
+    return false;
+  }
+  const { type, token } = v;
   return type === "keyword" && (token === "constructor" || token === "function" || token === "method");
 };
 

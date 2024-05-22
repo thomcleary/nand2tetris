@@ -10,16 +10,25 @@ export type SymbolInfo<T extends string> = {
 
 export class SymbolTable<T extends string> {
   readonly #table = new Map<string, SymbolInfo<T>>();
-  readonly #kindCounts = new Map<string, number>();
+  readonly #kindCounts = new Map<T, number>();
 
-  add(symbol: Omit<SymbolInfo<T>, "index">) {
+  clear(): void {
+    this.#table.clear();
+    this.#kindCounts.clear();
+  }
+
+  add(symbol: Omit<SymbolInfo<T>, "index">): void {
     const kindCount = this.#kindCounts.get(symbol.kind) ?? 0;
 
     this.#kindCounts.set(symbol.kind, kindCount + 1);
     this.#table.set(symbol.name, { ...symbol, index: kindCount });
   }
 
-  toString() {
+  count(kind: T): number {
+    return this.#kindCounts.get(kind) ?? 0;
+  }
+
+  toString(): string {
     let str = "";
 
     if (this.#table.size === 0) {

@@ -24,10 +24,9 @@ class Main {
    }
 
    // TODO; remove function (only added to test compiler)
-   function int main() {
+   method int mainMethod() {
       var int m, n;
 
       return m + n;
    }
-
 }
