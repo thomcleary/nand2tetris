@@ -5,6 +5,7 @@ import tokenize from "../tokenizer/index.js";
 import { IdentifierToken } from "../tokenizer/types.js";
 import { Result } from "../types.js";
 import { ClassSymbolKind, SubroutineSymbolKind, SymbolTable } from "./SymbolTable.js";
+import { VmInstruction } from "./types.js";
 
 export class JackCompiler {
   #jackParser = new JackParser();
@@ -62,7 +63,7 @@ export class JackCompiler {
     return vmInstructions.join("\n");
   }
 
-  #compileClass(parseTree: JackParseTree): string[] {
+  #compileClass(parseTree: JackParseTree): VmInstruction[] {
     const classNode = parseTree.root;
 
     if (classNode.value.type !== "grammarRule" || classNode.value.rule !== "class") {
@@ -116,7 +117,7 @@ export class JackCompiler {
       .forEach((identifier) => this.#classSymbolTable.add({ name: identifier.token, kind, type }));
   }
 
-  #compileSubroutineDec({ subroutineDecNode }: { subroutineDecNode: JackParseTreeNode }): string[] {
+  #compileSubroutineDec({ subroutineDecNode }: { subroutineDecNode: JackParseTreeNode }): VmInstruction[] {
     const [
       subroutineTypeNode,
       _, //  returnTypeNode, TODO: might need to pass this down to compileSubroutineDec to validate return statement
@@ -165,12 +166,12 @@ export class JackCompiler {
     console.log("SubroutineSymbolTable");
     console.log(this.#subroutineSymbolTable.toString());
 
-    const vmInstructions = [
+    const vmInstructions: VmInstruction[] = [
       `function ${this.#className}.${subroutineName.token} ${this.#subroutineSymbolTable.count("var")}`,
     ];
 
     if (subroutineType.token === "method") {
-      vmInstructions.push(...["push argument 0", "pop pointer 0"]);
+      vmInstructions.push("push argument 0", "pop pointer 0");
     } else if (subroutineType.token === "constructor") {
       // TODO
       // push constant nFields
@@ -183,7 +184,7 @@ export class JackCompiler {
     return vmInstructions;
   }
 
-  #compileParameterList({ subroutineDecNode }: { subroutineDecNode: JackParseTreeNode }) {
+  #compileParameterList({ subroutineDecNode }: { subroutineDecNode: JackParseTreeNode }): void {
     const parameterListNode = subroutineDecNode.children.find(
       (n) => n.value.type === "grammarRule" && n.value.rule === "parameterList"
     );
@@ -222,7 +223,7 @@ export class JackCompiler {
     }
   }
 
-  #compileVarDecs({ subroutineBodyNode }: { subroutineBodyNode: JackParseTreeNode }) {
+  #compileVarDecs({ subroutineBodyNode }: { subroutineBodyNode: JackParseTreeNode }): void {
     const varDecNodes = subroutineBodyNode.children.filter(
       (c) => c.value.type === "grammarRule" && c.value.rule === "varDec"
     );
@@ -248,7 +249,7 @@ export class JackCompiler {
     }
   }
 
-  #compileSubroutineBody({ subroutineBodyNode }: { subroutineBodyNode: JackParseTreeNode }): string[] {
+  #compileSubroutineBody({ subroutineBodyNode }: { subroutineBodyNode: JackParseTreeNode }): VmInstruction[] {
     // TODO: parse subroutine body into VM instructions
 
     // TODO: if subroutine type is constructor, end with
@@ -258,6 +259,7 @@ export class JackCompiler {
     // TODO: if subroutine return type is void, end with
     // push constant 0
     // return
-    return ["TODO: #compileSubroutineBody"];
+
+    return [];
   }
 }
