@@ -171,12 +171,18 @@ export class JackCompiler {
     ];
 
     if (subroutineType.token === "method") {
+      // Aligns the virtual memory segment this (pointer 0)
+      // with the base address of the object on which the method was called
       vmInstructions.push("push argument 0", "pop pointer 0");
     } else if (subroutineType.token === "constructor") {
-      // TODO
-      // push constant nFields
-      // call Memory.alloc 1
-      // pop pointer 0
+      // Allocates a memory block of nFields 16-bit words
+      // and aligns the virtual memory segment "this" (pointer 0)
+      // with the base address of the newly allocated block
+      vmInstructions.push(
+        `push constant ${this.#classSymbolTable.count("field")}`,
+        "call Memory.alloc 1",
+        "pop pointer 0"
+      );
     }
 
     vmInstructions.push(...this.#compileSubroutineBody({ subroutineBodyNode }));
@@ -250,16 +256,29 @@ export class JackCompiler {
   }
 
   #compileSubroutineBody({ subroutineBodyNode }: { subroutineBodyNode: JackParseTreeNode }): VmInstruction[] {
+    const vmInstructions: VmInstruction[] = [];
     // TODO: parse subroutine body into VM instructions
+
+    // TODO: Next for Seven test
+    // Compile "do" statements
+    // We recommend compiling do subroutineCall statements as if they were do expression statements,
+    // and then yanking the topmost stack value using pop temp 0.
 
     // TODO: if subroutine type is constructor, end with
     // push pointer 0
     // return
+    // This sequence returns to the caller the base address of the new object created by the constructor.
+    // if (subroutineType = "constructor") vmInstructions.push("push pointer 0");
 
     // TODO: if subroutine return type is void, end with
     // push constant 0
     // return
+    // When compiling a void Jack method or function,
+    // the convention is to end the generated code with push constant 0, return.
+    // if (returnType === "void") vmInstructions.push("push constant 0");
 
-    return [];
+    vmInstructions.push("return");
+
+    return vmInstructions;
   }
 }
