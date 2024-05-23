@@ -7,6 +7,9 @@ import { Result } from "../types.js";
 import { ClassSymbolKind, SubroutineSymbolKind, SymbolTable } from "./SymbolTable.js";
 import { VmInstruction } from "./types.js";
 
+// TODO: Seven Test
+// Compile "do" statements
+
 export class JackCompiler {
   #jackParser = new JackParser();
   #classSymbolTable = new SymbolTable<ClassSymbolKind>();
@@ -259,10 +262,7 @@ export class JackCompiler {
     const vmInstructions: VmInstruction[] = [];
     // TODO: parse subroutine body into VM instructions
 
-    // TODO: Next for Seven test
-    // Compile "do" statements
-    // We recommend compiling do subroutineCall statements as if they were do expression statements,
-    // and then yanking the topmost stack value using pop temp 0.
+    // TODO: compile "do" statements;
 
     // TODO: if subroutine type is constructor, end with
     // push pointer 0
@@ -280,5 +280,21 @@ export class JackCompiler {
     vmInstructions.push("return");
 
     return vmInstructions;
+  }
+
+  #compileDoStatement(): VmInstruction[] {
+    // TODO
+
+    return [];
+  }
+
+  #compileExpression(): VmInstruction[] {
+    // TODO: constant expressions
+    // TODO: variable expressions
+    // TODO: compile "exp op exp" expressions
+    // TODO: compile "op exp" expressions
+    // TODO: compile function call expressions
+
+    return [];
   }
 }
