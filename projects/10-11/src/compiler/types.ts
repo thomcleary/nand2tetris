@@ -4,9 +4,9 @@ type PushInstruction = `push ${Segment} ${number}`;
 
 type PopInstruction = `pop ${Exclude<Segment, "constant">} ${number}`;
 
-type CallCommand = `call ${string}.${string} ${number}`;
+type FunctionInstruction = `${"function" | "call"} ${string}.${string} ${number}`;
 
-type FunctionCommand = `function ${string}.${string} ${number}`;
+type BranchingInstruction = `${"label" | "goto" | "if-goto"} ${string}`;
 
 type ReturnCommand = "return";
 
@@ -19,8 +19,8 @@ type LogicalCommand = "and" | "or" | "not";
 export type VmInstruction =
   | PushInstruction
   | PopInstruction
-  | CallCommand
-  | FunctionCommand
+  | FunctionInstruction
+  | BranchingInstruction
   | ReturnCommand
   | ArithmeticCommand
   | ComparisonCommand
