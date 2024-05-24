@@ -37,10 +37,10 @@ const compiler = () => {
       return;
     }
 
-    const { vmProgram } = compilationResult;
+    const { vmInstructions } = compilationResult;
 
-    console.log("VM Program");
-    console.log(vmProgram);
+    console.log("VM Instructions");
+    console.log(vmInstructions);
 
     // TODO: output compilation result to .vm file
     // const outfile = `${filePath}/${path.basename(file).replace(".jack", ".vm")}`;

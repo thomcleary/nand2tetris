@@ -28,7 +28,7 @@ export class JackCompiler {
     this.#_className = name;
   }
 
-  compile(jackProgram: string[]): Result<{ vmProgram: string }> {
+  compile(jackProgram: string[]): Result<{ vmInstructions: VmInstruction[] }> {
     const tokenizeResult = tokenize(jackProgram);
 
     if (!tokenizeResult.success) {
@@ -47,7 +47,7 @@ export class JackCompiler {
 
     try {
       this.#reset();
-      return { success: true, vmProgram: this.#compile(jackParseTree) };
+      return { success: true, vmInstructions: this.#compile(jackParseTree) };
     } catch (e) {
       return { success: false, message: e instanceof Error ? e.message : "TODO: error message handling" };
     }
@@ -58,15 +58,9 @@ export class JackCompiler {
     this.#subroutineSymbolTable.clear();
   }
 
-  #compile(jackParseTree: JackParseTree): string {
-    console.log(jackParseTree.toXmlString());
+  #compile(parseTree: JackParseTree): VmInstruction[] {
+    console.log(parseTree.toXmlString());
 
-    const vmInstructions = this.#compileClass(jackParseTree);
-
-    return vmInstructions.join("\n");
-  }
-
-  #compileClass(parseTree: JackParseTree): VmInstruction[] {
     const classNode = parseTree.root;
 
     if (classNode.value.type !== "grammarRule" || classNode.value.rule !== "class") {

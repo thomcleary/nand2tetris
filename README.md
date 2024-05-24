@@ -4,14 +4,14 @@
 
 ## Part 1: Hardware
 
-|  #  | Chapter               | Project        | Completed |
-| :-: | --------------------- | -------------- | :-------: |
-|  1  | Boolean Logic         | Logic Gates    |    ✅     |
-|  2  | Boolean Arithmetic    | ALU            |    ✅     |
-|  3  | Memory                | RAM            |    ✅     |
-|  4  | Machine Language      | Assembly       |    ✅     |
-|  5  | Computer Architecture | CPU            |    ✅     |
-|  6  | Assembler             | Hack Assembler |    ✅     |
+|  #  | Chapter               | Project           | Completed |
+| :-: | --------------------- | ----------------- | :-------: |
+|  1  | Boolean Logic         | Logic Gates       |    ✅     |
+|  2  | Boolean Arithmetic    | ALU               |    ✅     |
+|  3  | Memory                | RAM               |    ✅     |
+|  4  | Machine Language      | Assembly Programs |    ✅     |
+|  5  | Computer Architecture | CPU               |    ✅     |
+|  6  | Assembler             | Hack Assembler    |    ✅     |
 
 ## Part 2: Software
 
