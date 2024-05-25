@@ -13,22 +13,43 @@ import { VmInstruction } from "./types.js";
 // TODO: Average test
 // TODO: Pong test
 
+type ClassContext = {
+  symbolTable: SymbolTable<ClassSymbolKind>;
+  className: string;
+};
+
+type SubroutineContext = {
+  symbolTable: SymbolTable<SubroutineSymbolKind>;
+  type: "constructor" | "function" | "method"; // TODO: remove this if not used (thought I might need to it for return instructions but probably don't)
+};
+
 export class JackCompiler {
   #jackParser = new JackParser();
-  #classSymbolTable = new SymbolTable<ClassSymbolKind>();
-  #subroutineSymbolTable = new SymbolTable<SubroutineSymbolKind>();
-  #_className: string | undefined = undefined;
+  #_classContext: ClassContext | undefined = undefined;
+  #_subroutineContext: SubroutineContext | undefined = undefined;
 
-  get #className() {
-    if (!this.#_className) {
-      throw new Error(`[#className]: #_className is undefined`);
+  get #classContext(): ClassContext {
+    if (!this.#_classContext) {
+      throw new Error(`[#classContext]: #_classContext is undefined`);
     }
 
-    return this.#_className;
+    return this.#_classContext;
   }
 
-  set #className(name: string) {
-    this.#_className = name;
+  set #classContext(context: ClassContext | undefined) {
+    this.#_classContext = context;
+  }
+
+  get #subroutineContext(): SubroutineContext {
+    if (!this.#_subroutineContext) {
+      throw new Error(`[#subroutineContext]: #_subroutineContext is undefined`);
+    }
+
+    return this.#_subroutineContext;
+  }
+
+  set #subroutineContext(context: SubroutineContext | undefined) {
+    this.#_subroutineContext = context;
   }
 
   compile(jackProgram: string[]): Result<{ vmInstructions: VmInstruction[] }> {
@@ -57,8 +78,8 @@ export class JackCompiler {
   }
 
   #reset() {
-    this.#classSymbolTable.clear();
-    this.#subroutineSymbolTable.clear();
+    this.#classContext = undefined;
+    this.#subroutineContext = undefined;
   }
 
   #compile(parseTree: JackParseTree): VmInstruction[] {
@@ -77,14 +98,14 @@ export class JackCompiler {
       throw new Error(`[#compileClass]: expected class name node but was ${classNameNode?.value}`);
     }
 
-    this.#className = classNameNode.value.token;
+    this.#classContext = { symbolTable: new SymbolTable(), className: classNameNode.value.token };
 
     classNode.children
       .filter((c) => c.value.type === "grammarRule" && c.value.rule === "classVarDec")
       .forEach((node) => this.#compileClassVarDec({ classVarDecNode: node }));
 
     console.log("ClassSymbolTable");
-    console.log(this.#classSymbolTable.toString());
+    console.log(this.#classContext.symbolTable.toString());
 
     const vmInstructions = classNode.children
       .filter((c) => c.value.type === "grammarRule" && c.value.rule === "subroutineDec")
@@ -114,7 +135,7 @@ export class JackCompiler {
       .slice(2)
       .map((node) => node.value)
       .filter((token): token is IdentifierToken => token.type === "identifier")
-      .forEach((identifier) => this.#classSymbolTable.add({ name: identifier.token, kind, type }));
+      .forEach((identifier) => this.#classContext.symbolTable.add({ name: identifier.token, kind, type }));
   }
 
   #compileSubroutineDec({ subroutineDecNode }: { subroutineDecNode: JackParseTreeNode }): VmInstruction[] {
@@ -132,6 +153,8 @@ export class JackCompiler {
     const subroutineType = subroutineTypeNode.value;
     const subroutineName = subroutineNameNode.value;
 
+    this.#subroutineContext = { symbolTable: new SymbolTable(), type: subroutineType.token };
+
     const subroutineBodyNode = subroutineDecNode.children.find(
       (n) => n.value.type === "grammarRule" && n.value.rule === "subroutineBody"
     );
@@ -140,20 +163,20 @@ export class JackCompiler {
       throw new Error(`[#compileSubroutineDec]: no subroutineBody node found`);
     }
 
-    this.#subroutineSymbolTable.clear();
-
     if (subroutineType.token === "method") {
-      this.#subroutineSymbolTable.add({ name: "this", type: this.#className, kind: "arg" });
+      this.#subroutineContext.symbolTable.add({ name: "this", type: this.#classContext.className, kind: "arg" });
     }
 
     this.#compileParameterList({ subroutineDecNode });
     this.#compileVarDecs({ subroutineBodyNode });
 
     console.log("SubroutineSymbolTable");
-    console.log(this.#subroutineSymbolTable.toString());
+    console.log(this.#subroutineContext.symbolTable.toString());
 
     const vmInstructions: VmInstruction[] = [
-      `function ${this.#className}.${subroutineName.token} ${this.#subroutineSymbolTable.count("var")}`,
+      `function ${this.#classContext.className}.${subroutineName.token} ${this.#subroutineContext.symbolTable.count(
+        "var"
+      )}`,
     ];
 
     if (subroutineType.token === "method") {
@@ -162,7 +185,7 @@ export class JackCompiler {
     } else if (subroutineType.token === "constructor") {
       // Allocates a memory block of nFields 16-bit words and aligns the virtual memory segment "this" (pointer 0) with the base address of the newly allocated block
       vmInstructions.push(
-        `push constant ${this.#classSymbolTable.count("field")}`,
+        `push constant ${this.#classContext.symbolTable.count("field")}`,
         "call Memory.alloc 1",
         "pop pointer 0"
       );
@@ -203,7 +226,7 @@ export class JackCompiler {
       const argName = argNameNode.value.token;
       currentNodeIndex++;
 
-      this.#subroutineSymbolTable.add({ name: argName, kind: "arg", type });
+      this.#subroutineContext.symbolTable.add({ name: argName, kind: "arg", type });
 
       const currentNode = nodes[currentNodeIndex];
       if (currentNode && currentNode.value.type !== "grammarRule" && isSeparatorToken(currentNode.value)) {
@@ -233,7 +256,7 @@ export class JackCompiler {
         if (!(node.value.type === "identifier")) {
           throw new Error(`[#compileVarDecs]: expected identifier token but was ${node.value}`);
         }
-        this.#subroutineSymbolTable.add({ name: node.value.token, kind: "var", type });
+        this.#subroutineContext.symbolTable.add({ name: node.value.token, kind: "var", type });
       });
     }
   }
@@ -260,11 +283,7 @@ export class JackCompiler {
         // TODO: compile "do" statements;
         vmInstructions.push(...this.#compileDoStatement(statementNode));
       } else if (statementNode.value.type === "grammarRule" && statementNode.value.rule === "returnStatement") {
-        // TODO: if subroutine type is constructor, end with
-        // push pointer 0
-        // Create #classContext and #subroutineContext variables?
-        // Getters that will throw if the context is undefined when accessing?
-        const returnStatementNode = vmInstructions.push(...this.#compileReturnStatement(statementNode));
+        vmInstructions.push(...this.#compileReturnStatement(statementNode));
       } else {
         throw new Error(
           `[#compileSubroutineBody]: ${
@@ -306,6 +325,7 @@ export class JackCompiler {
   // - Compile "(exp)" expressions
   #compileExpression(expressionNode: JackParseTreeNode): VmInstruction[] {
     // TODO: constant expressions
+    // -- TODO: "this" keywordConstant must compile to "push pointer 0" so that "return this;" returns the base address of the object
     // TODO: variable expressions
     // TODO: compile "exp op exp" expressions
     // TODO: compile "op exp" expressions
@@ -337,7 +357,7 @@ export class JackCompiler {
         throw new Error(`[#compileSubroutineCall]: invalid subroutine name node`);
       }
 
-      if (this.#subroutineSymbolTable.has(classOrVarNameNode.value.token)) {
+      if (this.#subroutineContext.symbolTable.has(classOrVarNameNode.value.token)) {
         throw new Error(`[#compileSubroutineCall]: variable.method() calls not implemented`);
       } else {
         vmInstructions.push(...this.#compileExpressionList(expressionListNode));
