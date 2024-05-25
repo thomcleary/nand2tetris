@@ -276,19 +276,29 @@ export class JackCompiler {
     return vmInstructions;
   }
 
-  #compileDoStatement(): VmInstruction[] {
-    // TODO
-
-    return [];
+  #compileDoStatement(doStatementNode: JackParseTreeNode): VmInstruction[] {
+    const [doNode, ...subroutineCall] = doStatementNode.children;
+    return [...this.#compileSubroutineCall(subroutineCall), "pop temp 0"];
   }
 
-  #compileExpression(): VmInstruction[] {
+  #compileExpression(expression: JackParseTreeNode[]): VmInstruction[] {
     // TODO: constant expressions
     // TODO: variable expressions
     // TODO: compile "exp op exp" expressions
     // TODO: compile "op exp" expressions
     // TODO: compile function call expressions
+    return [];
+  }
+
+  #compileSubroutineCall(subroutineCall: JackParseTreeNode[]): VmInstruction[] {
+    // TODO: compile Class.function() calls
+    // TODO: compile variable.method() calls
+    // TODO: compile method() calls (this.method())
 
     return [];
+  }
+
+  #compileExpressionList(expressionList: JackParseTreeNode[]): number {
+    return 0; // TODO: return the number of expressions in the list
   }
 }
