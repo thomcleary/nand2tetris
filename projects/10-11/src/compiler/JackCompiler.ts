@@ -253,25 +253,35 @@ export class JackCompiler {
   }
 
   #compileSubroutineBody({ subroutineBodyNode }: { subroutineBodyNode: JackParseTreeNode }): VmInstruction[] {
+    const statementsNode = subroutineBodyNode.children.find(
+      (node) => node.value.type === "grammarRule" && node.value.rule === "statements"
+    );
+
+    if (!statementsNode) {
+      throw new Error("[#compileSubroutineBody]: statements node not found");
+    }
+
     const vmInstructions: VmInstruction[] = [];
+
     // TODO: parse subroutine body into VM instructions
+    for (const statementNode of statementsNode.children) {
+      // TODO: validate that statement node is a valid grammar rule node (isStatementNode())
 
-    // TODO: compile "do" statements;
-
-    // TODO: if subroutine type is constructor, end with
-    // push pointer 0
-    // return
-    // This sequence returns to the caller the base address of the new object created by the constructor.
-    // if (subroutineType = "constructor") vmInstructions.push("push pointer 0");
-
-    // TODO: if subroutine return type is void, end with
-    // push constant 0
-    // return
-    // When compiling a void Jack method or function,
-    // the convention is to end the generated code with push constant 0, return.
-    // if (returnType === "void") vmInstructions.push("push constant 0");
-
-    vmInstructions.push("return");
+      if (statementNode.value.type === "grammarRule" && statementNode.value.rule === "doStatement") {
+        // TODO: compile "do" statements;
+        vmInstructions.push(...this.#compileDoStatement(statementNode));
+      } else if (statementNode.value.type === "grammarRule" && statementNode.value.rule === "returnStatement") {
+        // TODO: if subroutine type is constructor, end with
+        // push pointer 0
+        const returnStatementNode = vmInstructions.push(...this.#compileReturnStatement(statementNode));
+      } else {
+        throw new Error(
+          `[#compileSubroutineBody]: ${
+            statementNode.value.type === "grammarRule" ? statementNode.value.rule : statementNode.value.token
+          } not implemented`
+        );
+      }
+    }
 
     return vmInstructions;
   }
@@ -279,6 +289,24 @@ export class JackCompiler {
   #compileDoStatement(doStatementNode: JackParseTreeNode): VmInstruction[] {
     const [doNode, ...subroutineCall] = doStatementNode.children;
     return [...this.#compileSubroutineCall(subroutineCall), "pop temp 0"];
+  }
+
+  #compileReturnStatement(returnStatementNode: JackParseTreeNode): VmInstruction[] {
+    const vmInstructions: VmInstruction[] = [];
+
+    const returnExpression = returnStatementNode.children.find(
+      (node) => node.value.type === "grammarRule" && node.value.rule === "expression"
+    );
+
+    if (!returnExpression) {
+      vmInstructions.push("push constant 0");
+    } else {
+      throw new Error(`[#compileReturnStatement]: return statement expression not implemented`);
+    }
+
+    vmInstructions.push("return");
+
+    return vmInstructions;
   }
 
   #compileExpression(expression: JackParseTreeNode[]): VmInstruction[] {
@@ -290,15 +318,48 @@ export class JackCompiler {
     return [];
   }
 
+  // TODO: refactor this method when completed
   #compileSubroutineCall(subroutineCall: JackParseTreeNode[]): VmInstruction[] {
+    const expressionListNode = subroutineCall.find(
+      (node) => node.value.type === "grammarRule" && node.value.rule === "expressionList"
+    );
+
+    if (!expressionListNode) {
+      throw new Error(`[#compileSubroutineCall]: no expression list found`);
+    }
+
+    const vmInstructions: VmInstruction[] = [];
+
     // TODO: compile Class.function() calls
     // TODO: compile variable.method() calls
-    // TODO: compile method() calls (this.method())
+    if (subroutineCall.some((node) => node.value.type === "symbol" && node.value.token === ".")) {
+      const [classOrVarNameNode, _, subroutineNameNode] = subroutineCall;
 
-    return [];
+      if (!classOrVarNameNode || classOrVarNameNode.value.type === "grammarRule") {
+        throw new Error(`[#compileSubroutineCall]: invalid class or var name node`);
+      }
+      if (!subroutineNameNode || subroutineNameNode.value.type === "grammarRule") {
+        throw new Error(`[#compileSubroutineCall]: invalid subroutine name node`);
+      }
+
+      if (this.#subroutineSymbolTable.has(classOrVarNameNode.value.token)) {
+        throw new Error(`[#compileSubroutineCall]: variable.method() calls not implemented`);
+      } else {
+        vmInstructions.push(...this.#compileExpressionList(expressionListNode));
+        vmInstructions.push(
+          `call ${classOrVarNameNode.value.token}.${subroutineNameNode.value.token} ${expressionListNode.children.length}`
+        );
+      }
+    } else {
+      // TODO: compile method() calls (this.method())
+      throw new Error(`[#compileSubroutineCall]: this.method() calls not implemented`);
+    }
+
+    return vmInstructions;
   }
 
-  #compileExpressionList(expressionList: JackParseTreeNode[]): number {
-    return 0; // TODO: return the number of expressions in the list
+  #compileExpressionList(expressionListNode: JackParseTreeNode): VmInstruction[] {
+    // TODO: compile each expression in list
+    return [];
   }
 }

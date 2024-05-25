@@ -24,6 +24,10 @@ export class SymbolTable<T extends string> {
     this.#table.set(symbol.name, { ...symbol, index: kindCount });
   }
 
+  has(name: string): boolean {
+    return this.#table.has(name);
+  }
+
   count(kind: T): number {
     return this.#kindCounts.get(kind) ?? 0;
   }
