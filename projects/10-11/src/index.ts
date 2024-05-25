@@ -1,3 +1,5 @@
+import { writeFileSync } from "fs";
+import path from "path";
 import { JackCompiler } from "./compiler/JackCompiler.js";
 import { error } from "./utils/index.js";
 import { getJackFiles, toJackProgram } from "./utils/jackFileUtils.js";
@@ -42,14 +44,13 @@ const main = () => {
     console.log("VM Instructions");
     console.log(vmInstructions);
 
-    // TODO: output compilation result to .vm file
-    // const outfile = `${filePath}/${path.basename(file).replace(".jack", ".vm")}`;
+    const outfile = `${filePath}/${path.basename(file).replace(".jack", ".vm")}`;
 
-    // try {
-    //   writeFileSync(outfile, "TODO");
-    // } catch {
-    //   console.log(error(`unable to test output to file ${outfile}`));
-    // }
+    try {
+      writeFileSync(outfile, vmInstructions.join("\n"));
+    } catch {
+      console.log(error(`unable to test output to file ${outfile}`));
+    }
   }
 };
 

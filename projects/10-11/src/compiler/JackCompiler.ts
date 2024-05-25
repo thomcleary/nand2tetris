@@ -1,13 +1,20 @@
 import JackParseTree, { JackParseTreeNode } from "../parser/JackParseTree.js";
 import JackParser from "../parser/JackParser.js";
-import { isClassVarKeywordToken, isSeparatorToken, isSubroutineTypeToken, isTypeToken } from "../parser/utils.js";
+import {
+  Operator,
+  UnaryOperator,
+  isClassVarKeywordToken,
+  isOperatorToken,
+  isSeparatorToken,
+  isSubroutineTypeToken,
+  isTypeToken,
+} from "../parser/utils.js";
 import tokenize from "../tokenizer/index.js";
 import { IdentifierToken } from "../tokenizer/types.js";
 import { Result } from "../types.js";
 import { ClassSymbolKind, SubroutineSymbolKind, SymbolTable } from "./SymbolTable.js";
 import { VmInstruction } from "./types.js";
 
-// TODO: Seven test
 // TODO: ConvertToBin test
 // TODO: Square test
 // TODO: Average test
@@ -319,18 +326,96 @@ export class JackCompiler {
     return vmInstructions;
   }
 
-  // TODO: Seven test
-  // - Compile integerConstant expressions
-  // - Compile "exp op exp" expressions
-  // - Compile "(exp)" expressions
   #compileExpression(expressionNode: JackParseTreeNode): VmInstruction[] {
-    // TODO: constant expressions
-    // -- TODO: "this" keywordConstant must compile to "push pointer 0" so that "return this;" returns the base address of the object
-    // TODO: variable expressions
-    // TODO: compile "exp op exp" expressions
-    // TODO: compile "op exp" expressions
-    // TODO: compile function call expressions
-    return [];
+    const [firstTermNode, ...restExpression] = expressionNode.children;
+
+    if (!firstTermNode || firstTermNode.value.type !== "grammarRule" || firstTermNode.value.rule !== "term") {
+      throw new Error(`[#compileExpression]: invalid first term node, type: ${firstTermNode?.value.type}`);
+    }
+
+    const vmInstructions: VmInstruction[] = this.#compileTerm(firstTermNode);
+
+    let currentNodeIndex = 0;
+    while (currentNodeIndex < restExpression.length) {
+      const operatorNode = restExpression[currentNodeIndex];
+      currentNodeIndex++;
+
+      const termNode = restExpression[currentNodeIndex];
+      currentNodeIndex++;
+
+      if (!operatorNode || !isOperatorToken(operatorNode.value)) {
+        throw new Error(`[#compileExpression]: expected operator symbol node but was type ${operatorNode?.value.type}`);
+      }
+      if (!termNode || termNode.value.type !== "grammarRule" || termNode.value.rule !== "term") {
+        throw new Error(`[#compileExpression]: invalid term node, type: ${termNode?.value.type}`);
+      }
+
+      vmInstructions.push(...this.#compileTerm(termNode));
+      vmInstructions.push(this.#compileOperator(operatorNode.value.token));
+    }
+
+    return vmInstructions;
+  }
+
+  // TODO: stringConstant
+  // TODO: keywordConstant ("this" must compile to "push pointer 0")
+  // TODO: varName
+  // TODO: varName[expression]
+  // TODO: unaryOp term
+  // TODO: subroutineCall
+  #compileTerm(termNode: JackParseTreeNode): VmInstruction[] {
+    // See the codeWrite() algorithm given in the textbook (page 293)
+    const [first, ...restTerm] = termNode.children;
+
+    if (first?.value.type === "integerConstant") {
+      return [`push constant ${first.value.token}`];
+    }
+
+    if (first?.value.type === "symbol" && first.value.token === "(") {
+      const expressionNode = restTerm.find(
+        (node) => node.value.type === "grammarRule" && node.value.rule === "expression"
+      );
+
+      if (!expressionNode) {
+        throw new Error(`[#compileTerm]: did not find expression node when compiling "(expression)"`);
+      }
+
+      return this.#compileExpression(expressionNode);
+    }
+
+    throw new Error(`[#compileTerm]: term not implemented yet`);
+  }
+
+  #compileOperator(operator: Operator): VmInstruction {
+    switch (operator) {
+      case "+":
+        return "add";
+      case "-":
+        return "sub";
+      case "*":
+        return "call Math.multiply 2";
+      case "/":
+        return "call Math.divide 2";
+      case "&":
+        return "and";
+      case "|":
+        return "or";
+      case "<":
+        return "lt";
+      case ">":
+        return "gt";
+      case "=":
+        return "eq";
+    }
+  }
+
+  #compileUnaryOperator(operator: UnaryOperator): VmInstruction {
+    switch (operator) {
+      case "-":
+        return "neg";
+      case "~":
+        return "not";
+    }
   }
 
   // TODO: refactor this method when completed
