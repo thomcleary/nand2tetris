@@ -396,7 +396,7 @@ export class JackParser {
     } else if (initialToken.type === "identifier") {
       const lookAheadToken = this.#lookAhead();
 
-      if (lookAheadToken.type === "symbol" && lookAheadToken.token === ".") {
+      if (lookAheadToken.type === "symbol" && (lookAheadToken.token === "." || lookAheadToken.token === "(")) {
         this.#parseSubroutineCall({ node: termNode });
       } else {
         termNode.insert(initialToken);
