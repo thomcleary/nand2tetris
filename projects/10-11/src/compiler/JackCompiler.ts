@@ -7,8 +7,11 @@ import { Result } from "../types.js";
 import { ClassSymbolKind, SubroutineSymbolKind, SymbolTable } from "./SymbolTable.js";
 import { VmInstruction } from "./types.js";
 
-// TODO: Seven Test
-// Compile "do" statements
+// TODO: Seven test
+// TODO: ConvertToBin test
+// TODO: Square test
+// TODO: Average test
+// TODO: Pong test
 
 export class JackCompiler {
   #jackParser = new JackParser();
@@ -309,7 +312,11 @@ export class JackCompiler {
     return vmInstructions;
   }
 
-  #compileExpression(expression: JackParseTreeNode[]): VmInstruction[] {
+  // TODO: Seven test
+  // - Compile integerConstant expressions
+  // - Compile "exp op exp" expressions
+  // - Compile "(exp)" expressions
+  #compileExpression(expression: JackParseTreeNode): VmInstruction[] {
     // TODO: constant expressions
     // TODO: variable expressions
     // TODO: compile "exp op exp" expressions
@@ -359,7 +366,8 @@ export class JackCompiler {
   }
 
   #compileExpressionList(expressionListNode: JackParseTreeNode): VmInstruction[] {
-    // TODO: compile each expression in list
-    return [];
+    return expressionListNode.children
+      .filter((node) => node.value.type === "grammarRule" && node.value.rule === "expression")
+      .flatMap((expressionNode) => this.#compileExpression(expressionNode));
   }
 }
