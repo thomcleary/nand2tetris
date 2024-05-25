@@ -118,24 +118,11 @@ export class JackCompiler {
   }
 
   #compileSubroutineDec({ subroutineDecNode }: { subroutineDecNode: JackParseTreeNode }): VmInstruction[] {
-    const [
-      subroutineTypeNode,
-      _, //  returnTypeNode, TODO: might need to pass this down to compileSubroutineDec to validate return statement
-      subroutineNameNode,
-    ] = subroutineDecNode.children;
+    const [subroutineTypeNode, returnTypeNode, subroutineNameNode] = subroutineDecNode.children;
 
     if (!subroutineTypeNode || !isSubroutineTypeToken(subroutineTypeNode.value)) {
       throw new Error(`[#compileSubroutineDec]: expected subroutine type node but was ${subroutineTypeNode?.value}`);
     }
-    // if (
-    //   !returnTypeNode ||
-    //   !(
-    //     isTypeToken(returnTypeNode.value) ||
-    //     (returnTypeNode.value.type === "keyword" && returnTypeNode.value.token === "void")
-    //   )
-    // ) {
-    //   throw new Error(`[#compileSubroutineDec]: expected return type node but was ${subroutineTypeNode?.value}`);
-    // }
     if (!subroutineNameNode || subroutineNameNode.value.type !== "identifier") {
       throw new Error(
         `[#compileSubroutineDec]: expected subroutine name node but was ${subroutineTypeNode?.value.type}`
@@ -143,7 +130,6 @@ export class JackCompiler {
     }
 
     const subroutineType = subroutineTypeNode.value;
-    // const returnType = returnTypeNode.value;
     const subroutineName = subroutineNameNode.value;
 
     const subroutineBodyNode = subroutineDecNode.children.find(
@@ -171,13 +157,10 @@ export class JackCompiler {
     ];
 
     if (subroutineType.token === "method") {
-      // Aligns the virtual memory segment this (pointer 0)
-      // with the base address of the object on which the method was called
+      // Aligns the virtual memory segment this (pointer 0) with the base address of the object on which the method was called
       vmInstructions.push("push argument 0", "pop pointer 0");
     } else if (subroutineType.token === "constructor") {
-      // Allocates a memory block of nFields 16-bit words
-      // and aligns the virtual memory segment "this" (pointer 0)
-      // with the base address of the newly allocated block
+      // Allocates a memory block of nFields 16-bit words and aligns the virtual memory segment "this" (pointer 0) with the base address of the newly allocated block
       vmInstructions.push(
         `push constant ${this.#classSymbolTable.count("field")}`,
         "call Memory.alloc 1",
@@ -266,7 +249,10 @@ export class JackCompiler {
 
     const vmInstructions: VmInstruction[] = [];
 
-    // TODO: parse subroutine body into VM instructions
+    // TODO: compile letStatement
+    // TODO: compile ifStatement
+    // TODO: compile whileStatement
+
     for (const statementNode of statementsNode.children) {
       // TODO: validate that statement node is a valid grammar rule node (isStatementNode())
 
@@ -276,6 +262,8 @@ export class JackCompiler {
       } else if (statementNode.value.type === "grammarRule" && statementNode.value.rule === "returnStatement") {
         // TODO: if subroutine type is constructor, end with
         // push pointer 0
+        // Create #classContext and #subroutineContext variables?
+        // Getters that will throw if the context is undefined when accessing?
         const returnStatementNode = vmInstructions.push(...this.#compileReturnStatement(statementNode));
       } else {
         throw new Error(
@@ -316,7 +304,7 @@ export class JackCompiler {
   // - Compile integerConstant expressions
   // - Compile "exp op exp" expressions
   // - Compile "(exp)" expressions
-  #compileExpression(expression: JackParseTreeNode): VmInstruction[] {
+  #compileExpression(expressionNode: JackParseTreeNode): VmInstruction[] {
     // TODO: constant expressions
     // TODO: variable expressions
     // TODO: compile "exp op exp" expressions
@@ -326,8 +314,8 @@ export class JackCompiler {
   }
 
   // TODO: refactor this method when completed
-  #compileSubroutineCall(subroutineCall: JackParseTreeNode[]): VmInstruction[] {
-    const expressionListNode = subroutineCall.find(
+  #compileSubroutineCall(subroutineCallNodes: JackParseTreeNode[]): VmInstruction[] {
+    const expressionListNode = subroutineCallNodes.find(
       (node) => node.value.type === "grammarRule" && node.value.rule === "expressionList"
     );
 
@@ -339,8 +327,8 @@ export class JackCompiler {
 
     // TODO: compile Class.function() calls
     // TODO: compile variable.method() calls
-    if (subroutineCall.some((node) => node.value.type === "symbol" && node.value.token === ".")) {
-      const [classOrVarNameNode, _, subroutineNameNode] = subroutineCall;
+    if (subroutineCallNodes.some((node) => node.value.type === "symbol" && node.value.token === ".")) {
+      const [classOrVarNameNode, _, subroutineNameNode] = subroutineCallNodes;
 
       if (!classOrVarNameNode || classOrVarNameNode.value.type === "grammarRule") {
         throw new Error(`[#compileSubroutineCall]: invalid class or var name node`);
