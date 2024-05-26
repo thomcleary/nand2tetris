@@ -4,6 +4,7 @@ import {
   Operator,
   UnaryOperator,
   isClassVarKeywordToken,
+  isKeywordConstantToken,
   isOperatorToken,
   isSeparatorToken,
   isSubroutineTypeToken,
@@ -15,7 +16,7 @@ import { IdentifierToken } from "../tokenizer/types.js";
 import { Result } from "../types.js";
 import SymbolTable, { ClassSymbolKind, SubroutineSymbolKind } from "./SymbolTable.js";
 import { VmInstruction } from "./types.js";
-import { isStatementRule } from "./utils.js";
+import { isNode, isStatementRule } from "./utils.js";
 
 // TODO: ConvertToBin test
 // TODO: Square test
@@ -62,6 +63,15 @@ export class JackCompiler {
     this.#_subroutineContext = context;
   }
 
+  #reset() {
+    this.#classContext = undefined;
+    this.#subroutineContext = undefined;
+  }
+
+  #resetSubroutineContext() {
+    this.#subroutineContext = { symbolTable: new SymbolTable() };
+  }
+
   #getVariableInfo(name: string) {
     const variableInfo = this.#subroutineContext.symbolTable.get(name) ?? this.#classContext.symbolTable.get(name);
 
@@ -97,17 +107,13 @@ export class JackCompiler {
     }
   }
 
-  #reset() {
-    this.#classContext = undefined;
-    this.#subroutineContext = undefined;
-  }
-
   #compile(parseTree: JackParseTree): VmInstruction[] {
+    // TODO: remove
     console.log(parseTree.toXmlString());
 
     const classNode = parseTree.root;
 
-    if (classNode.value.type !== "grammarRule" || classNode.value.rule !== "class") {
+    if (!isNode(classNode.value, { type: "grammarRule", rule: "class" })) {
       // TODO: standardise error messages
       throw new Error(`[#compileClass]: expected class node but was ${classNode.value}`);
     }
@@ -121,15 +127,16 @@ export class JackCompiler {
     this.#classContext = { symbolTable: new SymbolTable(), className: classNameNode.value.token };
 
     classNode.children
-      .filter((c) => c.value.type === "grammarRule" && c.value.rule === "classVarDec")
-      .forEach((node) => this.#compileClassVarDec({ classVarDecNode: node }));
+      .filter(({ value }) => isNode(value, { type: "grammarRule", rule: "classVarDec" }))
+      .forEach((classVarDecNode) => this.#compileClassVarDec({ classVarDecNode }));
 
+    // TODO: remove
     console.log("ClassSymbolTable");
     console.log(this.#classContext.symbolTable.toString());
 
     const vmInstructions = classNode.children
-      .filter((c) => c.value.type === "grammarRule" && c.value.rule === "subroutineDec")
-      .flatMap((node) => this.#compileSubroutineDec({ subroutineDecNode: node }));
+      .filter(({ value }) => isNode(value, { type: "grammarRule", rule: "subroutineDec" }))
+      .flatMap((subroutineDecNode) => this.#compileSubroutineDec({ subroutineDecNode }));
 
     return vmInstructions;
   }
@@ -173,11 +180,10 @@ export class JackCompiler {
     const subroutineType = subroutineTypeNode.value;
     const subroutineName = subroutineNameNode.value;
 
-    // TODO: move this into a #resetSubroutineContext(context: Omit<context, "symbolTable") method if anything added to the context
-    this.#subroutineContext = { symbolTable: new SymbolTable() };
+    this.#resetSubroutineContext();
 
-    const subroutineBodyNode = subroutineDecNode.children.find(
-      (n) => n.value.type === "grammarRule" && n.value.rule === "subroutineBody"
+    const subroutineBodyNode = subroutineDecNode.children.find(({ value }) =>
+      isNode(value, { type: "grammarRule", rule: "subroutineBody" })
     );
 
     if (!subroutineBodyNode) {
@@ -191,6 +197,7 @@ export class JackCompiler {
     this.#compileParameterList({ subroutineDecNode });
     this.#compileVarDecs({ subroutineBodyNode });
 
+    // TODO: remove
     console.log("SubroutineSymbolTable");
     console.log(this.#subroutineContext.symbolTable.toString());
 
@@ -200,16 +207,16 @@ export class JackCompiler {
       )}`,
     ];
 
-    if (subroutineType.token === "method") {
-      // Aligns the virtual memory segment this (pointer 0) with the base address of the object on which the method was called
-      vmInstructions.push("push argument 0", "pop pointer 0");
-    } else if (subroutineType.token === "constructor") {
+    if (subroutineType.token === "constructor") {
       // Allocates a memory block of nFields 16-bit words and aligns the virtual memory segment "this" (pointer 0) with the base address of the newly allocated block
       vmInstructions.push(
         `push constant ${this.#classContext.symbolTable.count("field")}`,
         "call Memory.alloc 1",
         "pop pointer 0"
       );
+    } else if (subroutineType.token === "method") {
+      // Aligns the virtual memory segment this (pointer 0) with the base address of the object on which the method was called
+      vmInstructions.push("push argument 0", "pop pointer 0");
     }
 
     vmInstructions.push(...this.#compileSubroutineBody({ subroutineBodyNode }));
@@ -218,8 +225,8 @@ export class JackCompiler {
   }
 
   #compileParameterList({ subroutineDecNode }: { subroutineDecNode: JackParseTreeNode }): void {
-    const parameterListNode = subroutineDecNode.children.find(
-      (n) => n.value.type === "grammarRule" && n.value.rule === "parameterList"
+    const parameterListNode = subroutineDecNode.children.find(({ value }) =>
+      isNode(value, { type: "grammarRule", rule: "parameterList" })
     );
 
     if (!parameterListNode) {
@@ -257,13 +264,13 @@ export class JackCompiler {
   }
 
   #compileVarDecs({ subroutineBodyNode }: { subroutineBodyNode: JackParseTreeNode }): void {
-    const varDecNodes = subroutineBodyNode.children.filter(
-      (c) => c.value.type === "grammarRule" && c.value.rule === "varDec"
+    const varDecNodes = subroutineBodyNode.children.filter(({ value }) =>
+      isNode(value, { type: "grammarRule", rule: "varDec" })
     );
 
     for (const varDecNode of varDecNodes) {
       const varNodes = varDecNode.children.filter(
-        (n) => !(n.value.type === "keyword" && n.value.token === "var") && n.value.type !== "symbol"
+        ({ value }) => !isNode(value, { type: "keyword", token: "var" }) && value.type !== "symbol"
       );
 
       const typeNode = varNodes.shift();
@@ -283,8 +290,8 @@ export class JackCompiler {
   }
 
   #compileSubroutineBody({ subroutineBodyNode }: { subroutineBodyNode: JackParseTreeNode }): VmInstruction[] {
-    const statementsNode = subroutineBodyNode.children.find(
-      (node) => node.value.type === "grammarRule" && node.value.rule === "statements"
+    const statementsNode = subroutineBodyNode.children.find(({ value }) =>
+      isNode(value, { type: "grammarRule", rule: "statements" })
     );
 
     if (!statementsNode) {
@@ -318,25 +325,23 @@ export class JackCompiler {
 
   #compileLetStatement(letStatementNode: JackParseTreeNode): VmInstruction[] {
     const [letNode, varNameNode, arrayIndexOrSymbolNode, ...restLetStatement] = letStatementNode.children;
-    const [firstExpression, secondExpression] = restLetStatement.filter(
-      (node) => node.value.type === "grammarRule" && node.value.rule === "expression"
+    const [firstExpression, secondExpression] = restLetStatement.filter(({ value }) =>
+      isNode(value, { type: "grammarRule", rule: "expression" })
     );
 
     if (!varNameNode || varNameNode.value.type !== "identifier") {
       throw new Error(`[#compileLetStatement]: expected var name node but was ${varNameNode?.value.type}`);
     }
-    if (
-      !firstExpression ||
-      firstExpression.value.type !== "grammarRule" ||
-      firstExpression.value.rule !== "expression"
-    ) {
+    if (!firstExpression || !isNode(firstExpression.value, { type: "grammarRule", rule: "expression" })) {
       throw new Error(`[#compileLetStatement]: no expressions found`);
     }
 
     if (
       !arrayIndexOrSymbolNode ||
-      arrayIndexOrSymbolNode.value.type !== "symbol" ||
-      !(arrayIndexOrSymbolNode.value.token === "[" || arrayIndexOrSymbolNode.value.token === "=")
+      !isNode(arrayIndexOrSymbolNode.value, [
+        { type: "symbol", token: "[" },
+        { type: "symbol", token: "=" },
+      ])
     ) {
       throw new Error(`[#compileLetStatement]: expected "[" or "=" node but was ${varNameNode?.value.type}`);
     }
@@ -346,11 +351,7 @@ export class JackCompiler {
       return [...this.#compileExpression(firstExpression), `pop ${segment} ${index}`];
     } else {
       // TODO: handle let var[expression] = expression
-      if (
-        !secondExpression ||
-        secondExpression.value.type !== "grammarRule" ||
-        secondExpression.value.rule !== "expression"
-      ) {
+      if (!secondExpression || !isNode(secondExpression.value, { type: "grammarRule", rule: "expression" })) {
         throw new Error(`[#compileLetStatement]: right hand side expression not found`);
       }
 
@@ -366,8 +367,8 @@ export class JackCompiler {
   #compileReturnStatement(returnStatementNode: JackParseTreeNode): VmInstruction[] {
     const vmInstructions: VmInstruction[] = [];
 
-    const returnExpression = returnStatementNode.children.find(
-      (node) => node.value.type === "grammarRule" && node.value.rule === "expression"
+    const returnExpression = returnStatementNode.children.find(({ value }) =>
+      isNode(value, { type: "grammarRule", rule: "expression" })
     );
 
     if (!returnExpression) {
@@ -384,7 +385,7 @@ export class JackCompiler {
   #compileExpression(expressionNode: JackParseTreeNode): VmInstruction[] {
     const [firstTermNode, ...restExpression] = expressionNode.children;
 
-    if (!firstTermNode || firstTermNode.value.type !== "grammarRule" || firstTermNode.value.rule !== "term") {
+    if (!firstTermNode || !isNode(firstTermNode.value, { type: "grammarRule", rule: "term" })) {
       throw new Error(`[#compileExpression]: invalid first term node, type: ${firstTermNode?.value.type}`);
     }
 
@@ -401,7 +402,7 @@ export class JackCompiler {
       if (!operatorNode || !isOperatorToken(operatorNode.value)) {
         throw new Error(`[#compileExpression]: expected operator symbol node but was type ${operatorNode?.value.type}`);
       }
-      if (!termNode || termNode.value.type !== "grammarRule" || termNode.value.rule !== "term") {
+      if (!termNode || !isNode(termNode.value, { type: "grammarRule", rule: "term" })) {
         throw new Error(`[#compileExpression]: invalid term node, type: ${termNode?.value.type}`);
       }
 
@@ -412,12 +413,10 @@ export class JackCompiler {
     return vmInstructions;
   }
 
+  // TODO: break this down into separate methods for each type of term, this is getting big...
   // TODO: stringConstant
   // TODO: keywordConstant ("this" must compile to "push pointer 0")
-  // TODO: varName
   // TODO: varName[expression]
-  // TODO: unaryOp term
-  // TODO: subroutineCall
   #compileTerm(termNode: JackParseTreeNode): VmInstruction[] {
     // See the codeWrite() algorithm given in the textbook (page 293)
     const [first, ...restTerm] = termNode.children;
@@ -430,30 +429,62 @@ export class JackCompiler {
       return [`push constant ${first.value.token}`];
     }
 
-    if (first.value.type === "symbol") {
-      if (first.value.token === "(") {
-        const expressionNode = restTerm.find(
-          (node) => node.value.type === "grammarRule" && node.value.rule === "expression"
-        );
+    if (first.value.type === "stringConstant") {
+      // TODO
+    }
 
-        if (!expressionNode) {
-          throw new Error(`[#compileTerm]: did not find expression node when compiling "(expression)"`);
-        }
+    if (isKeywordConstantToken(first.value)) {
+      // TODO
+    }
 
-        return this.#compileExpression(expressionNode);
+    if (isNode(first.value, { type: "symbol", token: "(" })) {
+      const expressionNode = restTerm.find(({ value }) => isNode(value, { type: "grammarRule", rule: "expression" }));
+
+      if (!expressionNode) {
+        throw new Error(`[#compileTerm]: did not find expression node when compiling "(expression)"`);
       }
 
-      if (isUnaryOperatorToken(first.value)) {
-        const [term] = restTerm;
+      return this.#compileExpression(expressionNode);
+    }
 
-        if (!term || term.value.type !== "grammarRule" || term.value.rule !== "term") {
-          throw new Error(`[#compileTerm]: did not find term following unary operator`);
-        }
+    if (isUnaryOperatorToken(first.value)) {
+      const [term] = restTerm;
 
-        return [...this.#compileTerm(term), this.#compileUnaryOperator(first.value.token)];
+      if (!term || !isNode(term.value, { type: "grammarRule", rule: "term" })) {
+        throw new Error(`[#compileTerm]: did not find term following unary operator`);
+      }
+
+      return [...this.#compileTerm(term), this.#compileUnaryOperator(first.value.token)];
+    }
+
+    if (first.value.type === "identifier") {
+      const [second] = restTerm;
+
+      if (!second) {
+        const { segment, index } = this.#getVariableInfo(first.value.token);
+        return [`push ${segment} ${index}`];
+      }
+
+      if (
+        !isNode(second.value, [
+          { type: "symbol", token: "[" },
+          { type: "symbol", token: "." },
+          { type: "symbol", token: "(" },
+        ])
+      ) {
+        throw new Error(`[#compileTerm]: unexpected node following identifier, ${second.value.type}`);
+      }
+
+      switch (second.value.token) {
+        case "[":
+          throw new Error(`[#compileTerm]: varName[exp] term not implemented`);
+        case "(":
+        case ".":
+          return this.#compileSubroutineCall(termNode.children);
       }
     }
 
+    // TODO: remove
     console.log("Failing", first);
     throw new Error(`[#compileTerm]: term not implemented yet`);
   }
@@ -492,8 +523,8 @@ export class JackCompiler {
 
   // TODO: refactor this method when completed
   #compileSubroutineCall(subroutineCallNodes: JackParseTreeNode[]): VmInstruction[] {
-    const expressionListNode = subroutineCallNodes.find(
-      (node) => node.value.type === "grammarRule" && node.value.rule === "expressionList"
+    const expressionListNode = subroutineCallNodes.find(({ value }) =>
+      isNode(value, { type: "grammarRule", rule: "expressionList" })
     );
 
     if (!expressionListNode) {
@@ -502,29 +533,29 @@ export class JackCompiler {
 
     const vmInstructions: VmInstruction[] = [];
 
-    // TODO: compile Class.function() calls
-    // TODO: compile variable.method() calls
-    if (subroutineCallNodes.some((node) => node.value.type === "symbol" && node.value.token === ".")) {
-      const [classOrVarNameNode, _, subroutineNameNode] = subroutineCallNodes;
-
-      if (!classOrVarNameNode || classOrVarNameNode.value.type === "grammarRule") {
-        throw new Error(`[#compileSubroutineCall]: invalid class or var name node`);
-      }
-      if (!subroutineNameNode || subroutineNameNode.value.type === "grammarRule") {
-        throw new Error(`[#compileSubroutineCall]: invalid subroutine name node`);
-      }
-
-      if (this.#subroutineContext.symbolTable.has(classOrVarNameNode.value.token)) {
-        throw new Error(`[#compileSubroutineCall]: variable.method() calls not implemented`);
-      } else {
-        vmInstructions.push(...this.#compileExpressionList(expressionListNode));
-        vmInstructions.push(
-          `call ${classOrVarNameNode.value.token}.${subroutineNameNode.value.token} ${expressionListNode.children.length}`
-        );
-      }
-    } else {
+    if (!subroutineCallNodes.some(({ value }) => isNode(value, { type: "symbol", token: "." }))) {
       // TODO: compile method() calls (this.method())
       throw new Error(`[#compileSubroutineCall]: this.method() calls not implemented`);
+    }
+
+    const [classOrVarNameNode, _, subroutineNameNode] = subroutineCallNodes;
+
+    if (!classOrVarNameNode || classOrVarNameNode.value.type !== "identifier") {
+      throw new Error(`[#compileSubroutineCall]: invalid class or var name node`);
+    }
+    if (!subroutineNameNode || subroutineNameNode.value.type !== "identifier") {
+      throw new Error(`[#compileSubroutineCall]: invalid subroutine name node`);
+    }
+
+    if (this.#subroutineContext.symbolTable.has(classOrVarNameNode.value.token)) {
+      // TODO: compile variable.method() calls
+      throw new Error(`[#compileSubroutineCall]: variable.method() calls not implemented`);
+    } else {
+      // TODO: pull this up to use for methods as well?
+      vmInstructions.push(...this.#compileExpressionList(expressionListNode));
+      vmInstructions.push(
+        `call ${classOrVarNameNode.value.token}.${subroutineNameNode.value.token} ${expressionListNode.children.length}`
+      );
     }
 
     return vmInstructions;
@@ -532,7 +563,7 @@ export class JackCompiler {
 
   #compileExpressionList(expressionListNode: JackParseTreeNode): VmInstruction[] {
     return expressionListNode.children
-      .filter((node) => node.value.type === "grammarRule" && node.value.rule === "expression")
+      .filter(({ value }) => isNode(value, { type: "grammarRule", rule: "expression" }))
       .flatMap((expressionNode) => this.#compileExpression(expressionNode));
   }
 }
