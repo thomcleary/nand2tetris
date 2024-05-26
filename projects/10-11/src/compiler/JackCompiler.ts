@@ -1,6 +1,7 @@
 import JackParseTree, { JackParseTreeNode } from "../parser/JackParseTree.js";
 import JackParser from "../parser/JackParser.js";
 import {
+  KeywordConstantToken,
   Operator,
   UnaryOperator,
   isClassVarKeywordToken,
@@ -12,7 +13,7 @@ import {
   isUnaryOperatorToken,
 } from "../parser/utils.js";
 import tokenize from "../tokenizer/index.js";
-import { IdentifierToken } from "../tokenizer/types.js";
+import { IdentifierToken, IntegerConstantToken, StringConstantToken } from "../tokenizer/types.js";
 import { Result } from "../types.js";
 import SymbolTable, { ClassSymbolKind, SubroutineSymbolKind } from "./SymbolTable.js";
 import { VmInstruction } from "./types.js";
@@ -413,80 +414,104 @@ export class JackCompiler {
     return vmInstructions;
   }
 
-  // TODO: break this down into separate methods for each type of term, this is getting big...
-  // TODO: stringConstant
-  // TODO: keywordConstant ("this" must compile to "push pointer 0")
-  // TODO: varName[expression]
   #compileTerm(termNode: JackParseTreeNode): VmInstruction[] {
-    // See the codeWrite() algorithm given in the textbook (page 293)
-    const [first, ...restTerm] = termNode.children;
+    const [first] = termNode.children;
 
     if (!first) {
       throw new Error(`[#compileTerm]: first term is undefined`);
     }
 
     if (first.value.type === "integerConstant") {
-      return [`push constant ${first.value.token}`];
+      return this.#compileIntegerConstantTerm(first.value);
     }
 
     if (first.value.type === "stringConstant") {
-      // TODO
+      return this.#compileStringConstantTerm(first.value);
     }
 
     if (isKeywordConstantToken(first.value)) {
-      // TODO
+      return this.#compileKeywordConstantTerm(first.value);
     }
 
     if (isNode(first.value, { type: "symbol", token: "(" })) {
-      const expressionNode = restTerm.find(({ value }) => isNode(value, { type: "grammarRule", rule: "expression" }));
-
-      if (!expressionNode) {
-        throw new Error(`[#compileTerm]: did not find expression node when compiling "(expression)"`);
-      }
-
-      return this.#compileExpression(expressionNode);
-    }
-
-    if (isUnaryOperatorToken(first.value)) {
-      const [term] = restTerm;
-
-      if (!term || !isNode(term.value, { type: "grammarRule", rule: "term" })) {
-        throw new Error(`[#compileTerm]: did not find term following unary operator`);
-      }
-
-      return [...this.#compileTerm(term), this.#compileUnaryOperator(first.value.token)];
+      return this.#compileExpressionTerm(termNode);
     }
 
     if (first.value.type === "identifier") {
-      const [second] = restTerm;
-
-      if (!second) {
-        const { segment, index } = this.#getVariableInfo(first.value.token);
-        return [`push ${segment} ${index}`];
-      }
-
-      if (
-        !isNode(second.value, [
-          { type: "symbol", token: "[" },
-          { type: "symbol", token: "." },
-          { type: "symbol", token: "(" },
-        ])
-      ) {
-        throw new Error(`[#compileTerm]: unexpected node following identifier, ${second.value.type}`);
-      }
-
-      switch (second.value.token) {
-        case "[":
-          throw new Error(`[#compileTerm]: varName[exp] term not implemented`);
-        case "(":
-        case ".":
-          return this.#compileSubroutineCall(termNode.children);
-      }
+      return this.#compileIdentifierTerm(termNode);
     }
 
-    // TODO: remove
-    console.log("Failing", first);
-    throw new Error(`[#compileTerm]: term not implemented yet`);
+    return this.#compileUnaryOperatorTerm(termNode);
+  }
+
+  #compileIntegerConstantTerm(integerConstant: IntegerConstantToken): VmInstruction[] {
+    return [`push constant ${integerConstant.token}`];
+  }
+
+  // TODO: stringConstant
+  #compileStringConstantTerm(stringConstant: StringConstantToken): VmInstruction[] {
+    throw new Error(`[#compileStringConstant]: not implemented`);
+  }
+
+  // TODO: keywordConstant ("this" must compile to "push pointer 0")
+  #compileKeywordConstantTerm(keywordConstant: KeywordConstantToken): VmInstruction[] {
+    throw new Error(`[#compileKeywordConstant]: not implemented`);
+  }
+
+  #compileExpressionTerm(termNode: JackParseTreeNode): VmInstruction[] {
+    const expressionNode = termNode.children.find(({ value }) =>
+      isNode(value, { type: "grammarRule", rule: "expression" })
+    );
+
+    if (!expressionNode) {
+      throw new Error(`[#compileTerm]: did not find expression node when compiling "(expression)"`);
+    }
+
+    return this.#compileExpression(expressionNode);
+  }
+
+  #compileUnaryOperatorTerm(termNode: JackParseTreeNode): VmInstruction[] {
+    const [unaryOperator, term] = termNode.children;
+
+    if (!unaryOperator || !isUnaryOperatorToken(unaryOperator.value)) {
+      throw new Error(`[#compileTerm]: did not find unary operator`);
+    }
+    if (!term || !isNode(term.value, { type: "grammarRule", rule: "term" })) {
+      throw new Error(`[#compileTerm]: did not find term following unary operator`);
+    }
+
+    return [...this.#compileTerm(term), this.#compileUnaryOperator(unaryOperator.value.token)];
+  }
+
+  #compileIdentifierTerm(termNode: JackParseTreeNode): VmInstruction[] {
+    const [first, second] = termNode.children;
+
+    if (!first || first.value.type !== "identifier") {
+      throw new Error(`[#compileIdentifierTerm]: first node in term was not an identifier`);
+    }
+
+    if (!second) {
+      const { segment, index } = this.#getVariableInfo(first.value.token);
+      return [`push ${segment} ${index}`];
+    }
+
+    if (
+      !isNode(second.value, [
+        { type: "symbol", token: "[" },
+        { type: "symbol", token: "." },
+        { type: "symbol", token: "(" },
+      ])
+    ) {
+      throw new Error(`[#compileTerm]: unexpected node following identifier, ${second.value.type}`);
+    }
+
+    switch (second.value.token) {
+      case "[":
+        throw new Error(`[#compileTerm]: varName[exp] term not implemented`);
+      case "(":
+      case ".":
+        return this.#compileSubroutineCall(termNode.children);
+    }
   }
 
   #compileOperator(operator: Operator): VmInstruction {
@@ -540,6 +565,8 @@ export class JackCompiler {
 
     const [classOrVarNameNode, _, subroutineNameNode] = subroutineCallNodes;
 
+    // TODO: potentially could turn all these type of guards into isNotIdentifier(node)
+    // that throws if fails, pass in the caller name, removes the if block
     if (!classOrVarNameNode || classOrVarNameNode.value.type !== "identifier") {
       throw new Error(`[#compileSubroutineCall]: invalid class or var name node`);
     }

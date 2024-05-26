@@ -8,6 +8,8 @@ type StatementKeywordToken = SpecificKeywordToken<"let" | "if" | "while" | "do" 
 // TODO: move these into a shared types file
 export type Operator = "+" | "-" | "*" | "/" | "&" | "|" | "<" | ">" | "=";
 export type UnaryOperator = "-" | "~";
+export type KeywordConstantToken = { type: "keyword"; token: "true" | "false" | "null" | "this" };
+export type UnaryOperatorToken = { type: "symbol"; token: UnaryOperator };
 
 // TODO: refactor / move these utils into shared utils folder
 
@@ -55,9 +57,7 @@ export const isStatementToken = (t: Token): t is StatementKeywordToken => {
   );
 };
 
-export const isKeywordConstantToken = (
-  v: JackParseTreeNodeValue
-): v is { type: "keyword"; token: "true" | "false" | "null" | "this" } => {
+export const isKeywordConstantToken = (v: JackParseTreeNodeValue): v is KeywordConstantToken => {
   if (v.type === "grammarRule") {
     return false;
   }
@@ -73,7 +73,7 @@ export const isOperatorToken = (v: JackParseTreeNodeValue): v is { type: "symbol
   return type === "symbol" && ["+", "-", "*", "/", "&", "|", "<", ">", "="].includes(token);
 };
 
-export const isUnaryOperatorToken = (v: JackParseTreeNodeValue): v is { type: "symbol"; token: UnaryOperator } => {
+export const isUnaryOperatorToken = (v: JackParseTreeNodeValue): v is UnaryOperatorToken => {
   if (v.type === "grammarRule") {
     return false;
   }
