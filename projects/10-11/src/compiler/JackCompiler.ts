@@ -8,17 +8,21 @@ import {
   isSeparatorToken,
   isSubroutineTypeToken,
   isTypeToken,
+  isUnaryOperatorToken,
 } from "../parser/utils.js";
 import tokenize from "../tokenizer/index.js";
 import { IdentifierToken } from "../tokenizer/types.js";
 import { Result } from "../types.js";
 import { ClassSymbolKind, SubroutineSymbolKind, SymbolTable } from "./SymbolTable.js";
 import { VmInstruction } from "./types.js";
+import { isStatementRule } from "./utils.js";
 
 // TODO: ConvertToBin test
 // TODO: Square test
 // TODO: Average test
 // TODO: Pong test
+
+// TODO: make error messages better (log expected/actual)
 
 type ClassContext = {
   symbolTable: SymbolTable<ClassSymbolKind>;
@@ -27,7 +31,6 @@ type ClassContext = {
 
 type SubroutineContext = {
   symbolTable: SymbolTable<SubroutineSymbolKind>;
-  type: "constructor" | "function" | "method"; // TODO: remove this if not used (thought I might need to it for return instructions but probably don't)
 };
 
 export class JackCompiler {
@@ -160,7 +163,8 @@ export class JackCompiler {
     const subroutineType = subroutineTypeNode.value;
     const subroutineName = subroutineNameNode.value;
 
-    this.#subroutineContext = { symbolTable: new SymbolTable(), type: subroutineType.token };
+    // TODO: move this into a #resetSubroutineContext(context: Omit<context, "symbolTable") method if anything added to the context
+    this.#subroutineContext = { symbolTable: new SymbolTable() };
 
     const subroutineBodyNode = subroutineDecNode.children.find(
       (n) => n.value.type === "grammarRule" && n.value.rule === "subroutineBody"
@@ -277,30 +281,30 @@ export class JackCompiler {
       throw new Error("[#compileSubroutineBody]: statements node not found");
     }
 
-    const vmInstructions: VmInstruction[] = [];
+    return statementsNode.children.flatMap((statementNode) => this.#compileStatement(statementNode));
+  }
+
+  #compileStatement(statementNode: JackParseTreeNode): VmInstruction[] {
+    if (!isStatementRule(statementNode.value)) {
+      throw new Error(`[#compuleSubroutineBody]: expected statement node but was ${statementNode.value.type}`);
+    }
 
     // TODO: compile letStatement
     // TODO: compile ifStatement
     // TODO: compile whileStatement
 
-    for (const statementNode of statementsNode.children) {
-      // TODO: validate that statement node is a valid grammar rule node (isStatementNode())
-
-      if (statementNode.value.type === "grammarRule" && statementNode.value.rule === "doStatement") {
-        // TODO: compile "do" statements;
-        vmInstructions.push(...this.#compileDoStatement(statementNode));
-      } else if (statementNode.value.type === "grammarRule" && statementNode.value.rule === "returnStatement") {
-        vmInstructions.push(...this.#compileReturnStatement(statementNode));
-      } else {
-        throw new Error(
-          `[#compileSubroutineBody]: ${
-            statementNode.value.type === "grammarRule" ? statementNode.value.rule : statementNode.value.token
-          } not implemented`
-        );
-      }
+    switch (statementNode.value.rule) {
+      case "letStatement":
+        throw new Error(`[#compileSubroutineBody]: letStatement not implemented`);
+      case "ifStatement":
+        throw new Error(`[#compileSubroutineBody]: ifStatement not implemented`);
+      case "whileStatement":
+        throw new Error(`[#compileSubroutineBody]: whileStatement not implemented`);
+      case "doStatement":
+        return this.#compileDoStatement(statementNode);
+      case "returnStatement":
+        return this.#compileReturnStatement(statementNode);
     }
-
-    return vmInstructions;
   }
 
   #compileDoStatement(doStatementNode: JackParseTreeNode): VmInstruction[] {
@@ -367,22 +371,39 @@ export class JackCompiler {
     // See the codeWrite() algorithm given in the textbook (page 293)
     const [first, ...restTerm] = termNode.children;
 
-    if (first?.value.type === "integerConstant") {
+    if (!first) {
+      throw new Error(`[#compileTerm]: first term is undefined`);
+    }
+
+    if (first.value.type === "integerConstant") {
       return [`push constant ${first.value.token}`];
     }
 
-    if (first?.value.type === "symbol" && first.value.token === "(") {
-      const expressionNode = restTerm.find(
-        (node) => node.value.type === "grammarRule" && node.value.rule === "expression"
-      );
+    if (first.value.type === "symbol") {
+      if (first.value.token === "(") {
+        const expressionNode = restTerm.find(
+          (node) => node.value.type === "grammarRule" && node.value.rule === "expression"
+        );
 
-      if (!expressionNode) {
-        throw new Error(`[#compileTerm]: did not find expression node when compiling "(expression)"`);
+        if (!expressionNode) {
+          throw new Error(`[#compileTerm]: did not find expression node when compiling "(expression)"`);
+        }
+
+        return this.#compileExpression(expressionNode);
       }
 
-      return this.#compileExpression(expressionNode);
+      if (isUnaryOperatorToken(first.value)) {
+        const [term] = restTerm;
+
+        if (!term || term.value.type !== "grammarRule" || term.value.rule !== "term") {
+          throw new Error(`[#compileTerm]: did not find term following unary operator`);
+        }
+
+        return [...this.#compileTerm(term), this.#compileUnaryOperator(first.value.token)];
+      }
     }
 
+    console.log("Failing", first);
     throw new Error(`[#compileTerm]: term not implemented yet`);
   }
 

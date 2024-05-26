@@ -5,8 +5,11 @@ type SpecificKeywordToken<T extends Keyword> = KeywordToken & { token: Extract<K
 type TypeKeywordToken = SpecificKeywordToken<"int" | "char" | "boolean">;
 type StatementKeywordToken = SpecificKeywordToken<"let" | "if" | "while" | "do" | "return">;
 
+// TODO: move these into a shared types file
 export type Operator = "+" | "-" | "*" | "/" | "&" | "|" | "<" | ">" | "=";
 export type UnaryOperator = "-" | "~";
+
+// TODO: refactor / move these utils into shared utils folder
 
 export const isTypeToken = (v: JackParseTreeNodeValue): v is IdentifierToken | TypeKeywordToken => {
   if (v.type === "grammarRule") {
@@ -70,7 +73,10 @@ export const isOperatorToken = (v: JackParseTreeNodeValue): v is { type: "symbol
   return type === "symbol" && ["+", "-", "*", "/", "&", "|", "<", ">", "="].includes(token);
 };
 
-export const isUnaryOperatorToken = (t: Token): t is { type: "symbol"; token: UnaryOperator } => {
-  const { type, token } = t;
+export const isUnaryOperatorToken = (v: JackParseTreeNodeValue): v is { type: "symbol"; token: UnaryOperator } => {
+  if (v.type === "grammarRule") {
+    return false;
+  }
+  const { type, token } = v;
   return type === "symbol" && (token === "-" || token === "~");
 };
