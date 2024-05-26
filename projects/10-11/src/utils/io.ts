@@ -1,5 +1,5 @@
 import { existsSync, lstatSync, readFileSync, readdirSync } from "fs";
-import { Result } from "../types.js";
+import { Result } from "../types/index.js";
 import { error } from "./index.js";
 
 const jackExtension = ".jack";

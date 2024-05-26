@@ -2,12 +2,7 @@ import { writeFileSync } from "fs";
 import path from "path";
 import JackCompiler from "./compiler/JackCompiler.js";
 import { error } from "./utils/index.js";
-import { getJackFiles, toJackProgram } from "./utils/jackFileUtils.js";
-
-// TODO: refactor project structure
-// - all shared constants to /src/constants.ts
-// - all shared utils to /src/utils/*.ts
-// - all shared types to /src/types.ts
+import { getJackFiles, toJackProgram } from "./utils/io.js";
 
 const main = () => {
   const filePath = process.argv[2];

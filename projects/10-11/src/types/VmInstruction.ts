@@ -1,4 +1,4 @@
-type Segment = "argument" | "local" | "static" | "constant" | "this" | "that" | "pointer" | "temp";
+export type Segment = "argument" | "local" | "static" | "constant" | "this" | "that" | "pointer" | "temp";
 
 type PushInstruction = `push ${Segment} ${number}`;
 

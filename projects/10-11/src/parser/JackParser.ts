@@ -1,18 +1,18 @@
-import { KeywordToken, SymbolToken, Token } from "../tokenizer/types.js";
-import { Result } from "../types.js";
+import { KeywordToken, SymbolToken, Token } from "../types/Token.js";
+import { Result } from "../types/index.js";
 import { error } from "../utils/index.js";
+import {
+  isClassVarKeyword,
+  isKeywordConstant,
+  isOperator,
+  isSeparator,
+  isStatement,
+  isSubroutineType,
+  isType,
+  isUnaryOperator,
+} from "../utils/predicates.js";
 import JackParseTree, { JackParseTreeNode } from "./JackParseTree.js";
 import JackParserError from "./JackParserError.js";
-import {
-  isClassVarKeywordToken,
-  isKeywordConstantToken,
-  isOperatorToken,
-  isSeparatorToken,
-  isStatementToken,
-  isSubroutineTypeToken,
-  isTypeToken,
-  isUnaryOperatorToken,
-} from "./utils.js";
 
 export class JackParser {
   #tokens: readonly Token[] = [];
@@ -118,7 +118,7 @@ export class JackParser {
     const classVarDecNodes: JackParseTreeNode[] = [];
 
     let classVarKeywordToken = this.#currentToken;
-    while (isClassVarKeywordToken(classVarKeywordToken)) {
+    while (isClassVarKeyword(classVarKeywordToken)) {
       const classVarDecNode = new JackParseTreeNode({ type: "grammarRule", rule: "classVarDec" });
 
       classVarDecNode.insert(classVarKeywordToken);
@@ -127,13 +127,13 @@ export class JackParser {
       this.#insertToken({
         node: classVarDecNode,
         expected: { type: "keyword/identifier", token: "(int|char|boolean)/_<identifier>" },
-        isExpected: isTypeToken,
+        isExpected: isType,
         caller,
       });
       this.#insertToken({ node: classVarDecNode, expected: { type: "identifier" }, caller });
 
       let varDecSeparatorToken = this.#currentToken;
-      while (isSeparatorToken(varDecSeparatorToken)) {
+      while (isSeparator(varDecSeparatorToken)) {
         classVarDecNode.insert(varDecSeparatorToken);
         this.#advanceToken();
 
@@ -156,7 +156,7 @@ export class JackParser {
     const subroutineDecNodes: JackParseTreeNode[] = [];
 
     let subroutineTypeToken = this.#currentToken;
-    while (isSubroutineTypeToken(subroutineTypeToken)) {
+    while (isSubroutineType(subroutineTypeToken)) {
       const subroutineDecNode = new JackParseTreeNode({ type: "grammarRule", rule: "subroutineDec" });
       subroutineDecNode.insert(subroutineTypeToken);
       this.#advanceToken();
@@ -164,7 +164,7 @@ export class JackParser {
       this.#insertToken({
         node: subroutineDecNode,
         expected: { type: "type/void", token: "(int|char|boolean)/_<identifier>/void" },
-        isExpected: (token) => isTypeToken(token) || (token.type === "keyword" && token.token === "void"),
+        isExpected: (token) => isType(token) || (token.type === "keyword" && token.token === "void"),
         caller,
       });
       this.#insertToken({ node: subroutineDecNode, expected: { type: "identifier" }, caller });
@@ -185,7 +185,7 @@ export class JackParser {
     const parameterListNode = new JackParseTreeNode({ type: "grammarRule", rule: "parameterList" });
 
     const parameterTypeToken = this.#currentToken;
-    if (!isTypeToken(parameterTypeToken)) {
+    if (!isType(parameterTypeToken)) {
       return parameterListNode;
     }
     parameterListNode.insert(parameterTypeToken);
@@ -194,14 +194,14 @@ export class JackParser {
     this.#insertToken({ node: parameterListNode, expected: { type: "identifier" }, caller });
 
     let parameterSeparatorToken = this.#currentToken;
-    while (isSeparatorToken(parameterSeparatorToken)) {
+    while (isSeparator(parameterSeparatorToken)) {
       parameterListNode.insert(parameterSeparatorToken);
       this.#advanceToken();
 
       this.#insertToken({
         node: parameterListNode,
         expected: { type: "keyword/identifier", token: "(int|char|boolean)/_<identifier>" },
-        isExpected: isTypeToken,
+        isExpected: isType,
         caller,
       });
       this.#insertToken({ node: parameterListNode, expected: { type: "identifier" }, caller });
@@ -237,13 +237,13 @@ export class JackParser {
       this.#insertToken({
         node: varDecNode,
         expected: { type: "keyword/identifier", token: "(int|char|boolean)/_<identifier>" },
-        isExpected: isTypeToken,
+        isExpected: isType,
         caller,
       });
       this.#insertToken({ node: varDecNode, expected: { type: "identifier" }, caller });
 
       let varDecSeparatorToken = this.#currentToken;
-      while (isSeparatorToken(varDecSeparatorToken)) {
+      while (isSeparator(varDecSeparatorToken)) {
         varDecNode.insert(varDecSeparatorToken);
         this.#advanceToken();
 
@@ -273,7 +273,7 @@ export class JackParser {
     } as const;
 
     let statementToken = this.#currentToken;
-    while (isStatementToken(statementToken)) {
+    while (isStatement(statementToken)) {
       statementsNode.insert(statementMap[statementToken.token].bind(this)());
 
       statementToken = this.#currentToken;
@@ -368,7 +368,7 @@ export class JackParser {
     expressionNode.insert(this.#parseTerm());
 
     let operatorToken = this.#currentToken;
-    while (isOperatorToken(operatorToken)) {
+    while (isOperator(operatorToken)) {
       expressionNode.insert(operatorToken);
       this.#advanceToken();
 
@@ -389,7 +389,7 @@ export class JackParser {
     if (
       initialToken.type === "integerConstant" ||
       initialToken.type === "stringConstant" ||
-      isKeywordConstantToken(initialToken)
+      isKeywordConstant(initialToken)
     ) {
       termNode.insert(initialToken);
       this.#advanceToken();
@@ -415,7 +415,7 @@ export class JackParser {
       this.#insertToken({
         node: termNode,
         expected: { type: "symbol", token: "-/~" },
-        isExpected: isUnaryOperatorToken,
+        isExpected: isUnaryOperator,
         caller,
       });
       termNode.insert(this.#parseTerm());
@@ -451,7 +451,7 @@ export class JackParser {
     expressionListNode.insert(this.#parseExpression());
 
     let expressionSeparatorToken = this.#currentToken;
-    while (isSeparatorToken(expressionSeparatorToken)) {
+    while (isSeparator(expressionSeparatorToken)) {
       expressionListNode.insert(expressionSeparatorToken);
       this.#advanceToken();
 

@@ -2,7 +2,7 @@ import { writeFileSync } from "fs";
 import path from "path";
 import tokenize from "../tokenizer/index.js";
 import { error } from "../utils/index.js";
-import { getJackFiles, toJackProgram } from "../utils/jackFileUtils.js";
+import { getJackFiles, toJackProgram } from "../utils/io.js";
 import JackParser from "./JackParser.js";
 
 const test = () => {

@@ -1,10 +1,10 @@
 import { writeFileSync } from "fs";
 import path from "path";
+import { Token } from "../types/Token.js";
 import { error } from "../utils/index.js";
-import { getJackFiles, toJackProgram } from "../utils/jackFileUtils.js";
+import { getJackFiles, toJackProgram } from "../utils/io.js";
 import { escapeToken } from "../utils/testing.js";
 import tokenize from "./index.js";
-import { Token } from "./types.js";
 
 const tokenToXml = ({ type, token }: Token) => `<${type}> ${escapeToken(token)} </${type}>`;
 

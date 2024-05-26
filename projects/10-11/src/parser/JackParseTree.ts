@@ -1,5 +1,8 @@
+import { GrammarRule } from "../types/GrammarRule.js";
+import { Token } from "../types/Token.js";
 import { escapeToken } from "../utils/testing.js";
-import { JackParseTreeNodeValue } from "./types.js";
+
+export type JackParseTreeNodeValue = GrammarRule | Token;
 
 export class JackParseTree {
   readonly root: JackParseTreeNode;

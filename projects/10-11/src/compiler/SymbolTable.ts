@@ -1,16 +1,18 @@
+import { Segment } from "../types/VmInstruction.js";
+
 export type ClassSymbolKind = "field" | "static";
 export type SubroutineSymbolKind = "arg" | "var";
 export type SymbolKind = ClassSymbolKind | SubroutineSymbolKind;
 
-export type ClassSegment = "static" | "this";
-export type SubroutineSegment = "argument" | "local";
-export type Segment = ClassSegment | SubroutineSegment;
+type ClassSegment = Extract<Segment, "static" | "this">;
+type SubroutineSegment = Extract<Segment, "argument" | "local">;
+type VariableSegment = ClassSegment | SubroutineSegment;
 
 export type SymbolInfo<T extends SymbolKind> = {
   name: string;
   type: string;
   kind: T;
-  segment: Segment;
+  segment: VariableSegment;
   index: number;
 };
 
@@ -42,7 +44,7 @@ export class SymbolTable<T extends SymbolKind> {
     return this.#kindCounts.get(kind) ?? 0;
   }
 
-  #getSegment(kind: SymbolKind): Segment {
+  #getSegment(kind: SymbolKind): VariableSegment {
     switch (kind) {
       case "static":
         return "static";

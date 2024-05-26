@@ -1,31 +1,35 @@
 import JackParseTree, { JackParseTreeNode } from "../parser/JackParseTree.js";
 import JackParser from "../parser/JackParser.js";
+import tokenize from "../tokenizer/index.js";
 import {
+  IdentifierToken,
+  IntegerConstantToken,
   KeywordConstantToken,
   Operator,
+  StringConstantToken,
   UnaryOperator,
-  isClassVarKeywordToken,
-  isKeywordConstantToken,
-  isOperatorToken,
-  isSeparatorToken,
-  isSubroutineTypeToken,
-  isTypeToken,
-  isUnaryOperatorToken,
-} from "../parser/utils.js";
-import tokenize from "../tokenizer/index.js";
-import { IdentifierToken, IntegerConstantToken, StringConstantToken } from "../tokenizer/types.js";
-import { Result } from "../types.js";
+} from "../types/Token.js";
+import { VmInstruction } from "../types/VmInstruction.js";
+import { Result } from "../types/index.js";
+import {
+  isClassVarKeyword,
+  isKeywordConstant,
+  isNode,
+  isOperator,
+  isSeparator,
+  isStatementRule,
+  isSubroutineType,
+  isType,
+  isUnaryOperator,
+} from "../utils/predicates.js";
 import JackCompilerError from "./JackCompilerError.js";
 import SymbolTable, { ClassSymbolKind, SubroutineSymbolKind } from "./SymbolTable.js";
-import { VmInstruction } from "./types.js";
-import { isNode, isStatementRule } from "./utils.js";
 
+// TODO: Could add unit tests each time once passes with expected VmInstructions
 // TODO: ConvertToBin test
 // TODO: Square test
 // TODO: Average test
 // TODO: Pong test
-
-// TODO: make error messages better (log expected/actual)
 
 type ClassContext = {
   symbolTable: SymbolTable<ClassSymbolKind>;
@@ -119,8 +123,6 @@ export class JackCompiler {
 
     const classNode = parseTree.root;
 
-    // throwIfNotNode({ node: classNode, expected: { type: "grammarRule", rule: "class" }, caller });
-
     if (!isNode(classNode.value, { type: "grammarRule", rule: "class" })) {
       throw new JackCompilerError({ caller, message: `expected class node but was ${classNode.value}` });
     }
@@ -154,14 +156,14 @@ export class JackCompiler {
     const declaration = classVarDecNode.children;
 
     const kindNode = declaration[0];
-    if (!kindNode || !isClassVarKeywordToken(kindNode.value)) {
+    if (!kindNode || !isClassVarKeyword(kindNode.value)) {
       throw new JackCompilerError({ caller, message: `expected static/field but was ${kindNode?.value}` });
     }
 
     const kind = kindNode.value.token;
 
     const typeNode = declaration[1];
-    if (!typeNode || !isTypeToken(typeNode.value)) {
+    if (!typeNode || !isType(typeNode.value)) {
       throw new JackCompilerError({ caller, message: `expected type token but was ${typeNode?.value}` });
     }
 
@@ -179,7 +181,7 @@ export class JackCompiler {
 
     const [subroutineTypeNode, returnTypeNode, subroutineNameNode] = subroutineDecNode.children;
 
-    if (!subroutineTypeNode || !isSubroutineTypeToken(subroutineTypeNode.value)) {
+    if (!subroutineTypeNode || !isSubroutineType(subroutineTypeNode.value)) {
       throw new JackCompilerError({
         caller,
         message: `expected subroutine type node but was ${subroutineTypeNode?.value}`,
@@ -256,7 +258,7 @@ export class JackCompiler {
 
     while (currentNodeIndex < nodes.length) {
       const typeNode = nodes[currentNodeIndex];
-      if (!typeNode || !isTypeToken(typeNode.value)) {
+      if (!typeNode || !isType(typeNode.value)) {
         throw new JackCompilerError({ caller, message: `expected type token but was ${typeNode?.value}` });
       }
 
@@ -274,7 +276,7 @@ export class JackCompiler {
       this.#subroutineContext.symbolTable.add({ name: argName, kind: "arg", type });
 
       const currentNode = nodes[currentNodeIndex];
-      if (currentNode && currentNode.value.type !== "grammarRule" && isSeparatorToken(currentNode.value)) {
+      if (currentNode && currentNode.value.type !== "grammarRule" && isSeparator(currentNode.value)) {
         currentNodeIndex++;
       }
     }
@@ -293,7 +295,7 @@ export class JackCompiler {
       );
 
       const typeNode = varNodes.shift();
-      if (!typeNode || !isTypeToken(typeNode.value)) {
+      if (!typeNode || !isType(typeNode.value)) {
         throw new JackCompilerError({ caller, message: `expected type node but was ${typeNode?.value}` });
       }
 
@@ -428,7 +430,7 @@ export class JackCompiler {
       const termNode = restExpression[currentNodeIndex];
       currentNodeIndex++;
 
-      if (!operatorNode || !isOperatorToken(operatorNode.value)) {
+      if (!operatorNode || !isOperator(operatorNode.value)) {
         throw new JackCompilerError({
           caller,
           message: `expected operator symbol node but was type ${operatorNode?.value.type}`,
@@ -462,7 +464,7 @@ export class JackCompiler {
       return this.#compileStringConstantTerm(first.value);
     }
 
-    if (isKeywordConstantToken(first.value)) {
+    if (isKeywordConstant(first.value)) {
       return this.#compileKeywordConstantTerm(first.value);
     }
 
@@ -510,7 +512,7 @@ export class JackCompiler {
 
     const [unaryOperator, term] = termNode.children;
 
-    if (!unaryOperator || !isUnaryOperatorToken(unaryOperator.value)) {
+    if (!unaryOperator || !isUnaryOperator(unaryOperator.value)) {
       throw new JackCompilerError({ caller, message: `did not find unary operator` });
     }
 
