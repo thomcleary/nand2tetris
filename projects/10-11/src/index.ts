@@ -1,6 +1,6 @@
 import { writeFileSync } from "fs";
 import path from "path";
-import { JackCompiler } from "./compiler/JackCompiler.js";
+import JackCompiler from "./compiler/JackCompiler.js";
 import { error } from "./utils/index.js";
 import { getJackFiles, toJackProgram } from "./utils/jackFileUtils.js";
 

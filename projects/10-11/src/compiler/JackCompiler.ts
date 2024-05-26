@@ -13,7 +13,7 @@ import {
 import tokenize from "../tokenizer/index.js";
 import { IdentifierToken } from "../tokenizer/types.js";
 import { Result } from "../types.js";
-import { ClassSymbolKind, SubroutineSymbolKind, SymbolTable } from "./SymbolTable.js";
+import SymbolTable, { ClassSymbolKind, SubroutineSymbolKind } from "./SymbolTable.js";
 import { VmInstruction } from "./types.js";
 import { isStatementRule } from "./utils.js";
 
@@ -60,6 +60,16 @@ export class JackCompiler {
 
   set #subroutineContext(context: SubroutineContext | undefined) {
     this.#_subroutineContext = context;
+  }
+
+  #getVariableInfo(name: string) {
+    const variableInfo = this.#subroutineContext.symbolTable.get(name) ?? this.#classContext.symbolTable.get(name);
+
+    if (!variableInfo) {
+      throw new Error(`[#getVariable]: variable ${name} was not found in subroutine or class symbol table`);
+    }
+
+    return variableInfo;
   }
 
   compile(jackProgram: string[]): Result<{ vmInstructions: VmInstruction[] }> {
@@ -289,13 +299,12 @@ export class JackCompiler {
       throw new Error(`[#compuleSubroutineBody]: expected statement node but was ${statementNode.value.type}`);
     }
 
-    // TODO: compile letStatement
     // TODO: compile ifStatement
     // TODO: compile whileStatement
 
     switch (statementNode.value.rule) {
       case "letStatement":
-        throw new Error(`[#compileSubroutineBody]: letStatement not implemented`);
+        return this.#compileLetStatement(statementNode);
       case "ifStatement":
         throw new Error(`[#compileSubroutineBody]: ifStatement not implemented`);
       case "whileStatement":
@@ -304,6 +313,48 @@ export class JackCompiler {
         return this.#compileDoStatement(statementNode);
       case "returnStatement":
         return this.#compileReturnStatement(statementNode);
+    }
+  }
+
+  #compileLetStatement(letStatementNode: JackParseTreeNode): VmInstruction[] {
+    const [letNode, varNameNode, arrayIndexOrSymbolNode, ...restLetStatement] = letStatementNode.children;
+    const [firstExpression, secondExpression] = restLetStatement.filter(
+      (node) => node.value.type === "grammarRule" && node.value.rule === "expression"
+    );
+
+    if (!varNameNode || varNameNode.value.type !== "identifier") {
+      throw new Error(`[#compileLetStatement]: expected var name node but was ${varNameNode?.value.type}`);
+    }
+    if (
+      !firstExpression ||
+      firstExpression.value.type !== "grammarRule" ||
+      firstExpression.value.rule !== "expression"
+    ) {
+      throw new Error(`[#compileLetStatement]: no expressions found`);
+    }
+
+    if (
+      !arrayIndexOrSymbolNode ||
+      arrayIndexOrSymbolNode.value.type !== "symbol" ||
+      !(arrayIndexOrSymbolNode.value.token === "[" || arrayIndexOrSymbolNode.value.token === "=")
+    ) {
+      throw new Error(`[#compileLetStatement]: expected "[" or "=" node but was ${varNameNode?.value.type}`);
+    }
+
+    if (arrayIndexOrSymbolNode.value.token === "=") {
+      const { segment, index } = this.#getVariableInfo(varNameNode.value.token);
+      return [...this.#compileExpression(firstExpression), `pop ${segment} ${index}`];
+    } else {
+      // TODO: handle let var[expression] = expression
+      if (
+        !secondExpression ||
+        secondExpression.value.type !== "grammarRule" ||
+        secondExpression.value.rule !== "expression"
+      ) {
+        throw new Error(`[#compileLetStatement]: right hand side expression not found`);
+      }
+
+      throw new Error(`[#compileLetStatement]: array index assignment not implemented`);
     }
   }
 
@@ -485,3 +536,5 @@ export class JackCompiler {
       .flatMap((expressionNode) => this.#compileExpression(expressionNode));
   }
 }
+
+export default JackCompiler;
