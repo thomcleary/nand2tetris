@@ -331,16 +331,13 @@ export class JackCompiler {
       throw new JackCompilerError({ caller, message: `expected statement node but was ${statementNode.value.type}` });
     }
 
-    // TODO: compile ifStatement
-    // TODO: compile whileStatement
-
     switch (statementNode.value.rule) {
       case "letStatement":
         return this.#compileLetStatement(statementNode);
       case "ifStatement":
-        throw new JackCompilerError({ caller, message: `ifStatement not implemented` });
+        return this.#compileIfStatement(statementNode);
       case "whileStatement":
-        throw new JackCompilerError({ caller, message: `whileStatement not implemented` });
+        return this.#compileWhileStatement(statementNode);
       case "doStatement":
         return this.#compileDoStatement(statementNode);
       case "returnStatement":
@@ -373,17 +370,29 @@ export class JackCompiler {
       throw new JackCompilerError({ caller, message: `expected "[" or "=" node but was ${varNameNode?.value.type}` });
     }
 
-    if (arrayIndexOrSymbolNode.value.token === "=") {
-      const { segment, index } = this.#getVariableInfo(varNameNode.value.token);
-      return [...this.#compileExpression(firstExpression), `pop ${segment} ${index}`];
-    } else {
-      // TODO: handle let var[expression] = expression
+    if (arrayIndexOrSymbolNode.value.token === "[") {
       if (!secondExpression || !isNode(secondExpression.value, { type: "grammarRule", rule: "expression" })) {
         throw new JackCompilerError({ caller, message: `right hand side expression not found` });
       }
 
+      // TODO: handle let var[expression] = expression
       throw new JackCompilerError({ caller, message: `array index assignment not implemented` });
     }
+
+    const { segment, index } = this.#getVariableInfo(varNameNode.value.token);
+    return [...this.#compileExpression(firstExpression), `pop ${segment} ${index}`];
+  }
+
+  // TODO: compile if statement
+  #compileIfStatement(ifStatementNode: JackParseTreeNode): VmInstruction[] {
+    const caller = this.#compileIfStatement.name;
+    throw new JackCompilerError({ caller, message: `not implemented` });
+  }
+
+  // TODO: compile while statement (NEXT)
+  #compileWhileStatement(whileStatementNode: JackParseTreeNode): VmInstruction[] {
+    const caller = this.#compileWhileStatement.name;
+    throw new JackCompilerError({ caller, message: `not implemented` });
   }
 
   #compileDoStatement(doStatementNode: JackParseTreeNode): VmInstruction[] {
@@ -456,27 +465,20 @@ export class JackCompiler {
       throw new JackCompilerError({ caller, message: `first term is undefined` });
     }
 
-    if (first.value.type === "integerConstant") {
-      return this.#compileIntegerConstantTerm(first.value);
+    switch (true) {
+      case first.value.type === "integerConstant":
+        return this.#compileIntegerConstantTerm(first.value);
+      case first.value.type === "stringConstant":
+        return this.#compileStringConstantTerm(first.value);
+      case isKeywordConstant(first.value):
+        return this.#compileKeywordConstantTerm(first.value);
+      case isNode(first.value, { type: "symbol", token: "(" }):
+        return this.#compileExpressionTerm(termNode);
+      case first.value.type === "identifier":
+        return this.#compileIdentifierTerm(termNode);
+      default:
+        return this.#compileUnaryOperatorTerm(termNode);
     }
-
-    if (first.value.type === "stringConstant") {
-      return this.#compileStringConstantTerm(first.value);
-    }
-
-    if (isKeywordConstant(first.value)) {
-      return this.#compileKeywordConstantTerm(first.value);
-    }
-
-    if (isNode(first.value, { type: "symbol", token: "(" })) {
-      return this.#compileExpressionTerm(termNode);
-    }
-
-    if (first.value.type === "identifier") {
-      return this.#compileIdentifierTerm(termNode);
-    }
-
-    return this.#compileUnaryOperatorTerm(termNode);
   }
 
   #compileIntegerConstantTerm(integerConstant: IntegerConstantToken): VmInstruction[] {
@@ -488,9 +490,16 @@ export class JackCompiler {
     throw new JackCompilerError({ caller: this.#compileStringConstantTerm.name, message: `not implemented` });
   }
 
-  // TODO: keywordConstant ("this" must compile to "push pointer 0")
   #compileKeywordConstantTerm(keywordConstant: KeywordConstantToken): VmInstruction[] {
-    throw new JackCompilerError({ caller: this.#compileKeywordConstantTerm.name, message: `not implemented` });
+    switch (keywordConstant.token) {
+      case "this":
+        return ["push pointer 0"];
+      case "true":
+        return ["push constant 1", "neg"];
+      case "false":
+      case "null":
+        return ["push constant 0"];
+    }
   }
 
   #compileExpressionTerm(termNode: JackParseTreeNode): VmInstruction[] {
