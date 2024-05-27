@@ -416,9 +416,9 @@ export class JackCompiler {
       throw new JackCompilerError({ caller, message: `else statements not found` });
     }
 
-    const labelPrefix = `if_${this.#classContext.whileCount++}`;
-    const elseLabel = `${labelPrefix}_else`;
-    const endLabel = `${labelPrefix}_end`;
+    const labelPrefix = `IF_${this.#classContext.ifCount++}`;
+    const elseLabel = `${labelPrefix}_ELSE`;
+    const endLabel = `${labelPrefix}_END`;
 
     const expressionVmInstructions = this.#compileExpression(ifExpressionNode);
     const ifVmInstructions = this.#compileStatements(ifStatementsNode);
@@ -453,8 +453,8 @@ export class JackCompiler {
       throw new JackCompilerError({ caller, message: `while statements not found` });
     }
 
-    const startLabel = `while_${this.#classContext.whileCount++}`;
-    const endLabel = `${startLabel}_end`;
+    const startLabel = `WHILE_${this.#classContext.whileCount++}`;
+    const endLabel = `${startLabel}_END`;
 
     const expressionVmInstructions = this.#compileExpression(whileExpressionNode);
     const statementVmInstructions = this.#compileStatements(whileStatementsNode);
@@ -476,8 +476,6 @@ export class JackCompiler {
   }
 
   #compileReturnStatement(returnStatementNode: JackParseTreeNode): VmInstruction[] {
-    const caller = this.#compileReturnStatement.name;
-
     const vmInstructions: VmInstruction[] = [];
 
     const returnExpression = returnStatementNode.children.find(({ value }) =>
@@ -487,7 +485,7 @@ export class JackCompiler {
     if (!returnExpression) {
       vmInstructions.push("push constant 0");
     } else {
-      throw new JackCompilerError({ caller, message: `return statement expression not implemented` });
+      vmInstructions.push(...this.#compileExpression(returnExpression));
     }
 
     vmInstructions.push("return");
