@@ -32,8 +32,10 @@ import SymbolTable, { ClassSymbolKind, SubroutineSymbolKind } from "./SymbolTabl
 // TODO: Pong test
 
 type ClassContext = {
-  symbolTable: SymbolTable<ClassSymbolKind>;
-  className: string;
+  readonly symbolTable: SymbolTable<ClassSymbolKind>;
+  readonly className: string;
+  ifCount: number;
+  whileCount: number;
 };
 
 type SubroutineContext = {
@@ -69,15 +71,6 @@ export class JackCompiler {
     this.#_subroutineContext = context;
   }
 
-  #reset() {
-    this.#classContext = undefined;
-    this.#subroutineContext = undefined;
-  }
-
-  #resetSubroutineContext() {
-    this.#subroutineContext = { symbolTable: new SymbolTable() };
-  }
-
   #getVariableInfo(name: string) {
     const variableInfo = this.#subroutineContext.symbolTable.get(name) ?? this.#classContext.symbolTable.get(name);
 
@@ -89,6 +82,19 @@ export class JackCompiler {
     }
 
     return variableInfo;
+  }
+
+  #resetClassContext(className: string) {
+    this.#classContext = { symbolTable: new SymbolTable(), className, ifCount: 0, whileCount: 0 };
+  }
+
+  #resetSubroutineContext() {
+    this.#subroutineContext = { symbolTable: new SymbolTable() };
+  }
+
+  #reset() {
+    this.#classContext = undefined;
+    this.#subroutineContext = undefined;
   }
 
   compile(jackProgram: string[]): Result<{ vmInstructions: VmInstruction[] }> {
@@ -133,7 +139,7 @@ export class JackCompiler {
       throw new JackCompilerError({ caller, message: `expected class name node but was ${classNameNode?.value}` });
     }
 
-    this.#classContext = { symbolTable: new SymbolTable(), className: classNameNode.value.token };
+    this.#resetClassContext(classNameNode.value.token);
 
     classNode.children
       .filter(({ value }) => isNode(value, { type: "grammarRule", rule: "classVarDec" }))
@@ -321,6 +327,10 @@ export class JackCompiler {
       throw new JackCompilerError({ caller, message: `statements node not found` });
     }
 
+    return this.#compileStatements(statementsNode);
+  }
+
+  #compileStatements(statementsNode: JackParseTreeNode): VmInstruction[] {
     return statementsNode.children.flatMap((statementNode) => this.#compileStatement(statementNode));
   }
 
@@ -383,16 +393,44 @@ export class JackCompiler {
     return [...this.#compileExpression(firstExpression), `pop ${segment} ${index}`];
   }
 
-  // TODO: compile if statement
+  // TODO: compile if statement (NEXT)
   #compileIfStatement(ifStatementNode: JackParseTreeNode): VmInstruction[] {
     const caller = this.#compileIfStatement.name;
     throw new JackCompilerError({ caller, message: `not implemented` });
   }
 
-  // TODO: compile while statement (NEXT)
   #compileWhileStatement(whileStatementNode: JackParseTreeNode): VmInstruction[] {
     const caller = this.#compileWhileStatement.name;
-    throw new JackCompilerError({ caller, message: `not implemented` });
+
+    const whileExpressionNode = whileStatementNode.children.find(({ value }) =>
+      isNode(value, { type: "grammarRule", rule: "expression" })
+    );
+    const whileStatementsNode = whileStatementNode.children.find(({ value }) =>
+      isNode(value, { type: "grammarRule", rule: "statements" })
+    );
+
+    if (!whileExpressionNode) {
+      throw new JackCompilerError({ caller, message: `while expression not found` });
+    }
+    if (!whileStatementsNode) {
+      throw new JackCompilerError({ caller, message: `while statements not found` });
+    }
+
+    const startLabel = `while_${this.#classContext.whileCount++}`;
+    const endLabel = `${startLabel}_end`;
+
+    const epressionVmInstructions = this.#compileExpression(whileExpressionNode);
+    const statementVmInstructions = this.#compileStatements(whileStatementsNode);
+
+    return [
+      `label ${startLabel}`,
+      ...epressionVmInstructions,
+      "not",
+      `if-goto ${endLabel}`,
+      ...statementVmInstructions,
+      `goto ${startLabel}`,
+      `label ${endLabel}`,
+    ];
   }
 
   #compileDoStatement(doStatementNode: JackParseTreeNode): VmInstruction[] {
