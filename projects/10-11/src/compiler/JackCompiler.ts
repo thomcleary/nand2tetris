@@ -393,10 +393,47 @@ export class JackCompiler {
     return [...this.#compileExpression(firstExpression), `pop ${segment} ${index}`];
   }
 
-  // TODO: compile if statement (NEXT)
   #compileIfStatement(ifStatementNode: JackParseTreeNode): VmInstruction[] {
     const caller = this.#compileIfStatement.name;
-    throw new JackCompilerError({ caller, message: `not implemented` });
+
+    const ifExpressionNode = ifStatementNode.children.find(({ value }) =>
+      isNode(value, { type: "grammarRule", rule: "expression" })
+    );
+
+    const elseNode = ifStatementNode.children.find(({ value }) => isNode(value, { type: "keyword", token: "else" }));
+
+    const [ifStatementsNode, elseStatementsNode] = ifStatementNode.children.filter(({ value }) =>
+      isNode(value, { type: "grammarRule", rule: "statements" })
+    );
+
+    if (!ifExpressionNode) {
+      throw new JackCompilerError({ caller, message: `if expression not found` });
+    }
+    if (!ifStatementsNode) {
+      throw new JackCompilerError({ caller, message: `if statements not found` });
+    }
+    if (elseNode && !elseStatementsNode) {
+      throw new JackCompilerError({ caller, message: `else statements not found` });
+    }
+
+    const labelPrefix = `if_${this.#classContext.whileCount++}`;
+    const elseLabel = `${labelPrefix}_else`;
+    const endLabel = `${labelPrefix}_end`;
+
+    const expressionVmInstructions = this.#compileExpression(ifExpressionNode);
+    const ifVmInstructions = this.#compileStatements(ifStatementsNode);
+    const elseVmInstructions = elseStatementsNode ? this.#compileStatements(elseStatementsNode) : [];
+
+    return [
+      ...expressionVmInstructions,
+      "not",
+      `if-goto ${elseLabel}`,
+      ...ifVmInstructions,
+      `goto ${endLabel}`,
+      `label ${elseLabel}`,
+      ...elseVmInstructions,
+      `label ${endLabel}`,
+    ];
   }
 
   #compileWhileStatement(whileStatementNode: JackParseTreeNode): VmInstruction[] {
@@ -419,12 +456,12 @@ export class JackCompiler {
     const startLabel = `while_${this.#classContext.whileCount++}`;
     const endLabel = `${startLabel}_end`;
 
-    const epressionVmInstructions = this.#compileExpression(whileExpressionNode);
+    const expressionVmInstructions = this.#compileExpression(whileExpressionNode);
     const statementVmInstructions = this.#compileStatements(whileStatementsNode);
 
     return [
       `label ${startLabel}`,
-      ...epressionVmInstructions,
+      ...expressionVmInstructions,
       "not",
       `if-goto ${endLabel}`,
       ...statementVmInstructions,
