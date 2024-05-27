@@ -25,8 +25,7 @@ import {
 import JackCompilerError from "./JackCompilerError.js";
 import SymbolTable, { ClassSymbolKind, SubroutineSymbolKind } from "./SymbolTable.js";
 
-// TODO: Could add unit tests each time once passes with expected VmInstructions
-// TODO: ConvertToBin test
+// TODO: Could add unit tests each time once passes with expected VmInstructions (.cmp.vm files)
 // TODO: Square test
 // TODO: Average test
 // TODO: Pong test
@@ -703,10 +702,12 @@ export class JackCompiler {
       throw new JackCompilerError({ caller, message: `variable.method() calls not implemented` });
     } else {
       // TODO: pull this up to use for methods as well?
+      const argumentCount = expressionListNode.children.filter(({ value }) =>
+        isNode(value, { type: "grammarRule", rule: "expression" })
+      ).length;
+
       vmInstructions.push(...this.#compileExpressionList(expressionListNode));
-      vmInstructions.push(
-        `call ${classOrVarNameNode.value.token}.${subroutineNameNode.value.token} ${expressionListNode.children.length}`
-      );
+      vmInstructions.push(`call ${classOrVarNameNode.value.token}.${subroutineNameNode.value.token} ${argumentCount}`);
     }
 
     return vmInstructions;
