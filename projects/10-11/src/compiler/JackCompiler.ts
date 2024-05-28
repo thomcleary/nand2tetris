@@ -536,12 +536,18 @@ export class JackCompiler {
     return [`push constant ${integerConstantToken.token}`];
   }
 
-  // TODO: stringConstant
+  // TODO: stringConstant (NEXT)
   #compileStringConstantTerm({
     stringConstantToken,
   }: {
     stringConstantToken: StringConstantToken;
   }): readonly VmInstruction[] {
+    console.log({ stringConstantToken });
+    // push string length on to stack
+    // call String.new 1
+    // FOR EACH CHAR IN STRING
+    // push characterCode of CHAR on to stack (see Appendix 5, p413)
+    // call String.appendChar 2 (first arg is pointer to string returned from previous new/appendChar call, second arg is char code)
     throw new JackCompilerError({ caller: this.#compileStringConstantTerm.name, message: `not implemented` });
   }
 
