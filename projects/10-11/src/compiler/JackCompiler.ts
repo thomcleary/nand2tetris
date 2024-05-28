@@ -32,45 +32,21 @@ import SymbolTable, { ClassSymbolKind, SubroutineSymbolKind } from "./SymbolTabl
 
 type ClassContext = {
   readonly symbolTable: SymbolTable<ClassSymbolKind>;
-  readonly className: string;
+  className: string;
   ifCount: number;
   whileCount: number;
 };
 
 type SubroutineContext = {
-  symbolTable: SymbolTable<SubroutineSymbolKind>;
+  readonly symbolTable: SymbolTable<SubroutineSymbolKind>;
 };
 
 export class JackCompiler {
   #jackParser = new JackParser();
-  #_classContext: ClassContext | undefined = undefined;
-  #_subroutineContext: SubroutineContext | undefined = undefined;
+  #classContext: ClassContext = { symbolTable: new SymbolTable(), className: "", ifCount: 0, whileCount: 0 };
+  #subroutineContext: SubroutineContext = { symbolTable: new SymbolTable() };
 
-  get #classContext(): ClassContext {
-    if (!this.#_classContext) {
-      throw new JackCompilerError({ caller: "#classContext", message: "#_classContext is undefined" });
-    }
-
-    return this.#_classContext;
-  }
-
-  set #classContext(context: ClassContext | undefined) {
-    this.#_classContext = context;
-  }
-
-  get #subroutineContext(): SubroutineContext {
-    if (!this.#_subroutineContext) {
-      throw new JackCompilerError({ caller: "#subroutineContext", message: "#_subroutineContext is undefined" });
-    }
-
-    return this.#_subroutineContext;
-  }
-
-  set #subroutineContext(context: SubroutineContext | undefined) {
-    this.#_subroutineContext = context;
-  }
-
-  #getVariableInfo(name: string) {
+  #getVariableInfo({ name }: { name: string }) {
     const variableInfo = this.#subroutineContext.symbolTable.get(name) ?? this.#classContext.symbolTable.get(name);
 
     if (!variableInfo) {
@@ -83,20 +59,16 @@ export class JackCompiler {
     return variableInfo;
   }
 
-  #resetClassContext(className: string) {
-    this.#classContext = { symbolTable: new SymbolTable(), className, ifCount: 0, whileCount: 0 };
-  }
-
   #resetSubroutineContext() {
     this.#subroutineContext = { symbolTable: new SymbolTable() };
   }
 
   #reset() {
-    this.#classContext = undefined;
-    this.#subroutineContext = undefined;
+    this.#classContext = { symbolTable: new SymbolTable(), className: "", ifCount: 0, whileCount: 0 };
+    this.#resetSubroutineContext();
   }
 
-  compile(jackProgram: string[]): Result<{ vmInstructions: VmInstruction[] }> {
+  compile({ jackProgram }: { jackProgram: string[] }): Result<{ vmInstructions: VmInstruction[] }> {
     const tokenizeResult = tokenize(jackProgram);
 
     if (!tokenizeResult.success) {
@@ -115,30 +87,30 @@ export class JackCompiler {
 
     try {
       this.#reset();
-      return { success: true, vmInstructions: this.#compile(jackParseTree) };
+      return { success: true, vmInstructions: this.#compile({ jackParseTree }) };
     } catch (e) {
       return { success: false, message: e instanceof Error ? e.message : "Compilation failed (no error provided)" };
     }
   }
 
-  #compile(parseTree: JackParseTree): VmInstruction[] {
+  #compile({ jackParseTree }: { jackParseTree: JackParseTree }): VmInstruction[] {
     const caller = this.#compile.name;
     // TODO: remove
-    console.log(parseTree.toXmlString());
+    console.log(jackParseTree.toXmlString());
 
-    const classNode = parseTree.root;
+    const classNode = jackParseTree.root;
 
     if (!isNode(classNode.value, { type: "grammarRule", rule: "class" })) {
       throw new JackCompilerError({ caller, message: `expected class node but was ${classNode.value}` });
     }
 
-    const classNameNode = classNode.children[1];
+    const [classKeywordNode, classNameNode] = classNode.children;
 
     if (!classNameNode || classNameNode.value.type !== "identifier") {
       throw new JackCompilerError({ caller, message: `expected class name node but was ${classNameNode?.value}` });
     }
 
-    this.#resetClassContext(classNameNode.value.token);
+    this.#classContext.className = classNameNode.value.token;
 
     classNode.children
       .filter(({ value }) => isNode(value, { type: "grammarRule", rule: "classVarDec" }))
@@ -158,23 +130,19 @@ export class JackCompiler {
   #compileClassVarDec({ classVarDecNode }: { classVarDecNode: JackParseTreeNode }): void {
     const caller = this.#compileClassVarDec.name;
 
-    const declaration = classVarDecNode.children;
+    const [kindNode, typeNode] = classVarDecNode.children;
 
-    const kindNode = declaration[0];
     if (!kindNode || !isClassVarKeyword(kindNode.value)) {
       throw new JackCompilerError({ caller, message: `expected static/field but was ${kindNode?.value}` });
     }
-
-    const kind = kindNode.value.token;
-
-    const typeNode = declaration[1];
     if (!typeNode || !isType(typeNode.value)) {
       throw new JackCompilerError({ caller, message: `expected type token but was ${typeNode?.value}` });
     }
 
+    const kind = kindNode.value.token;
     const type = typeNode.value.type;
 
-    declaration
+    classVarDecNode.children
       .slice(2)
       .map((node) => node.value)
       .filter((token): token is IdentifierToken => token.type === "identifier")
@@ -326,10 +294,10 @@ export class JackCompiler {
       throw new JackCompilerError({ caller, message: `statements node not found` });
     }
 
-    return this.#compileStatements(statementsNode);
+    return this.#compileStatements({ statementsNode });
   }
 
-  #compileStatements(statementsNode: JackParseTreeNode): VmInstruction[] {
+  #compileStatements({ statementsNode }: { statementsNode: JackParseTreeNode }): VmInstruction[] {
     return statementsNode.children.flatMap((statementNode) => this.#compileStatement(statementNode));
   }
 
@@ -342,19 +310,19 @@ export class JackCompiler {
 
     switch (statementNode.value.rule) {
       case "letStatement":
-        return this.#compileLetStatement(statementNode);
+        return this.#compileLetStatement({ letStatementNode: statementNode });
       case "ifStatement":
-        return this.#compileIfStatement(statementNode);
+        return this.#compileIfStatement({ ifStatementNode: statementNode });
       case "whileStatement":
-        return this.#compileWhileStatement(statementNode);
+        return this.#compileWhileStatement({ whileStatementNode: statementNode });
       case "doStatement":
-        return this.#compileDoStatement(statementNode);
+        return this.#compileDoStatement({ doStatementNode: statementNode });
       case "returnStatement":
-        return this.#compileReturnStatement(statementNode);
+        return this.#compileReturnStatement({ returnStatementNode: statementNode });
     }
   }
 
-  #compileLetStatement(letStatementNode: JackParseTreeNode): VmInstruction[] {
+  #compileLetStatement({ letStatementNode }: { letStatementNode: JackParseTreeNode }): VmInstruction[] {
     const caller = this.#compileLetStatement.name;
 
     const [letNode, varNameNode, arrayIndexOrSymbolNode, ...restLetStatement] = letStatementNode.children;
@@ -388,11 +356,11 @@ export class JackCompiler {
       throw new JackCompilerError({ caller, message: `array index assignment not implemented` });
     }
 
-    const { segment, index } = this.#getVariableInfo(varNameNode.value.token);
-    return [...this.#compileExpression(firstExpression), `pop ${segment} ${index}`];
+    const { segment, index } = this.#getVariableInfo({ name: varNameNode.value.token });
+    return [...this.#compileExpression({ expressionNode: firstExpression }), `pop ${segment} ${index}`];
   }
 
-  #compileIfStatement(ifStatementNode: JackParseTreeNode): VmInstruction[] {
+  #compileIfStatement({ ifStatementNode }: { ifStatementNode: JackParseTreeNode }): VmInstruction[] {
     const caller = this.#compileIfStatement.name;
 
     const ifExpressionNode = ifStatementNode.children.find(({ value }) =>
@@ -419,9 +387,11 @@ export class JackCompiler {
     const elseLabel = `${labelPrefix}_ELSE`;
     const endLabel = `${labelPrefix}_END`;
 
-    const expressionVmInstructions = this.#compileExpression(ifExpressionNode);
-    const ifVmInstructions = this.#compileStatements(ifStatementsNode);
-    const elseVmInstructions = elseStatementsNode ? this.#compileStatements(elseStatementsNode) : [];
+    const expressionVmInstructions = this.#compileExpression({ expressionNode: ifExpressionNode });
+    const ifVmInstructions = this.#compileStatements({ statementsNode: ifStatementsNode });
+    const elseVmInstructions = elseStatementsNode
+      ? this.#compileStatements({ statementsNode: elseStatementsNode })
+      : [];
 
     return [
       ...expressionVmInstructions,
@@ -435,7 +405,7 @@ export class JackCompiler {
     ];
   }
 
-  #compileWhileStatement(whileStatementNode: JackParseTreeNode): VmInstruction[] {
+  #compileWhileStatement({ whileStatementNode }: { whileStatementNode: JackParseTreeNode }): VmInstruction[] {
     const caller = this.#compileWhileStatement.name;
 
     const whileExpressionNode = whileStatementNode.children.find(({ value }) =>
@@ -455,8 +425,8 @@ export class JackCompiler {
     const startLabel = `WHILE_${this.#classContext.whileCount++}`;
     const endLabel = `${startLabel}_END`;
 
-    const expressionVmInstructions = this.#compileExpression(whileExpressionNode);
-    const statementVmInstructions = this.#compileStatements(whileStatementsNode);
+    const expressionVmInstructions = this.#compileExpression({ expressionNode: whileExpressionNode });
+    const statementVmInstructions = this.#compileStatements({ statementsNode: whileStatementsNode });
 
     return [
       `label ${startLabel}`,
@@ -469,12 +439,12 @@ export class JackCompiler {
     ];
   }
 
-  #compileDoStatement(doStatementNode: JackParseTreeNode): VmInstruction[] {
+  #compileDoStatement({ doStatementNode }: { doStatementNode: JackParseTreeNode }): VmInstruction[] {
     const [doNode, ...subroutineCall] = doStatementNode.children;
     return [...this.#compileSubroutineCall(subroutineCall), "pop temp 0"];
   }
 
-  #compileReturnStatement(returnStatementNode: JackParseTreeNode): VmInstruction[] {
+  #compileReturnStatement({ returnStatementNode }: { returnStatementNode: JackParseTreeNode }): VmInstruction[] {
     const vmInstructions: VmInstruction[] = [];
 
     const returnExpression = returnStatementNode.children.find(({ value }) =>
@@ -484,7 +454,7 @@ export class JackCompiler {
     if (!returnExpression) {
       vmInstructions.push("push constant 0");
     } else {
-      vmInstructions.push(...this.#compileExpression(returnExpression));
+      vmInstructions.push(...this.#compileExpression({ expressionNode: returnExpression }));
     }
 
     vmInstructions.push("return");
@@ -492,7 +462,7 @@ export class JackCompiler {
     return vmInstructions;
   }
 
-  #compileExpression(expressionNode: JackParseTreeNode): VmInstruction[] {
+  #compileExpression({ expressionNode }: { expressionNode: JackParseTreeNode }): VmInstruction[] {
     const caller = this.#compileExpression.name;
 
     const [firstTermNode, ...restExpression] = expressionNode.children;
@@ -501,7 +471,7 @@ export class JackCompiler {
       throw new JackCompilerError({ caller, message: `invalid first term node, type: ${firstTermNode?.value.type}` });
     }
 
-    const vmInstructions: VmInstruction[] = this.#compileTerm(firstTermNode);
+    const vmInstructions: VmInstruction[] = this.#compileTerm({ termNode: firstTermNode });
 
     let currentNodeIndex = 0;
     while (currentNodeIndex < restExpression.length) {
@@ -521,14 +491,14 @@ export class JackCompiler {
         throw new JackCompilerError({ caller, message: `invalid term node, type: ${termNode?.value.type}` });
       }
 
-      vmInstructions.push(...this.#compileTerm(termNode));
+      vmInstructions.push(...this.#compileTerm({ termNode }));
       vmInstructions.push(this.#compileOperator(operatorNode.value.token));
     }
 
     return vmInstructions;
   }
 
-  #compileTerm(termNode: JackParseTreeNode): VmInstruction[] {
+  #compileTerm({ termNode }: { termNode: JackParseTreeNode }): VmInstruction[] {
     const caller = this.#compileTerm.name;
 
     const [first] = termNode.children;
@@ -539,31 +509,39 @@ export class JackCompiler {
 
     switch (true) {
       case first.value.type === "integerConstant":
-        return this.#compileIntegerConstantTerm(first.value);
+        return this.#compileIntegerConstantTerm({ integerConstantToken: first.value });
       case first.value.type === "stringConstant":
-        return this.#compileStringConstantTerm(first.value);
+        return this.#compileStringConstantTerm({ stringConstantToken: first.value });
       case isKeywordConstant(first.value):
-        return this.#compileKeywordConstantTerm(first.value);
+        return this.#compileKeywordConstantTerm({ keywordConstantToken: first.value });
       case isNode(first.value, { type: "symbol", token: "(" }):
-        return this.#compileExpressionTerm(termNode);
+        return this.#compileExpressionTerm({ termNode });
       case first.value.type === "identifier":
-        return this.#compileIdentifierTerm(termNode);
+        return this.#compileIdentifierTerm({ termNode });
       default:
-        return this.#compileUnaryOperatorTerm(termNode);
+        return this.#compileUnaryOperatorTerm({ termNode });
     }
   }
 
-  #compileIntegerConstantTerm(integerConstant: IntegerConstantToken): VmInstruction[] {
-    return [`push constant ${integerConstant.token}`];
+  #compileIntegerConstantTerm({
+    integerConstantToken,
+  }: {
+    integerConstantToken: IntegerConstantToken;
+  }): VmInstruction[] {
+    return [`push constant ${integerConstantToken.token}`];
   }
 
   // TODO: stringConstant
-  #compileStringConstantTerm(stringConstant: StringConstantToken): VmInstruction[] {
+  #compileStringConstantTerm({ stringConstantToken }: { stringConstantToken: StringConstantToken }): VmInstruction[] {
     throw new JackCompilerError({ caller: this.#compileStringConstantTerm.name, message: `not implemented` });
   }
 
-  #compileKeywordConstantTerm(keywordConstant: KeywordConstantToken): VmInstruction[] {
-    switch (keywordConstant.token) {
+  #compileKeywordConstantTerm({
+    keywordConstantToken,
+  }: {
+    keywordConstantToken: KeywordConstantToken;
+  }): VmInstruction[] {
+    switch (keywordConstantToken.token) {
       case "this":
         return ["push pointer 0"];
       case "true":
@@ -574,7 +552,7 @@ export class JackCompiler {
     }
   }
 
-  #compileExpressionTerm(termNode: JackParseTreeNode): VmInstruction[] {
+  #compileExpressionTerm({ termNode }: { termNode: JackParseTreeNode }): VmInstruction[] {
     const caller = this.#compileExpressionTerm.name;
 
     const expressionNode = termNode.children.find(({ value }) =>
@@ -585,26 +563,10 @@ export class JackCompiler {
       throw new JackCompilerError({ caller, message: `did not find expression node when compiling "(expression)"` });
     }
 
-    return this.#compileExpression(expressionNode);
+    return this.#compileExpression({ expressionNode });
   }
 
-  #compileUnaryOperatorTerm(termNode: JackParseTreeNode): VmInstruction[] {
-    const caller = this.#compileUnaryOperatorTerm.name;
-
-    const [unaryOperator, term] = termNode.children;
-
-    if (!unaryOperator || !isUnaryOperator(unaryOperator.value)) {
-      throw new JackCompilerError({ caller, message: `did not find unary operator` });
-    }
-
-    if (!term || !isNode(term.value, { type: "grammarRule", rule: "term" })) {
-      throw new JackCompilerError({ caller, message: `did not find term following unary operator` });
-    }
-
-    return [...this.#compileTerm(term), this.#compileUnaryOperator(unaryOperator.value.token)];
-  }
-
-  #compileIdentifierTerm(termNode: JackParseTreeNode): VmInstruction[] {
+  #compileIdentifierTerm({ termNode }: { termNode: JackParseTreeNode }): VmInstruction[] {
     const caller = this.#compileIdentifierTerm.name;
 
     const [first, second] = termNode.children;
@@ -614,7 +576,7 @@ export class JackCompiler {
     }
 
     if (!second) {
-      const { segment, index } = this.#getVariableInfo(first.value.token);
+      const { segment, index } = this.#getVariableInfo({ name: first.value.token });
       return [`push ${segment} ${index}`];
     }
 
@@ -635,6 +597,22 @@ export class JackCompiler {
       case ".":
         return this.#compileSubroutineCall(termNode.children);
     }
+  }
+
+  #compileUnaryOperatorTerm({ termNode }: { termNode: JackParseTreeNode }): VmInstruction[] {
+    const caller = this.#compileUnaryOperatorTerm.name;
+
+    const [unaryOperator, term] = termNode.children;
+
+    if (!unaryOperator || !isUnaryOperator(unaryOperator.value)) {
+      throw new JackCompilerError({ caller, message: `did not find unary operator` });
+    }
+
+    if (!term || !isNode(term.value, { type: "grammarRule", rule: "term" })) {
+      throw new JackCompilerError({ caller, message: `did not find term following unary operator` });
+    }
+
+    return [...this.#compileTerm({ termNode: term }), this.#compileUnaryOperator(unaryOperator.value.token)];
   }
 
   #compileOperator(operator: Operator): VmInstruction {
@@ -698,7 +676,7 @@ export class JackCompiler {
     }
 
     if (this.#subroutineContext.symbolTable.has(classOrVarNameNode.value.token)) {
-      // TODO: compile variable.method() calls
+      // TODO: compile variable.method() calls (NEXT)
       throw new JackCompilerError({ caller, message: `variable.method() calls not implemented` });
     } else {
       // TODO: pull this up to use for methods as well?
@@ -716,7 +694,7 @@ export class JackCompiler {
   #compileExpressionList(expressionListNode: JackParseTreeNode): VmInstruction[] {
     return expressionListNode.children
       .filter(({ value }) => isNode(value, { type: "grammarRule", rule: "expression" }))
-      .flatMap((expressionNode) => this.#compileExpression(expressionNode));
+      .flatMap((expressionNode) => this.#compileExpression({ expressionNode }));
   }
 }
 

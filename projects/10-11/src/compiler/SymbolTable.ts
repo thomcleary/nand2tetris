@@ -25,11 +25,15 @@ export class SymbolTable<T extends SymbolKind> {
     this.#kindCounts.clear();
   }
 
-  add(symbol: Omit<SymbolInfo<T>, "index" | "segment">): void {
-    const kindCount = this.#kindCounts.get(symbol.kind) ?? 0;
+  add({ name, type, kind }: Omit<SymbolInfo<T>, "index" | "segment">): void {
+    if (!name || !type || !kind) {
+      throw new Error(`[SymbolTable.add] Invalid symbol - { name: ${name}, type: ${type}, kind: ${kind} }`);
+    }
 
-    this.#kindCounts.set(symbol.kind, kindCount + 1);
-    this.#table.set(symbol.name, { ...symbol, index: kindCount, segment: this.#getSegment(symbol.kind) });
+    const kindCount = this.#kindCounts.get(kind) ?? 0;
+
+    this.#kindCounts.set(kind, kindCount + 1);
+    this.#table.set(name, { name, type, kind, index: kindCount, segment: this.#getSegment(kind) });
   }
 
   has(name: string): boolean {

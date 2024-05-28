@@ -32,7 +32,7 @@ const main = () => {
 
     const { jackProgram } = jackProgramResult;
 
-    const compilationResult = jackCompiler.compile(jackProgram);
+    const compilationResult = jackCompiler.compile({ jackProgram });
 
     if (!compilationResult.success) {
       console.log(compilationResult.message);
