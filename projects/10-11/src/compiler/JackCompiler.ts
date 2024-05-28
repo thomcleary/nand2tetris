@@ -25,9 +25,9 @@ import {
 import JackCompilerError from "./JackCompilerError.js";
 import SymbolTable, { ClassSymbolKind, SubroutineSymbolKind } from "./SymbolTable.js";
 
-// TODO: Square test
 // TODO: Average test
 // TODO: Pong test
+// TODO: ComplexArrays test
 
 type ClassContext = {
   readonly symbolTable: SymbolTable<ClassSymbolKind>;
@@ -46,16 +46,7 @@ export class JackCompiler {
   #subroutineContext: SubroutineContext = { symbolTable: new SymbolTable() };
 
   #getVariableInfo({ name }: { name: string }) {
-    const variableInfo = this.#subroutineContext.symbolTable.get(name) ?? this.#classContext.symbolTable.get(name);
-
-    if (!variableInfo) {
-      throw new JackCompilerError({
-        caller: this.#getVariableInfo.name,
-        message: `variable ${name} was not found in subroutine or class symbol table`,
-      });
-    }
-
-    return variableInfo;
+    return this.#subroutineContext.symbolTable.get(name) ?? this.#classContext.symbolTable.get(name);
   }
 
   #resetSubroutineContext() {
@@ -139,7 +130,7 @@ export class JackCompiler {
     }
 
     const kind = kindNode.value.token;
-    const type = typeNode.value.type;
+    const type = typeNode.value.token;
 
     classVarDecNode.children
       .slice(2)
@@ -355,8 +346,19 @@ export class JackCompiler {
       throw new JackCompilerError({ caller, message: `array index assignment not implemented` });
     }
 
-    const { segment, index } = this.#getVariableInfo({ name: varNameNode.value.token });
-    return [...this.#compileExpression({ expressionNode: firstExpression }), `pop ${segment} ${index}`];
+    const variableInfo = this.#getVariableInfo({ name: varNameNode.value.token });
+
+    if (!variableInfo) {
+      throw new JackCompilerError({
+        caller,
+        message: "Variable on left hand side of let statement not found in symbol tables",
+      });
+    }
+
+    return [
+      ...this.#compileExpression({ expressionNode: firstExpression }),
+      `pop ${variableInfo.segment} ${variableInfo.index}`,
+    ];
   }
 
   #compileIfStatement({ ifStatementNode }: { ifStatementNode: JackParseTreeNode }): readonly VmInstruction[] {
@@ -439,8 +441,8 @@ export class JackCompiler {
   }
 
   #compileDoStatement({ doStatementNode }: { doStatementNode: JackParseTreeNode }): readonly VmInstruction[] {
-    const [doNode, ...subroutineCall] = doStatementNode.children;
-    return [...this.#compileSubroutineCall(subroutineCall), "pop temp 0"];
+    const [doNode, ...subroutineCallNodes] = doStatementNode.children;
+    return [...this.#compileSubroutineCall({ subroutineCallNodes }), "pop temp 0"];
   }
 
   #compileReturnStatement({
@@ -495,7 +497,7 @@ export class JackCompiler {
       }
 
       vmInstructions.push(...this.#compileTerm({ termNode }));
-      vmInstructions.push(this.#compileOperator(operatorNode.value.token));
+      vmInstructions.push(this.#compileOperator({ operator: operatorNode.value.token }));
     }
 
     return vmInstructions;
@@ -583,8 +585,13 @@ export class JackCompiler {
     }
 
     if (!second) {
-      const { segment, index } = this.#getVariableInfo({ name: first.value.token });
-      return [`push ${segment} ${index}`];
+      const variableInfo = this.#getVariableInfo({ name: first.value.token });
+
+      if (!variableInfo) {
+        throw new JackCompilerError({ caller, message: "Variable not found in symbol tables" });
+      }
+
+      return [`push ${variableInfo.segment} ${variableInfo.index}`];
     }
 
     if (
@@ -602,7 +609,7 @@ export class JackCompiler {
         throw new JackCompilerError({ caller, message: `varName[exp] term not implemented` });
       case "(":
       case ".":
-        return this.#compileSubroutineCall(termNode.children);
+        return this.#compileSubroutineCall({ subroutineCallNodes: termNode.children });
     }
   }
 
@@ -619,10 +626,13 @@ export class JackCompiler {
       throw new JackCompilerError({ caller, message: `did not find term following unary operator` });
     }
 
-    return [...this.#compileTerm({ termNode: term }), this.#compileUnaryOperator(unaryOperator.value.token)];
+    return [
+      ...this.#compileTerm({ termNode: term }),
+      this.#compileUnaryOperator({ operator: unaryOperator.value.token }),
+    ];
   }
 
-  #compileOperator(operator: Operator): VmInstruction {
+  #compileOperator({ operator }: { operator: Operator }): VmInstruction {
     switch (operator) {
       case "+":
         return "add";
@@ -645,7 +655,7 @@ export class JackCompiler {
     }
   }
 
-  #compileUnaryOperator(operator: UnaryOperator): VmInstruction {
+  #compileUnaryOperator({ operator }: { operator: UnaryOperator }): VmInstruction {
     switch (operator) {
       case "-":
         return "neg";
@@ -654,7 +664,11 @@ export class JackCompiler {
     }
   }
 
-  #compileSubroutineCall(subroutineCallNodes: JackParseTreeNode[]): readonly VmInstruction[] {
+  #compileSubroutineCall({
+    subroutineCallNodes,
+  }: {
+    subroutineCallNodes: JackParseTreeNode[];
+  }): readonly VmInstruction[] {
     const caller = this.#compileSubroutineCall.name;
 
     const expressionListNode = subroutineCallNodes.find(({ value }) =>
@@ -669,11 +683,20 @@ export class JackCompiler {
       isNode(value, { type: "grammarRule", rule: "expression" })
     ).length;
 
-    const vmInstructions = [...this.#compileExpressionList(expressionListNode)];
+    const argumentInstructions = [...this.#compileExpressionList({ expressionListNode })];
 
     if (!subroutineCallNodes.some(({ value }) => isNode(value, { type: "symbol", token: "." }))) {
-      // TODO: compile method() calls (this.method())
-      throw new JackCompilerError({ caller, message: `this.method() calls not implemented` });
+      const [subroutineNameNode] = subroutineCallNodes;
+
+      if (!subroutineNameNode || subroutineNameNode.value.type !== "identifier") {
+        throw new JackCompilerError({ caller, message: `invalid subroutine name node` });
+      }
+
+      return [
+        `push pointer 0`,
+        ...argumentInstructions,
+        `call ${this.#classContext.className}.${subroutineNameNode.value.token} ${argumentCount + 1}`,
+      ];
     }
 
     const [classOrVarNameNode, _, subroutineNameNode] = subroutineCallNodes;
@@ -685,17 +708,23 @@ export class JackCompiler {
       throw new JackCompilerError({ caller, message: `invalid subroutine name node` });
     }
 
-    if (this.#subroutineContext.symbolTable.has(classOrVarNameNode.value.token)) {
-      // TODO: compile variable.method() calls (NEXT)
-      throw new JackCompilerError({ caller, message: `variable.method() calls not implemented` });
-    } else {
-      vmInstructions.push(`call ${classOrVarNameNode.value.token}.${subroutineNameNode.value.token} ${argumentCount}`);
+    const variableInfo = this.#getVariableInfo({ name: classOrVarNameNode.value.token });
+
+    if (variableInfo) {
+      return [
+        `push ${variableInfo.segment} ${variableInfo.index}`,
+        ...argumentInstructions,
+        `call ${variableInfo.type}.${subroutineNameNode.value.token} ${argumentCount + 1}`,
+      ];
     }
 
-    return vmInstructions;
+    return [
+      ...argumentInstructions,
+      `call ${classOrVarNameNode.value.token}.${subroutineNameNode.value.token} ${argumentCount}`,
+    ];
   }
 
-  #compileExpressionList(expressionListNode: JackParseTreeNode): readonly VmInstruction[] {
+  #compileExpressionList({ expressionListNode }: { expressionListNode: JackParseTreeNode }): readonly VmInstruction[] {
     return expressionListNode.children
       .filter(({ value }) => isNode(value, { type: "grammarRule", rule: "expression" }))
       .flatMap((expressionNode) => this.#compileExpression({ expressionNode }));

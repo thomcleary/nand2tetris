@@ -41,8 +41,7 @@ const main = () => {
 
     const { vmInstructions } = compilationResult;
 
-    console.log("VM Instructions");
-    console.log(vmInstructions);
+    console.log(`File ${file} compiled`);
 
     const outfile = `${filePath}/${path.basename(file).replace(".jack", ".vm")}`;
 
