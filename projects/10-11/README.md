@@ -10,7 +10,9 @@ pnpm i
 
 ### Compiler
 
-TODO
+```shell
+pnpm compile ./path/to/program
+```
 
 ### Tokenizer Test
 
@@ -22,6 +24,12 @@ pnpm test:tokenizer ./tests/10/(ArrayTest | ExpressionLessSquare | Square)
 
 ```shell
 pnpm test:parser ./tests/10/(ArrayTest | ExpressionLessSquare | Square)
+```
+
+### Compiler Test
+
+```shell
+pnpm compile ./tests/11/(Seven | ConvertToBin | Square | Average | Pong | ComplexArrays)
 ```
 
 ## Jack Grammar
