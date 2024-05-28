@@ -25,7 +25,6 @@ import {
 import JackCompilerError from "./JackCompilerError.js";
 import SymbolTable, { ClassSymbolKind, SubroutineSymbolKind } from "./SymbolTable.js";
 
-// TODO: Could add unit tests each time once passes with expected VmInstructions (.cmp.vm files)
 // TODO: Square test
 // TODO: Average test
 // TODO: Pong test
@@ -655,7 +654,6 @@ export class JackCompiler {
     }
   }
 
-  // TODO: refactor this method when completed
   #compileSubroutineCall(subroutineCallNodes: JackParseTreeNode[]): readonly VmInstruction[] {
     const caller = this.#compileSubroutineCall.name;
 
