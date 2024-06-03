@@ -25,7 +25,6 @@ import {
 import JackCompilerError from "./JackCompilerError.js";
 import SymbolTable, { ClassSymbolKind, SubroutineSymbolKind } from "./SymbolTable.js";
 
-// TODO: Average test
 // TODO: Pong test
 // TODO: ComplexArrays test
 
@@ -326,7 +325,6 @@ export class JackCompiler {
     if (!firstExpression || !isNode(firstExpression.value, { type: "grammarRule", rule: "expression" })) {
       throw new JackCompilerError({ caller, message: `no expressions found` });
     }
-
     if (
       !arrayIndexOrSymbolNode ||
       !isNode(arrayIndexOrSymbolNode.value, [
@@ -337,15 +335,6 @@ export class JackCompiler {
       throw new JackCompilerError({ caller, message: `expected "[" or "=" node but was ${varNameNode?.value.type}` });
     }
 
-    if (arrayIndexOrSymbolNode.value.token === "[") {
-      if (!secondExpression || !isNode(secondExpression.value, { type: "grammarRule", rule: "expression" })) {
-        throw new JackCompilerError({ caller, message: `right hand side expression not found` });
-      }
-
-      // TODO: handle let var[expression] = expression
-      throw new JackCompilerError({ caller, message: `array index assignment not implemented` });
-    }
-
     const variableInfo = this.#getVariableInfo({ name: varNameNode.value.token });
 
     if (!variableInfo) {
@@ -353,6 +342,23 @@ export class JackCompiler {
         caller,
         message: "Variable on left hand side of let statement not found in symbol tables",
       });
+    }
+
+    if (arrayIndexOrSymbolNode.value.token === "[") {
+      if (!secondExpression || !isNode(secondExpression.value, { type: "grammarRule", rule: "expression" })) {
+        throw new JackCompilerError({ caller, message: `right hand side expression not found` });
+      }
+
+      return [
+        `push ${variableInfo.segment} ${variableInfo.index}`,
+        ...this.#compileExpression({ expressionNode: firstExpression }),
+        "add",
+        ...this.#compileExpression({ expressionNode: secondExpression }),
+        "pop temp 0",
+        "pop pointer 1",
+        "push temp 0",
+        "pop that 0",
+      ];
     }
 
     return [
@@ -620,7 +626,7 @@ export class JackCompiler {
 
     switch (second.value.token) {
       case "[":
-        throw new JackCompilerError({ caller, message: `varName[exp] term not implemented` });
+        return this.#compileArrayIndexExpression({ arrayIndexExpressionNodes: termNode.children });
       case "(":
       case ".":
         return this.#compileSubroutineCall({ subroutineCallNodes: termNode.children });
@@ -676,6 +682,43 @@ export class JackCompiler {
       case "~":
         return "not";
     }
+  }
+
+  #compileArrayIndexExpression({
+    arrayIndexExpressionNodes,
+  }: {
+    arrayIndexExpressionNodes: JackParseTreeNode[];
+  }): VmInstruction[] {
+    const caller = this.#compileArrayIndexExpression.name;
+
+    const varNameNode = arrayIndexExpressionNodes.find(({ value }) => value.type === "identifier");
+    const expressionNode = arrayIndexExpressionNodes.find(({ value }) =>
+      isNode(value, { type: "grammarRule", rule: "expression" })
+    );
+
+    if (!varNameNode || varNameNode.value.type !== "identifier") {
+      throw new JackCompilerError({ caller, message: `no var name node found` });
+    }
+    if (!expressionNode) {
+      throw new JackCompilerError({ caller, message: `no expression node found` });
+    }
+
+    const variableInfo = this.#getVariableInfo({ name: varNameNode.value.token });
+
+    if (!variableInfo) {
+      throw new JackCompilerError({
+        caller,
+        message: "array variable not found in symbol tables",
+      });
+    }
+
+    return [
+      `push ${variableInfo.segment} ${variableInfo.index}`,
+      ...this.#compileExpression({ expressionNode }),
+      "add",
+      "pop pointer 1",
+      "push that 0",
+    ];
   }
 
   #compileSubroutineCall({
