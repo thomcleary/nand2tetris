@@ -536,19 +536,27 @@ export class JackCompiler {
     return [`push constant ${integerConstantToken.token}`];
   }
 
-  // TODO: stringConstant (NEXT)
   #compileStringConstantTerm({
-    stringConstantToken,
+    stringConstantToken: { token },
   }: {
     stringConstantToken: StringConstantToken;
   }): readonly VmInstruction[] {
-    console.log({ stringConstantToken });
-    // push string length on to stack
-    // call String.new 1
-    // FOR EACH CHAR IN STRING
-    // push characterCode of CHAR on to stack (see Appendix 5, p413)
-    // call String.appendChar 2 (first arg is pointer to string returned from previous new/appendChar call, second arg is char code)
-    throw new JackCompilerError({ caller: this.#compileStringConstantTerm.name, message: `not implemented` });
+    return [
+      `push constant ${token.length}`,
+      "call String.new 1",
+      ...token.split("").flatMap((char): VmInstruction[] => {
+        const charCode = char.charCodeAt(0);
+
+        if (isNaN(charCode)) {
+          throw new JackCompilerError({
+            caller: this.#compileStringConstantTerm.name,
+            message: `char code of character [${char}] is NaN`,
+          });
+        }
+
+        return [`push constant ${charCode}`, "call String.appendChar 2"];
+      }),
+    ];
   }
 
   #compileKeywordConstantTerm({
