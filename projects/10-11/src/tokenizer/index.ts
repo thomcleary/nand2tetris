@@ -13,6 +13,7 @@ export const tokenize = (jackProgram: string[]): Result<{ tokens: readonly Token
     while (tail < line.length) {
       const window = line.slice(head, tail + 1);
       const tailChar = window.charAt(window.length - 1);
+      const nextChar = line.charAt(tail + 1);
 
       if (window === " ") {
         tail++;
@@ -34,7 +35,7 @@ export const tokenize = (jackProgram: string[]): Result<{ tokens: readonly Token
         continue;
       }
 
-      if (isKeyword(window)) {
+      if (isKeyword(window) && (isSymbol(nextChar) || nextChar === " ")) {
         tokens.push({ type: "keyword", token: window });
 
         tail++;
