@@ -81,8 +81,6 @@ export class JackCompiler {
 
   #compile({ jackParseTree }: { jackParseTree: JackParseTree }): readonly VmInstruction[] {
     const caller = this.#compile.name;
-    // TODO: remove
-    console.log(jackParseTree.toXmlString());
 
     const classNode = jackParseTree.root;
 
@@ -101,10 +99,6 @@ export class JackCompiler {
     classNode.children
       .filter(({ value }) => isNode(value, { type: "grammarRule", rule: "classVarDec" }))
       .forEach((classVarDecNode) => this.#compileClassVarDec({ classVarDecNode }));
-
-    // TODO: remove
-    console.log("ClassSymbolTable");
-    console.log(this.#classContext.symbolTable.toString());
 
     const vmInstructions = classNode.children
       .filter(({ value }) => isNode(value, { type: "grammarRule", rule: "subroutineDec" }))
@@ -172,10 +166,6 @@ export class JackCompiler {
 
     this.#compileParameterList({ subroutineDecNode });
     this.#compileVarDecs({ subroutineBodyNode });
-
-    // TODO: remove
-    console.log("SubroutineSymbolTable");
-    console.log(this.#subroutineContext.symbolTable.toString());
 
     const vmInstructions: VmInstruction[] = [
       `function ${this.#classContext.className}.${subroutineName.token} ${this.#subroutineContext.symbolTable.count(
@@ -547,7 +537,7 @@ export class JackCompiler {
     return [
       `push constant ${token.length}`,
       "call String.new 1",
-      ...token.split("").flatMap((char): VmInstruction[] => {
+      ...token.split("").flatMap((char): readonly VmInstruction[] => {
         const charCode = char.charCodeAt(0);
 
         if (isNaN(charCode)) {
@@ -685,7 +675,7 @@ export class JackCompiler {
     arrayIndexExpressionNodes,
   }: {
     arrayIndexExpressionNodes: JackParseTreeNode[];
-  }): VmInstruction[] {
+  }): readonly VmInstruction[] {
     const caller = this.#compileArrayIndexExpression.name;
 
     const varNameNode = arrayIndexExpressionNodes.find(({ value }) => value.type === "identifier");
