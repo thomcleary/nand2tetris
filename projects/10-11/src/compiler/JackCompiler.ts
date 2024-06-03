@@ -25,8 +25,6 @@ import {
 import JackCompilerError from "./JackCompilerError.js";
 import SymbolTable, { ClassSymbolKind, SubroutineSymbolKind } from "./SymbolTable.js";
 
-// TODO: ComplexArrays test
-
 type ClassContext = {
   readonly symbolTable: SymbolTable<ClassSymbolKind>;
   className: string;
