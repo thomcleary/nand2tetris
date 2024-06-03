@@ -25,7 +25,6 @@ import {
 import JackCompilerError from "./JackCompilerError.js";
 import SymbolTable, { ClassSymbolKind, SubroutineSymbolKind } from "./SymbolTable.js";
 
-// TODO: Pong test
 // TODO: ComplexArrays test
 
 type ClassContext = {
