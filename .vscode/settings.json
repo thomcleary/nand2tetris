@@ -1,8 +1,9 @@
 {
   "editor.formatOnSave": true,
-  "[typescript]": {
-    "editor.codeActionsOnSave": {
-      "source.organizeImports": "always"
-    }
-  }
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "always"
+  },
+  "eslint.workingDirectories": ["./web"],
+  "eslint.validate": ["javascript", "javascriptreact", "svelte", "typescript", "typescriptreact"],
+  "svelte.enable-ts-plugin": true
 }
