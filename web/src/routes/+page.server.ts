@@ -1,40 +1,32 @@
-import { getJackFileContents, getJackTestFiles } from '$lib/io';
-import { toJackProgram } from '../../../projects/10-11/src/utils/io';
+import { readFileSync } from 'fs';
+import type { Result } from '../../../projects/10-11/src/types';
 
-type LoadReturn = {
-	jackProgram: {
-		contents: string;
-		program: string[];
-	}[];
+const emptyProgramFileContents =
+	'class Main {\n  function void main() {\n    // Your code here\n\n    return;\n  }\n}';
+
+const getJackFileContents = (filePath: string): Result<{ jackFileContents: string }> => {
+	try {
+		return {
+			success: true,
+			jackFileContents: readFileSync(filePath).toString().replaceAll('\t', '  ')
+		};
+	} catch {
+		return { success: false, message: `unable to read file ${filePath}` };
+	}
 };
 
-export const load = () => {
-	const jackTestFileResult = getJackTestFiles({ test: 'Average' });
+export const load = (): {
+	defaultFileContents: string;
+	emptyProgramFileContents: typeof emptyProgramFileContents;
+} => {
+	const fileContentsResult = getJackFileContents('./src/lib/jack/Main.jack');
 
-	console.log(jackTestFileResult);
-
-	if (!jackTestFileResult.success) {
-		return { jackPrograms: [] };
-	}
-
-	const jackPrograms = jackTestFileResult.jackFiles.reduce<LoadReturn['jackProgram']>(
-		(prev, curr) => {
-			const contentsResult = getJackFileContents(curr);
-			const programResult = toJackProgram(curr);
-
-			if (contentsResult.success && programResult.success) {
-				prev.push({
-					contents: contentsResult.jackFileContents,
-					program: programResult.jackProgram
-				});
-			}
-
-			return prev;
-		},
-		[]
-	);
-
-	return { jackPrograms };
+	return {
+		defaultFileContents: fileContentsResult.success
+			? fileContentsResult.jackFileContents
+			: emptyProgramFileContents,
+		emptyProgramFileContents
+	};
 };
 
 export const prerender = true;

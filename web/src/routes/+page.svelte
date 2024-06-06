@@ -1,23 +1,41 @@
 <script lang="ts">
+	import { toJackProgram } from '$lib/utils';
 	import JackCompiler from '../../../projects/10-11/src/compiler/JackCompiler';
 
 	const { data } = $props();
+	const { defaultFileContents, emptyProgramFileContents } = data;
 
 	const jackCompiler = new JackCompiler();
-	const { contents: defaultContents, program: defaultProgram } = data.jackPrograms[0];
 
-	const compiledProgramResult = jackCompiler.compile({ jackProgram: defaultProgram });
+	let fileContents = $state(defaultFileContents);
+	let compilationResult = $derived(
+		jackCompiler.compile({ jackProgram: toJackProgram(fileContents) })
+	);
 
-	$inspect(data);
+	const clearFileContents = () => {
+		fileContents = emptyProgramFileContents;
+	};
+
+	const resetFileContents = () => {
+		fileContents = defaultFileContents;
+	};
 </script>
 
 <main>
-	<textarea cols="80" spellcheck="false">{defaultContents}</textarea>
-	<textarea cols="80" spellcheck="false"
-		>{compiledProgramResult.success
-			? compiledProgramResult.vmInstructions.join('\n')
-			: compiledProgramResult.message}</textarea
-	>
+	<div>
+		<button onclick={clearFileContents}>Clear</button>
+		<button onclick={resetFileContents}>Reset</button>
+	</div>
+	<textarea cols="80" spellcheck="false" bind:value={fileContents}></textarea>
+	<textarea
+		cols="80"
+		spellcheck="false"
+		value={compilationResult.success
+			? compilationResult.vmInstructions.join('\n')
+			: compilationResult.message}
+		readonly
+		style:color={compilationResult.success ? '' : 'red'}
+	></textarea>
 </main>
 
 <style>

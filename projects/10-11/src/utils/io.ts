@@ -1,6 +1,6 @@
 import { existsSync, lstatSync, readFileSync, readdirSync } from "fs";
 import { Result } from "../types/index.js";
-import { error } from "./index.js";
+import { error, removeComments } from "./index.js";
 
 const jackExtension = ".jack";
 
@@ -27,6 +27,9 @@ export const getJackFiles = (filePath: string): Result<{ jackFiles: readonly str
 export const toJackProgram = (filePath: string): Result<{ jackProgram: string[] }> => {
   try {
     let jackProgram = readFileSync(filePath).toString();
+    // TODO: the JackCompiler should be responsible for doing this internally
+    // Change the JackCompiler.compile() method to accept a string (the file contents)
+    // And do all of this setup as part of the compiler so the web project doesnt also have to do its own version of this
     jackProgram = jackProgram.trim().replaceAll("\r", "");
     jackProgram = removeComments(jackProgram);
 
@@ -40,21 +43,4 @@ export const toJackProgram = (filePath: string): Result<{ jackProgram: string[] 
   } catch {
     return { success: false, message: error(`unable to read file ${filePath}`) };
   }
-};
-
-const removeComments = (jackProgram: string) => {
-  const singleLineMatches = jackProgram.match(/\/\/.*\r?\n/gm);
-  const multiLineMatches = jackProgram.match(/\/\*(.|\r?\n)*?\*\//gm);
-
-  let jackProgramWithoutComments = jackProgram;
-
-  singleLineMatches?.forEach((match) => {
-    jackProgramWithoutComments = jackProgramWithoutComments.replace(match, "\n");
-  });
-
-  multiLineMatches?.forEach((match) => {
-    jackProgramWithoutComments = jackProgramWithoutComments.replace(match, "");
-  });
-
-  return jackProgramWithoutComments;
 };

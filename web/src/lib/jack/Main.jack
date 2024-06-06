@@ -1,0 +1,46 @@
+class Main {
+	function void main() {
+		var int i;
+
+		let i = 0;
+		while (i < 100) {
+			do fizzBuzz(i);
+		}
+
+		return;
+	}
+
+	function void fizzBuzz(int i) {
+		var bool isDivisibleByThree, isDivisibleByFive;
+
+		let isDivisibleByThree = isDivisibleBy(i, 3);
+		let isDivisibleByFive = isDivisibleBy(i, 5);
+
+		if (isDivisibleByThree & isDivisibleByFive) {
+			do Output.printString("FizzBuzz");
+			return;
+		}
+
+		if (isDivisibleByThree) {
+			do Output.printString("Fizz");
+			return;
+		} else {
+			do Output.printString("Buzz");
+			return;
+		}
+
+		do Output.printInt(i);
+		return;
+	}
+
+	function bool isDivisibleBy(int a, int b) {
+		return mod(a, b) = 0;
+	}
+
+	function void mod(int a, int b) {
+		var int quotient;
+        
+		let quotient = a / b;
+    return a - (quotient * b);
+	}
+}
