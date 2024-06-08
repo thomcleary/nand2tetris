@@ -1,4 +1,3 @@
-import { readFileSync, writeFileSync } from "fs";
 import {
   COMP_CODES,
   C_INSTRUCTION_PREFIX,
@@ -8,6 +7,7 @@ import {
   PREDEFINED_SYMBOLS,
   VARIABLE_ADDRESS_START,
 } from "./constants.js";
+import { error } from "./utils.js";
 
 type Result<T extends Record<PropertyKey, unknown>> = ({ success: true } & T) | { success: false; message: string };
 
@@ -22,47 +22,12 @@ const isComment = (line: string) => line.startsWith("//");
 const isLabel = (line: string) => line.startsWith("(");
 const isInstruction = (line: string) => !(isEmptyLine(line) || isComment(line) || isLabel(line));
 
-const error = ({ message, lineNumber }: { message: string; lineNumber?: number }) =>
-  `error ${lineNumber !== undefined ? `(L${lineNumber}):` : ":"} ${message}`;
-
-const getAssemblyFilePath = (): Result<{ filePath: string }> => {
-  const filePath = process.argv[2];
-
-  if (!filePath) {
-    return {
-      success: false,
-      message: error({ message: "missing program file path" + "\n" + "usage: pnpm assembler ./path/to/program.asm" }),
-    };
-  }
-
-  if (!filePath.endsWith(".asm")) {
-    return { success: false, message: error({ message: `file type of ${filePath} is not .asm` }) };
-  }
-
-  return { success: true, filePath };
-};
-
-const getAssemblyProgram = (filePath: string): Result<{ assemblyProgram: readonly string[] }> => {
-  try {
-    return {
-      success: true,
-      assemblyProgram: readFileSync(filePath)
-        .toString()
-        .trim()
-        .split("\n")
-        .map((line) => line.trim().replaceAll(" ", "")),
-    };
-  } catch {
-    return { success: false, message: error({ message: `unable to read file ${filePath}` }) };
-  }
-};
-
-const getSymbolTable = (assemblyProgram: readonly string[]): Result<{ symbolTable: Map<string, number> }> => {
+const getSymbolTable = (assemblyInstructions: readonly string[]): Result<{ symbolTable: Map<string, number> }> => {
   const symbolTable = new Map<string, number>(Object.entries(PREDEFINED_SYMBOLS));
 
   let instructionCount = -1;
 
-  for (const line of assemblyProgram) {
+  for (const line of assemblyInstructions) {
     if (line.startsWith("(")) {
       const label = line.replace("(", "").replace(")", "");
 
@@ -119,6 +84,7 @@ const cToHack = (instruction: string): Result<{ hackInstruction: string }> => {
     return { success: false, message: `instruction ${instruction} is missing comp symbol` };
   }
   if (!isValidCompCode(comp)) {
+    console.log({ comp });
     return { success: false, message: `${comp} is not a valid comp symbol` };
   }
 
@@ -139,16 +105,16 @@ const cToHack = (instruction: string): Result<{ hackInstruction: string }> => {
 };
 
 const parse = ({
-  assemblyProgram,
+  assemblyInstructions,
   symbolTable,
 }: {
-  assemblyProgram: readonly string[];
+  assemblyInstructions: readonly string[];
   symbolTable: Map<string, number>;
 }): Result<{ hackInstructions: readonly string[] }> => {
   const hackInstructions: string[] = [];
   let nextVariableAddress = VARIABLE_ADDRESS_START;
 
-  for (const [i, line] of assemblyProgram.entries()) {
+  for (const [i, line] of assemblyInstructions.entries()) {
     const lineNumber = i + 1;
 
     if (!isInstruction(line)) {
@@ -185,46 +151,19 @@ const parse = ({
   return { success: true, hackInstructions };
 };
 
-const main = () => {
-  const assemblyFilePathResult = getAssemblyFilePath();
-
-  if (!assemblyFilePathResult.success) {
-    console.log(assemblyFilePathResult.message);
-    return;
-  }
-
-  const { filePath } = assemblyFilePathResult;
-  const assemblyProgramResult = getAssemblyProgram(filePath);
-
-  if (!assemblyProgramResult.success) {
-    console.log(assemblyProgramResult.message);
-    return;
-  }
-
-  const { assemblyProgram } = assemblyProgramResult;
-  const symbolTableResult = getSymbolTable(assemblyProgram);
+export const assemble = ({
+  assemblyInstructions,
+}: {
+  assemblyInstructions: readonly string[];
+}): Result<{ hackInstructions: readonly string[] }> => {
+  const symbolTableResult = getSymbolTable(assemblyInstructions);
 
   if (!symbolTableResult.success) {
     console.log(symbolTableResult.message);
-    return;
+    return symbolTableResult;
   }
 
   const { symbolTable } = symbolTableResult;
-  const parseResult = parse({ assemblyProgram, symbolTable });
 
-  if (!parseResult.success) {
-    console.log(parseResult.message);
-    return;
-  }
-
-  const { hackInstructions } = parseResult;
-  const hackFileName = filePath.replace(".asm", ".hack");
-
-  try {
-    writeFileSync(hackFileName, hackInstructions.join("\n"));
-  } catch {
-    console.log(error({ message: `unable to write hack instructions to file ${hackFileName}` }));
-  }
+  return parse({ assemblyInstructions, symbolTable });
 };
-
-main();
