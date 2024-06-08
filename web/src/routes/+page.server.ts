@@ -16,16 +16,14 @@ const getJackFileContents = (filePath: string): Result<{ jackFileContents: strin
 };
 
 export const load = (): {
-	defaultFileContents: string;
-	emptyProgramFileContents: typeof emptyProgramFileContents;
+	fizzBuzz: string | undefined;
+	empty: typeof emptyProgramFileContents;
 } => {
-	const fileContentsResult = getJackFileContents('./src/lib/jack/Main.jack');
+	const fizzBuzzResult = getJackFileContents('./src/lib/jack/FizzBuzz.jack');
 
 	return {
-		defaultFileContents: fileContentsResult.success
-			? fileContentsResult.jackFileContents
-			: emptyProgramFileContents,
-		emptyProgramFileContents
+		empty: emptyProgramFileContents,
+		fizzBuzz: fizzBuzzResult.success ? fizzBuzzResult.jackFileContents : undefined
 	};
 };
 

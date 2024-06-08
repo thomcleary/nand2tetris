@@ -1,3 +1,6 @@
+import { assemble } from "../../../06/src/assembler.js";
+import { AssemblyInstruction } from "../../../07-08/src/types.js";
+import { translate } from "../../../07-08/src/vmTranslator.js";
 import JackParseTree, { JackParseTreeNode } from "../parser/JackParseTree.js";
 import JackParser from "../parser/JackParser.js";
 import tokenize from "../tokenizer/index.js";
@@ -7,6 +10,7 @@ import {
   KeywordConstantToken,
   Operator,
   StringConstantToken,
+  Token,
   UnaryOperator,
 } from "../types/Token.js";
 import { VmInstruction } from "../types/VmInstruction.js";
@@ -37,6 +41,14 @@ type SubroutineContext = {
   readonly symbolTable: SymbolTable<SubroutineSymbolKind>;
 };
 
+export type CompilationResult = Readonly<{
+  tokens: readonly Token[];
+  jackParseTree: JackParseTree;
+  vmInstructions: readonly VmInstruction[];
+  assemblyInstructions: readonly AssemblyInstruction[];
+  hackInstructions: readonly string[];
+}>;
+
 export class JackCompiler {
   #jackParser = new JackParser();
   #classContext: ClassContext = { symbolTable: new SymbolTable(), className: "", ifCount: 0, whileCount: 0 };
@@ -55,7 +67,7 @@ export class JackCompiler {
     this.#resetSubroutineContext();
   }
 
-  compile({ jackFileContents }: { jackFileContents: string }): Result<{ vmInstructions: readonly VmInstruction[] }> {
+  compile({ jackFileContents }: { jackFileContents: string }): Result<CompilationResult, Partial<CompilationResult>> {
     const jackProgram = toJackProgram(jackFileContents);
 
     const tokenizeResult = tokenize(jackProgram);
@@ -69,16 +81,49 @@ export class JackCompiler {
     const parseResult = this.#jackParser.parse(tokens);
 
     if (!parseResult.success) {
-      return parseResult;
+      return { ...parseResult, tokens };
     }
 
     const { jackParseTree } = parseResult;
 
     try {
       this.#reset();
-      return { success: true, vmInstructions: this.#compile({ jackParseTree }) };
+      const vmInstructions = this.#compile({ jackParseTree });
+      const assemblyInstructionsResult = translate({ vmInstructions, fileName: this.#classContext.className });
+
+      if (!assemblyInstructionsResult.success) {
+        return { ...assemblyInstructionsResult, tokens, jackParseTree, vmInstructions };
+      }
+
+      const { assemblyInstructions } = assemblyInstructionsResult;
+      const hackInstructionsResult = assemble({ assemblyInstructions });
+
+      if (!hackInstructionsResult.success) {
+        assemblyInstructions.forEach((i, index) => {
+          if (i.includes("M&D")) {
+            console.log({ i, index });
+          }
+        });
+        return { ...hackInstructionsResult, tokens, jackParseTree, vmInstructions, assemblyInstructions };
+      }
+
+      const { hackInstructions } = hackInstructionsResult;
+
+      return {
+        success: true,
+        tokens,
+        jackParseTree,
+        vmInstructions: this.#compile({ jackParseTree }),
+        assemblyInstructions,
+        hackInstructions,
+      };
     } catch (e) {
-      return { success: false, message: e instanceof Error ? e.message : "Compilation failed (no error provided)" };
+      return {
+        success: false,
+        tokens,
+        jackParseTree,
+        message: e instanceof Error ? e.message : "Compilation failed (no error provided)",
+      };
     }
   }
 

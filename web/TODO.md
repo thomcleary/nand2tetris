@@ -2,16 +2,18 @@
 
 - [x] show vm output
 - [x] refactor JackCompiler.compile() to take string and do file contents setup internally (so /web doesnt duplicate it)
-- [ ] return hack/asm/vm/parseTree/tokenizer results from JackCompiler
-- [ ] create tabs for vm/asm/hack output
-- [ ] show asm output
-- [ ] show hack output
+- [x] return hack/asm/vm/parseTree/tokenizer results from JackCompiler
+- [x] create buttons to select vm/asm/hack output
+- [x] show asm output
+- [x] show hack output
+- [x] show parse tree output (xml string)
+- [x] show tokenizer output
 - [ ] make it look nice
   - [ ] Atom one dark theme
   - [ ] Fira Code font
   - [ ] output type selection looks like file tabs
-- [ ] show tokenizer output (jack code, with tokens highlighted)
-- [ ] show parse tree output (xml string)
+- [ ] highlight tokens in code in tokenizer output rather than showing objects
+  - [ ] however over token shows tooltip with token type?
 - [ ] add a copy button to output
 - [ ] add asm instruction set info
 - [ ] add vm instruction set info

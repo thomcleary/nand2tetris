@@ -124,16 +124,16 @@ const toAssembly = ({ vmInstruction, context }: ToAssembly<VmInstruction>): read
 };
 
 export const translate = ({
-  vmProgram,
+  vmInstructions,
   fileName,
 }: {
-  vmProgram: readonly string[];
+  vmInstructions: readonly string[];
   fileName: string;
 }): Result<{ assemblyInstructions: readonly AssemblyInstruction[] }> => {
   const assemblyInstructions: AssemblyInstruction[] = [];
   let currentFunction: TranslationContext["currentFunction"] = undefined;
 
-  for (const [i, line] of vmProgram.entries()) {
+  for (const [i, line] of vmInstructions.entries()) {
     if (isEmptyLine(line) || isComment(line)) {
       continue;
     }

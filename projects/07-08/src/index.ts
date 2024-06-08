@@ -34,11 +34,11 @@ const getVmFiles = (): Result<{ vmFiles: readonly string[]; outfile: string }> =
     : { success: false, message: `No .vm files found in ${filePath}` };
 };
 
-const getVmProgram = (filePath: string): Result<{ vmProgram: readonly string[] }> => {
+const getVmInstructions = (filePath: string): Result<{ vmInstructions: readonly string[] }> => {
   try {
     return {
       success: true,
-      vmProgram: readFileSync(filePath)
+      vmInstructions: readFileSync(filePath)
         .toString()
         .trim()
         .split("\n")
@@ -61,16 +61,16 @@ const main = () => {
   const assemblyInstructions = bootstrap();
 
   for (const vmFilePath of vmFiles) {
-    const vmProgramResult = getVmProgram(vmFilePath);
+    const vmInstructionsResult = getVmInstructions(vmFilePath);
 
-    if (!vmProgramResult.success) {
-      console.log(vmProgramResult.message);
+    if (!vmInstructionsResult.success) {
+      console.log(vmInstructionsResult.message);
       return;
     }
 
-    const { vmProgram } = vmProgramResult;
+    const { vmInstructions } = vmInstructionsResult;
     const fileName = path.basename(vmFilePath).replace(".vm", "");
-    const translateResult = translate({ vmProgram, fileName });
+    const translateResult = translate({ vmInstructions, fileName });
 
     if (!translateResult.success) {
       console.log(translateResult.message);
