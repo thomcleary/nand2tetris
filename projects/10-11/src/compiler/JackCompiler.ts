@@ -11,6 +11,7 @@ import {
 } from "../types/Token.js";
 import { VmInstruction } from "../types/VmInstruction.js";
 import { Result } from "../types/index.js";
+import { toJackProgram } from "../utils/index.js";
 import {
   isClassVarKeyword,
   isKeywordConstant,
@@ -54,7 +55,9 @@ export class JackCompiler {
     this.#resetSubroutineContext();
   }
 
-  compile({ jackProgram }: { jackProgram: string[] }): Result<{ vmInstructions: readonly VmInstruction[] }> {
+  compile({ jackFileContents }: { jackFileContents: string }): Result<{ vmInstructions: readonly VmInstruction[] }> {
+    const jackProgram = toJackProgram(jackFileContents);
+
     const tokenizeResult = tokenize(jackProgram);
 
     if (!tokenizeResult.success) {

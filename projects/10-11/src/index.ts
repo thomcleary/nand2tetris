@@ -2,7 +2,7 @@ import { writeFileSync } from "fs";
 import path from "path";
 import JackCompiler from "./compiler/JackCompiler.js";
 import { error } from "./utils/index.js";
-import { getJackFiles, toJackProgram } from "./utils/io.js";
+import { getJackFileContents, getJackFilePaths } from "./utils/io.js";
 
 const main = () => {
   const filePath = process.argv[2];
@@ -12,27 +12,27 @@ const main = () => {
     return;
   }
 
-  const jackFilesResult = getJackFiles(filePath);
+  const jackFilePathsResult = getJackFilePaths(filePath);
 
-  if (!jackFilesResult.success) {
-    console.log(jackFilesResult.message);
+  if (!jackFilePathsResult.success) {
+    console.log(jackFilePathsResult.message);
     return;
   }
 
-  const { jackFiles } = jackFilesResult;
+  const { jackFilePaths } = jackFilePathsResult;
   const jackCompiler = new JackCompiler();
 
-  for (const file of jackFiles) {
-    const jackProgramResult = toJackProgram(file);
+  for (const filePath of jackFilePaths) {
+    const jackFileContentsResult = getJackFileContents(filePath);
 
-    if (!jackProgramResult.success) {
-      console.log(jackProgramResult.message);
+    if (!jackFileContentsResult.success) {
+      console.log(jackFileContentsResult.message);
       return;
     }
 
-    const { jackProgram } = jackProgramResult;
+    const { jackFileContents } = jackFileContentsResult;
 
-    const compilationResult = jackCompiler.compile({ jackProgram });
+    const compilationResult = jackCompiler.compile({ jackFileContents });
 
     if (!compilationResult.success) {
       console.log(compilationResult.message);
@@ -41,9 +41,9 @@ const main = () => {
 
     const { vmInstructions } = compilationResult;
 
-    console.log(`${file} compiled`);
+    console.log(`${filePath} compiled`);
 
-    const outfile = `${filePath}/${path.basename(file).replace(".jack", ".vm")}`;
+    const outfile = `${filePath}/${path.basename(filePath).replace(".jack", ".vm")}`;
 
     try {
       writeFileSync(outfile, vmInstructions.join("\n"));

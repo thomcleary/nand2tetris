@@ -1,8 +1,8 @@
 import { writeFileSync } from "fs";
 import path from "path";
 import { Token } from "../types/Token.js";
-import { error } from "../utils/index.js";
-import { getJackFiles, toJackProgram } from "../utils/io.js";
+import { error, toJackProgram } from "../utils/index.js";
+import { getJackFileContents, getJackFilePaths } from "../utils/io.js";
 import { escapeToken } from "../utils/testing.js";
 import tokenize from "./index.js";
 
@@ -18,24 +18,25 @@ const test = () => {
     return;
   }
 
-  const jackFilesResult = getJackFiles(filePath);
+  const jackFilePathsResult = getJackFilePaths(filePath);
 
-  if (!jackFilesResult.success) {
-    console.log(jackFilesResult.message);
+  if (!jackFilePathsResult.success) {
+    console.log(jackFilePathsResult.message);
     return;
   }
 
-  const { jackFiles } = jackFilesResult;
+  const { jackFilePaths } = jackFilePathsResult;
 
-  for (const file of jackFiles) {
-    const jackProgramResult = toJackProgram(file);
+  for (const filePath of jackFilePaths) {
+    const jackFileContentsResult = getJackFileContents(filePath);
 
-    if (!jackProgramResult.success) {
-      console.log(jackProgramResult.message);
+    if (!jackFileContentsResult.success) {
+      console.log(jackFileContentsResult.message);
       return;
     }
 
-    const { jackProgram } = jackProgramResult;
+    const { jackFileContents } = jackFileContentsResult;
+    const jackProgram = toJackProgram(jackFileContents);
 
     const tokenizeResult = tokenize(jackProgram);
 
@@ -47,7 +48,7 @@ const test = () => {
     const { tokens } = tokenizeResult;
 
     const xml = tokensToXml(tokens);
-    const outfile = `${filePath}/${path.basename(file).replace(".jack", "T.out.xml")}`;
+    const outfile = `${filePath}/${path.basename(filePath).replace(".jack", "T.out.xml")}`;
 
     try {
       writeFileSync(outfile, xml);

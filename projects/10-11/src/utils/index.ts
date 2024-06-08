@@ -17,3 +17,9 @@ export const removeComments = (jackProgram: string) => {
 
   return jackProgramWithoutComments;
 };
+
+export const toJackProgram = (jackFileContents: string): string[] =>
+  removeComments(jackFileContents.trim().replaceAll("\r", ""))
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => !!l);

@@ -1,8 +1,8 @@
 import { writeFileSync } from "fs";
 import path from "path";
 import tokenize from "../tokenizer/index.js";
-import { error } from "../utils/index.js";
-import { getJackFiles, toJackProgram } from "../utils/io.js";
+import { error, toJackProgram } from "../utils/index.js";
+import { getJackFileContents, getJackFilePaths } from "../utils/io.js";
 import JackParser from "./JackParser.js";
 
 const test = () => {
@@ -13,25 +13,26 @@ const test = () => {
     return;
   }
 
-  const jackFilesResult = getJackFiles(filePath);
+  const jackFilePathsResult = getJackFilePaths(filePath);
 
-  if (!jackFilesResult.success) {
-    console.log(jackFilesResult.message);
+  if (!jackFilePathsResult.success) {
+    console.log(jackFilePathsResult.message);
     return;
   }
 
-  const { jackFiles } = jackFilesResult;
+  const { jackFilePaths } = jackFilePathsResult;
   const jackParser = new JackParser();
 
-  for (const file of jackFiles) {
-    const jackProgramResult = toJackProgram(file);
+  for (const filePath of jackFilePaths) {
+    const jackFileContentsResult = getJackFileContents(filePath);
 
-    if (!jackProgramResult.success) {
-      console.log(jackProgramResult.message);
+    if (!jackFileContentsResult.success) {
+      console.log(jackFileContentsResult.message);
       return;
     }
 
-    const { jackProgram } = jackProgramResult;
+    const { jackFileContents } = jackFileContentsResult;
+    const jackProgram = toJackProgram(jackFileContents);
 
     const tokenizeResult = tokenize(jackProgram);
 
@@ -51,7 +52,7 @@ const test = () => {
 
     const { jackParseTree } = parseResult;
 
-    const outfile = `${filePath}/${path.basename(file).replace(".jack", ".out.xml")}`;
+    const outfile = `${filePath}/${path.basename(filePath).replace(".jack", ".out.xml")}`;
 
     try {
       writeFileSync(outfile, jackParseTree.toXmlString());
