@@ -38,64 +38,53 @@
 	});
 </script>
 
-<main>
-	<div id="input">
-		<div class="button-column">
-			<button onclick={() => (jackFileContents = empty)}>Clear</button>
-			<button
-				disabled={!fizzBuzz}
-				onclick={() => {
-					if (fizzBuzz) {
-						jackFileContents = fizzBuzz;
-					} else {
-						console.log({ fizzBuzz });
-					}
-				}}>FizzBuzz</button
-			>
-		</div>
-		<textarea cols="80" spellcheck="false" bind:value={jackFileContents}></textarea>
+<div id="input">
+	<div class="button-column">
+		<button onclick={() => (jackFileContents = empty)}>Clear</button>
+		<button
+			disabled={!fizzBuzz}
+			onclick={() => {
+				if (fizzBuzz) {
+					jackFileContents = fizzBuzz;
+				} else {
+					console.log({ fizzBuzz });
+				}
+			}}>FizzBuzz</button
+		>
 	</div>
-	<div id="output">
-		<div class="button-column">
-			<button onclick={() => (selectedOutput = 'tokens')}>Tokens</button>
-			<button onclick={() => (selectedOutput = 'jackParseTree')}>Parse Tree</button>
-			<button onclick={() => (selectedOutput = 'vmInstructions')}>.vm</button>
-			<button onclick={() => (selectedOutput = 'assemblyInstructions')}>.asm</button>
-			<button onclick={() => (selectedOutput = 'hackInstructions')}>.hack</button>
-		</div>
-		<textarea
-			cols="80"
-			spellcheck="false"
-			value={output}
-			readonly
-			style:color={compilationResult.success ? '' : 'red'}
-		></textarea>
+	<textarea cols="80" spellcheck="false" bind:value={jackFileContents}></textarea>
+</div>
+<div id="output">
+	<div class="button-column">
+		<button onclick={() => (selectedOutput = 'tokens')}>Tokens</button>
+		<button onclick={() => (selectedOutput = 'jackParseTree')}>Parse Tree</button>
+		<button onclick={() => (selectedOutput = 'vmInstructions')}>.vm</button>
+		<button onclick={() => (selectedOutput = 'assemblyInstructions')}>.asm</button>
+		<button onclick={() => (selectedOutput = 'hackInstructions')}>.hack</button>
 	</div>
-</main>
+	<textarea
+		cols="80"
+		spellcheck="false"
+		value={output}
+		readonly
+		style:color={compilationResult.success ? '' : 'red'}
+	></textarea>
+</div>
 
 <style>
-	:global(body) {
-		height: 100dvh;
-		width: 100dvw;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		margin: 0;
-	}
-
-	main {
-		flex: 1;
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: center;
-		gap: 2rem;
-		padding: 1rem;
-	}
-
 	textarea {
 		width: min(100%, 80ch);
 		min-height: 24ch;
 		resize: none;
+		background-color: var(--color-bg-light);
+		color: var(--color-white);
+		border: none;
+		border-radius: 4px;
+		padding: 0.5rem;
+	}
+
+	textarea:focus {
+		outline: 1px solid var(--color-dim);
 	}
 
 	.button-column {

@@ -11,13 +11,22 @@
 - [ ] make it look nice
   - [ ] Atom one dark theme
   - [ ] Fira Code font
-  - [ ] output type selection looks like file tabs
-- [ ] highlight tokens in code in tokenizer output rather than showing objects
-  - [ ] however over token shows tooltip with token type?
+  - [ ] Make interface look like vscode kind of
+    - [ ] left hand side can be file explorer with example classes
+      - [ ] on mobile make this a drawer that you can show hide (media query width)
+    - [ ] output looks like terminal pane
+      - [ ] output selection like tabs on terminal pane
+  - [ ] syntax highlighting
 - [ ] add a copy button to output
-- [ ] add asm instruction set info
-- [ ] add vm instruction set info
+- [ ] allow adding new files to the file explorer (saving them to local storage etc)
+- [ ] +/- buttons to change editor font size
+- [ ] highlight tokens in code in tokenizer output rather than showing objects
+  - [ ] however over token shows tooltip with token type? (popup API?)
+- [ ] add hack/asm/vm/ instruction set info
 - [ ] add jack grammar info
-- [ ] syntax highlighting
 - [ ] nicer typing experience in code box
-- [ ] /about page (list technologies and link to github repo / profile)
+- [ ] /about page
+  - [ ] list tech used (svelte/sveltekit)
+  - [ ] list learning resources used (nand2tetris.org)
+  - [ ] link to github repo / profile
+- [ ] highlight errors in input with squiggle red line?
