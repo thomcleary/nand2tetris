@@ -39,39 +39,44 @@
 </script>
 
 <main>
-	<div class="button-column">
-		<button onclick={() => (jackFileContents = empty)}>Clear</button>
-		<button
-			disabled={!fizzBuzz}
-			onclick={() => {
-				if (fizzBuzz) {
-					jackFileContents = fizzBuzz;
-				} else {
-					console.log({ fizzBuzz });
-				}
-			}}>FizzBuzz</button
-		>
+	<div id="input">
+		<div class="button-column">
+			<button onclick={() => (jackFileContents = empty)}>Clear</button>
+			<button
+				disabled={!fizzBuzz}
+				onclick={() => {
+					if (fizzBuzz) {
+						jackFileContents = fizzBuzz;
+					} else {
+						console.log({ fizzBuzz });
+					}
+				}}>FizzBuzz</button
+			>
+		</div>
+		<textarea cols="80" spellcheck="false" bind:value={jackFileContents}></textarea>
 	</div>
-	<textarea cols="80" spellcheck="false" bind:value={jackFileContents}></textarea>
-	<textarea
-		cols="80"
-		spellcheck="false"
-		value={output}
-		readonly
-		style:color={compilationResult.success ? '' : 'red'}
-	></textarea>
-	<div class="button-column">
-		<button onclick={() => (selectedOutput = 'tokens')}>Tokens</button>
-		<button onclick={() => (selectedOutput = 'jackParseTree')}>Parse Tree</button>
-		<button onclick={() => (selectedOutput = 'vmInstructions')}>.vm</button>
-		<button onclick={() => (selectedOutput = 'assemblyInstructions')}>.asm</button>
-		<button onclick={() => (selectedOutput = 'hackInstructions')}>.hack</button>
+	<div id="output">
+		<div class="button-column">
+			<button onclick={() => (selectedOutput = 'tokens')}>Tokens</button>
+			<button onclick={() => (selectedOutput = 'jackParseTree')}>Parse Tree</button>
+			<button onclick={() => (selectedOutput = 'vmInstructions')}>.vm</button>
+			<button onclick={() => (selectedOutput = 'assemblyInstructions')}>.asm</button>
+			<button onclick={() => (selectedOutput = 'hackInstructions')}>.hack</button>
+		</div>
+		<textarea
+			cols="80"
+			spellcheck="false"
+			value={output}
+			readonly
+			style:color={compilationResult.success ? '' : 'red'}
+		></textarea>
 	</div>
 </main>
 
 <style>
 	:global(body) {
-		height: 100vh;
+		height: 100dvh;
+		width: 100dvw;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -82,11 +87,14 @@
 		flex: 1;
 		display: flex;
 		flex-wrap: wrap;
+		justify-content: center;
 		gap: 2rem;
-		padding: 2rem;
+		padding: 1rem;
 	}
 
 	textarea {
+		width: min(100%, 80ch);
+		min-height: 24ch;
 		resize: none;
 	}
 
@@ -94,5 +102,11 @@
 		display: flex;
 		flex-direction: column;
 		gap: 1rem;
+	}
+
+	#input,
+	#output {
+		display: flex;
+		gap: 0.5rem;
 	}
 </style>
