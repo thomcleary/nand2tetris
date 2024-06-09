@@ -88,8 +88,10 @@
 	}
 
 	button {
+		background-color: transparent;
+		color: var(--color-white);
+		font-size: 0.8rem;
 		border: none;
-		font-size: 1rem;
 	}
 
 	textarea {
