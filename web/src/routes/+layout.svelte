@@ -4,17 +4,6 @@
 	const { children } = $props();
 </script>
 
-<!-- 
-Header and footer sections?
-- Header (3 window circles from mac)
-- Footer (open file info like in vscode)
--->
-<!-- 
-Probably want to have the three sections here
-- FileExplorer
-- Editor (<main> should go in here)
-- Output
--->
 <div id="layout">
 	{@render children()}
 </div>
