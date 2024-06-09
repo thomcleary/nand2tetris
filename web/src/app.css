@@ -5,3 +5,15 @@
 	--color-white: rgb(172, 178, 190);
 	--color-dim: rgb(74, 80, 96);
 }
+
+@font-face {
+	font-family: 'Fira Code';
+	font-optical-sizing: auto;
+	font-style: normal;
+	font-weight: 400;
+	src: url('$lib/assets/fonts/fira-code/FiraCode-VariableFont_wght.ttf') format('truetype');
+}
+
+* {
+	font-family: 'Fira Code', monospace;
+}

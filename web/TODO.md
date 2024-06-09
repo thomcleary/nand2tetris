@@ -10,10 +10,11 @@
 - [x] show tokenizer output
 - [ ] make it look nice
   - [ ] Atom one dark theme
-  - [ ] Fira Code font
+  - [x] Fira Code font
   - [ ] Make interface look like vscode kind of
     - [ ] left hand side can be file explorer with example classes
       - [ ] on mobile make this a drawer that you can show hide (media query width)
+      - [ ] Output pane can be wrapped to bottom and justified so file explorer sits above it (like in vscode)
     - [ ] output looks like terminal pane
       - [ ] output selection like tabs on terminal pane
   - [ ] syntax highlighting
