@@ -4,27 +4,39 @@
 	const { children } = $props();
 </script>
 
-<main>
+<!-- 
+Probably want to have the three sections here
+- FileExplorer
+- Editor (<main> should go in here)
+- Output
+-->
+<div id="layout">
 	{@render children()}
-</main>
+</div>
 
 <style>
 	:global(body) {
 		height: 100dvh;
 		width: 100dvw;
 		display: flex;
-		flex-direction: column;
-		align-items: center;
 		margin: 0;
 		background-color: var(--color-bg-dark);
 	}
 
-	main {
+	#layout {
 		flex: 1;
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: center;
-		gap: 2rem;
-		padding: 1rem;
+		display: grid;
+		grid-template-columns: minmax(min-content, 10%) 1fr 0.5fr;
+		grid-template-areas: 'explorer editor output';
+	}
+
+	@media (width <= 1250px) {
+		#layout {
+			grid-template-columns: minmax(min-content, 10%) 1fr;
+			grid-template-rows: auto;
+			grid-template-areas:
+				'explorer editor'
+				'output output';
+		}
 	}
 </style>

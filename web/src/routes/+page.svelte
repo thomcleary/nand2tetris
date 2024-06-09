@@ -38,7 +38,14 @@
 	});
 </script>
 
-<div id="input">
+<div id="explorer" style:color="var(--color-white)">
+	<ul>
+		<li>🟧 file 1</li>
+		<li>🟧 file 2</li>
+		<li>🟧 file 3</li>
+	</ul>
+</div>
+<div id="editor">
 	<div class="button-column">
 		<button onclick={() => (jackFileContents = empty)}>Clear</button>
 		<button
@@ -55,7 +62,7 @@
 	<textarea cols="80" spellcheck="false" bind:value={jackFileContents}></textarea>
 </div>
 <div id="output">
-	<div class="button-column">
+	<div class="button-row">
 		<button onclick={() => (selectedOutput = 'tokens')}>Tokens</button>
 		<button onclick={() => (selectedOutput = 'jackParseTree')}>Parse Tree</button>
 		<button onclick={() => (selectedOutput = 'vmInstructions')}>.vm</button>
@@ -72,14 +79,17 @@
 </div>
 
 <style>
+	ul {
+		list-style-type: none;
+	}
+
 	textarea {
-		width: min(100%, 80ch);
+		flex: 1;
 		min-height: 24ch;
 		resize: none;
 		background-color: var(--color-bg-light);
 		color: var(--color-white);
 		border: none;
-		border-radius: 4px;
 		padding: 0.5rem;
 	}
 
@@ -87,15 +97,28 @@
 		outline: 1px solid var(--color-dim);
 	}
 
-	.button-column {
+	.button-row {
 		display: flex;
-		flex-direction: column;
 		gap: 1rem;
 	}
 
-	#input,
+	#explorer {
+		grid-area: explorer;
+		text-wrap: nowrap;
+	}
+
+	#editor {
+		grid-area: editor;
+	}
+
+	#output {
+		grid-area: output;
+	}
+
+	#editor,
 	#output {
 		display: flex;
+		flex-direction: column;
 		gap: 0.5rem;
 	}
 </style>

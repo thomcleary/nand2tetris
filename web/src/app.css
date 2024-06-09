@@ -17,3 +17,13 @@
 * {
 	font-family: 'Fira Code', monospace;
 }
+
+*,
+*:before,
+*:after {
+	box-sizing: inherit;
+}
+
+html {
+	box-sizing: border-box;
+}
