@@ -1,33 +1,21 @@
 # TODO
 
-- [x] show vm output
-- [x] refactor JackCompiler.compile() to take string and do file contents setup internally (so /web doesnt duplicate it)
-- [x] return hack/asm/vm/parseTree/tokenizer results from JackCompiler
-- [x] create buttons to select vm/asm/hack output
-- [x] show asm output
-- [x] show hack output
-- [x] show parse tree output (xml string)
-- [x] show tokenizer output
-- [ ] make it look nice
-  - [ ] Atom one dark theme
-  - [x] Fira Code font
-  - [ ] Make interface look like vscode kind of
-    - [ ] left hand side can be file explorer with example classes
-      - [ ] on mobile make this a drawer that you can show hide (media query width)
-      - [ ] Output pane can be wrapped to bottom and justified so file explorer sits above it (like in vscode)
-    - [ ] output looks like terminal pane
-      - [ ] output selection like tabs on terminal pane
-  - [ ] syntax highlighting
-- [ ] add a copy button to output
+- [ ] styling
+  - [ ] make explorer look like vscode explorer
+  - [ ] make tab color highlighting red when there is an error with that tab
+  - [ ] make the error message appear like what it looks like in vscode PROBLEMS tab
+  - [ ] List more UI improvements as you think of them...
 - [ ] allow adding new files to the file explorer (saving them to local storage etc)
-- [ ] +/- buttons to change editor font size
-- [ ] highlight tokens in code in tokenizer output rather than showing objects
-  - [ ] however over token shows tooltip with token type? (popup API?)
-- [ ] add hack/asm/vm/ instruction set info
-- [ ] add jack grammar info
-- [ ] nicer typing experience in code box
-- [ ] /about page
+- [ ] add hack/asm/vm/ instruction set info (add a file to explorer that displays a component)
+- [ ] add jack grammar info (add a file to explorer that displays a component)
+- [ ] README.md (add file to explorer)
   - [ ] list tech used (svelte/sveltekit)
   - [ ] list learning resources used (nand2tetris.org)
   - [ ] link to github repo / profile
-- [ ] highlight errors in input with squiggle red line?
+- [ ] nicer typing experience in code box
+- [ ] syntax highlighting
+- [ ] highlight tokens in code in tokenizer output rather than showing objects
+  - [ ] however over token shows tooltip with token type? (popup API?)
+- [ ] Better error messages
+  - [ ] Add line number and info to error messages
+  - [ ] highlight errors in input with squiggle red line?

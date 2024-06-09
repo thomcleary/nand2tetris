@@ -20,67 +20,75 @@
 		switch (selectedOutput) {
 			case 'tokens':
 				return (
-					compilationResult['tokens']
-						?.map(({ type, token }, index) => `[${index}] ${type} '${token}'`)
-						.join('\n') ?? 'Tokens undefined'
+					compilationResult['tokens']?.map(({ type, token }) => `${type} '${token}'`).join('\n') ??
+					'Tokens undefined'
 				);
 			case 'jackParseTree':
 				return compilationResult['jackParseTree']?.toXmlString() ?? 'Parse tree undefined';
 			case 'vmInstructions':
 			case 'assemblyInstructions':
 			case 'hackInstructions':
-				return (
-					compilationResult[selectedOutput]
-						?.map((line, index) => `[${index}] ${line}`)
-						.join('\n') ?? `${selectedOutput} undefined`
-				);
+				return compilationResult[selectedOutput]?.join('\n') ?? `${selectedOutput} undefined`;
 		}
 	});
+
+	const outputTabLabels = {
+		tokens: 'TOKENS',
+		jackParseTree: 'PARSE TREE',
+		vmInstructions: '.VM',
+		assemblyInstructions: '.ASM',
+		hackInstructions: '.HACK'
+	} as const satisfies Record<typeof selectedOutput, string>;
 </script>
 
 <div id="explorer" style:color="var(--color-white)">
 	<ul>
-		<li>🟧 file 1</li>
-		<li>🟧 file 2</li>
-		<li>🟧 file 3</li>
+		<li><button onclick={() => (jackFileContents = empty)}>Main.jack</button></li>
+		<li>
+			<button
+				disabled={!fizzBuzz}
+				onclick={() => {
+					if (fizzBuzz) {
+						jackFileContents = fizzBuzz;
+					} else {
+						console.log({ fizzBuzz });
+					}
+				}}>FizzBuzz.jack</button
+			>
+		</li>
 	</ul>
 </div>
 <div id="editor">
-	<div class="button-column">
-		<button onclick={() => (jackFileContents = empty)}>Clear</button>
-		<button
-			disabled={!fizzBuzz}
-			onclick={() => {
-				if (fizzBuzz) {
-					jackFileContents = fizzBuzz;
-				} else {
-					console.log({ fizzBuzz });
-				}
-			}}>FizzBuzz</button
-		>
-	</div>
+	<div class="tabs"><div class="tab tab-selected">🟧 Test</div></div>
 	<textarea cols="80" spellcheck="false" bind:value={jackFileContents}></textarea>
 </div>
 <div id="output">
-	<div class="button-row">
-		<button onclick={() => (selectedOutput = 'tokens')}>Tokens</button>
-		<button onclick={() => (selectedOutput = 'jackParseTree')}>Parse Tree</button>
-		<button onclick={() => (selectedOutput = 'vmInstructions')}>.vm</button>
-		<button onclick={() => (selectedOutput = 'assemblyInstructions')}>.asm</button>
-		<button onclick={() => (selectedOutput = 'hackInstructions')}>.hack</button>
+	<div id="tabs">
+		{#each ['tokens', 'jackParseTree', 'vmInstructions', 'assemblyInstructions', 'hackInstructions'] as const satisfies (typeof selectedOutput)[] as option}
+			<button
+				class="tab"
+				class:tab-selected={selectedOutput === option}
+				onclick={() => (selectedOutput = option)}>{outputTabLabels[option]}</button
+			>
+		{/each}
 	</div>
 	<textarea
 		cols="80"
 		spellcheck="false"
 		value={output}
 		readonly
-		style:color={compilationResult.success ? '' : 'red'}
+		style:color={compilationResult.success ? '' : 'var(--color-red)'}
 	></textarea>
 </div>
 
 <style>
 	ul {
 		list-style-type: none;
+	}
+
+	button {
+		border: none;
+		font-size: 1rem;
 	}
 
 	textarea {
@@ -90,16 +98,35 @@
 		background-color: var(--color-bg-light);
 		color: var(--color-white);
 		border: none;
-		padding: 0.5rem;
+		margin: 0;
+		padding: 1rem;
 	}
 
 	textarea:focus {
-		outline: 1px solid var(--color-dim);
+		outline: none;
 	}
 
-	.button-row {
+	.tabs {
 		display: flex;
-		gap: 1rem;
+		justify-content: flex-start;
+	}
+
+	.tab {
+		background-color: var(--color-bg-dark);
+		color: var(--color-grey);
+		min-width: 10%;
+		font-size: 1rem;
+		padding: 0.5rem;
+	}
+
+	.tab:hover {
+		cursor: pointer;
+	}
+
+	.tab-selected {
+		background-color: var(--color-bg-light);
+		color: var(--color-white-bright);
+		border-bottom: 2px solid var(--color-white-bright);
 	}
 
 	#explorer {
@@ -113,12 +140,19 @@
 
 	#output {
 		grid-area: output;
+		border-left: 1px solid var(--color-grey-dim);
 	}
 
 	#editor,
 	#output {
 		display: flex;
 		flex-direction: column;
-		gap: 0.5rem;
+	}
+
+	@media (width <= 1280px) {
+		#output {
+			border-top: 1px solid var(--color-grey-dim);
+			border-left: none;
+		}
 	}
 </style>

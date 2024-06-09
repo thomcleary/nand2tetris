@@ -1,9 +1,15 @@
 :root {
+	/* TODO: find a better naming scheme for color variables **/
 	--color-bg-dark: rgb(31, 34, 39);
 	--color-bg-light: rgb(36, 39, 45);
 
 	--color-white: rgb(172, 178, 190);
-	--color-dim: rgb(74, 80, 96);
+	--color-white-bright: rgb(180, 180, 180);
+
+	--color-grey: rgb(117, 119, 122);
+	--color-grey-dim: rgb(74, 80, 96);
+
+	--color-red: rgb(210, 115, 120);
 }
 
 @font-face {

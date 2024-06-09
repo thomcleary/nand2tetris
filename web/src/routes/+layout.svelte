@@ -30,7 +30,7 @@ Probably want to have the three sections here
 		grid-template-areas: 'explorer editor output';
 	}
 
-	@media (width <= 1250px) {
+	@media (width <= 1280px) {
 		#layout {
 			grid-template-columns: minmax(min-content, 10%) 1fr;
 			grid-template-rows: auto;
