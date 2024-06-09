@@ -60,10 +60,10 @@
 </div>
 <div id="editor">
 	<div class="tabs"><div class="tab tab-selected">🟧 Test</div></div>
-	<textarea cols="80" spellcheck="false" bind:value={jackFileContents}></textarea>
+	<textarea spellcheck="false" bind:value={jackFileContents}></textarea>
 </div>
 <div id="output">
-	<div id="tabs">
+	<div class="tabs">
 		{#each ['tokens', 'jackParseTree', 'vmInstructions', 'assemblyInstructions', 'hackInstructions'] as const satisfies (typeof selectedOutput)[] as option}
 			<button
 				class="tab"
@@ -73,7 +73,6 @@
 		{/each}
 	</div>
 	<textarea
-		cols="80"
 		spellcheck="false"
 		value={output}
 		readonly
@@ -84,6 +83,8 @@
 <style>
 	ul {
 		list-style-type: none;
+		margin: 0;
+		padding: 0;
 	}
 
 	button {
@@ -109,6 +110,7 @@
 	.tabs {
 		display: flex;
 		justify-content: flex-start;
+		text-wrap: nowrap;
 	}
 
 	.tab {
@@ -131,7 +133,6 @@
 
 	#explorer {
 		grid-area: explorer;
-		text-wrap: nowrap;
 	}
 
 	#editor {
