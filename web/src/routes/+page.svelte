@@ -2,6 +2,7 @@
 	import JackCompiler, {
 		type CompilationResult
 	} from '../../../projects/10-11/src/compiler/JackCompiler';
+	import Explorer from './components/Explorer/Explorer.svelte';
 
 	const { data } = $props();
 	const { empty, fizzBuzz } = data;
@@ -41,23 +42,11 @@
 	} as const satisfies Record<typeof selectedOutput, string>;
 </script>
 
-<div id="explorer" style:color="var(--color-white)">
-	<ul>
-		<li><button onclick={() => (jackFileContents = empty)}>Main.jack</button></li>
-		<li>
-			<button
-				disabled={!fizzBuzz}
-				onclick={() => {
-					if (fizzBuzz) {
-						jackFileContents = fizzBuzz;
-					} else {
-						console.log({ fizzBuzz });
-					}
-				}}>FizzBuzz.jack</button
-			>
-		</li>
-	</ul>
-</div>
+<Explorer
+	fileNames={['Main.jack', 'FizzBuzz.jack']}
+	onSelectFile={(fileName) =>
+		(jackFileContents = fileName === 'Main.jack' ? empty : fizzBuzz ?? empty)}
+/>
 <div id="editor">
 	<div class="tabs"><div class="tab tab-selected">🟧 Test</div></div>
 	<textarea spellcheck="false" bind:value={jackFileContents}></textarea>
@@ -81,12 +70,7 @@
 </div>
 
 <style>
-	ul {
-		list-style-type: none;
-		margin: 0;
-		padding: 0;
-	}
-
+	/* TODO: dont copy paste these button styles */
 	button {
 		background-color: transparent;
 		color: var(--color-white);
@@ -132,10 +116,6 @@
 		color: var(--color-white-bright);
 		border-bottom: 2px solid var(--color-white-bright);
 		border-right: 1px solid var(--color-black);
-	}
-
-	#explorer {
-		grid-area: explorer;
 	}
 
 	#editor {
