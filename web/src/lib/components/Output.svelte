@@ -27,7 +27,7 @@
 				case 'HACK':
 					return compilationResult.hackInstructions?.join('\n');
 			}
-		})() ?? (compilationResult.success ? '' : compilationResult.message)
+		})() ?? (compilationResult.success ? 'No output' : compilationResult.message)
 	);
 </script>
 
@@ -63,14 +63,14 @@
 	}
 
 	textarea {
-		flex: 1;
 		min-height: 24ch;
-		resize: none;
+		flex: 1;
 		background-color: var(--color-bg-light);
 		color: var(--color-white);
-		border: none;
 		margin: 0;
 		padding: 1rem;
+		border: none;
+		resize: none;
 	}
 
 	textarea:focus {
@@ -85,11 +85,11 @@
 	}
 
 	.tab {
+		min-width: 10%;
 		font-family: var(--font-system);
+		font-size: 1rem;
 		background-color: var(--color-bg-dark);
 		color: var(--color-grey);
-		min-width: 10%;
-		font-size: 1rem;
 		padding: 0.5rem 1rem;
 	}
 
@@ -106,9 +106,9 @@
 
 	#output {
 		grid-area: output;
-		border-left: 1px solid var(--color-grey-border);
 		display: flex;
 		flex-direction: column;
+		border-left: 1px solid var(--color-grey-border);
 	}
 
 	@media (width <= 1280px) {

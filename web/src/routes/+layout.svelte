@@ -35,15 +35,11 @@
 
 	#code-window {
 		flex: 1;
-
 		display: flex;
 		flex-direction: column;
-
 		height: 90%;
 		max-width: min(95%, 2560px);
-
 		background-color: var(--color-bg-dark);
-
 		border: 2px solid var(--color-grey-border);
 		border-radius: 1rem;
 		/* https://shadows.brumm.af **/

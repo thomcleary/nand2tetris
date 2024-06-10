@@ -17,18 +17,18 @@
 
 <style>
 	ul {
-		list-style-type: none;
 		margin: 0;
 		padding: 0;
+		list-style-type: none;
 	}
 
 	/* TODO: dont copy paste these button styles */
 	button {
+		font-family: var(--font-system);
+		font-size: 0.8rem;
 		background-color: transparent;
 		color: var(--color-white);
-		font-size: 0.8rem;
 		border: none;
-		font-family: var(--font-system);
 	}
 
 	#explorer {

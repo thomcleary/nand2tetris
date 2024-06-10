@@ -22,13 +22,14 @@
 
 <header>
 	{@render windowButtons()}
-	<div id="window-title"><span>nand2tetris</span></div>
+	<a href="https://www.nand2tetris.org/" target="_blank" rel="noreferrer">nand2tetris</a>
 </header>
 
 <style>
 	header {
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
+		align-items: center;
 		background-color: var(--color-bg-light);
 		border-top-left-radius: 1rem;
 		border-top-right-radius: 1rem;
@@ -42,32 +43,28 @@
 		opacity: 0.85;
 	}
 
-	#window-buttons {
-		display: flex;
-		gap: 0.5rem;
-		height: 2rem;
-		padding-left: 0.6rem;
-	}
-
-	#window-title {
+	a {
+		font-family: var(--font-system);
+		font-size: 0.8rem;
 		background-color: rgb(47, 50, 57);
-		margin: 0.3rem;
+		color: rgb(108, 113, 124);
+		margin: 0.4rem;
+		padding: 0.2rem;
 		border: 1px solid rgb(55, 58, 65);
 		border-radius: 0.25rem;
 		text-align: center;
+		text-decoration: none;
 	}
 
-	#window-title:hover {
+	a:hover {
+		color: rgb(159, 165, 179);
 		border: 1px solid rgb(69, 73, 80);
 	}
 
-	#window-title:hover > span {
-		color: rgb(159, 165, 179);
-	}
-
-	#window-title > span {
-		font-family: var(--font-system);
-		font-size: 0.8rem;
-		color: rgb(108, 113, 124);
+	#window-buttons {
+		height: 2rem;
+		display: flex;
+		gap: 0.5rem;
+		padding-left: 0.6rem;
 	}
 </style>

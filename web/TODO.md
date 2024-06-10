@@ -3,7 +3,6 @@
 ## layout
 
 - make tabs from editor/output into shared component
-- add info to footer (like vscode)
 - make explorer look like vscode explorer
   - separate folders for jack/vm/asm
   - top level files for README and info files
