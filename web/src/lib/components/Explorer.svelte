@@ -1,13 +1,9 @@
-<script lang="ts" context="module">
-	// TODO: could try and make this generic for better type inference
-	// https://github.com/sveltejs/svelte-eslint-parser/pull/477
-	export type ExplorerProps = {
+<script lang="ts">
+	type ExplorerProps = {
 		fileNames: string[];
 		onSelectFile: (fileName: string) => void;
 	};
-</script>
 
-<script lang="ts">
 	const { fileNames, onSelectFile }: ExplorerProps = $props();
 </script>
 

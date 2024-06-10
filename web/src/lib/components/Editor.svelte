@@ -1,12 +1,10 @@
-<script lang="ts" context="module">
-	export type EditorProps = {
+<script lang="ts">
+	type EditorProps = {
 		fileContents: string;
 		onInput?: (value: string) => void;
 	};
-</script>
 
-<script lang="ts">
-	let { fileContents, onInput }: EditorProps = $props();
+	const { fileContents, onInput }: EditorProps = $props();
 </script>
 
 <div id="editor">
