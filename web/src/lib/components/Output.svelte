@@ -9,15 +9,26 @@
 
 	const tabs = ['TOKENS', 'PARSE TREE', 'VM', 'ASM', 'HACK'] as const;
 
-	const tabToOutput = {
-		TOKENS: compilationResult.tokens?.map(({ type, token }) => `${type} '${token}'`).join('\n'),
-		'PARSE TREE': compilationResult.jackParseTree?.toXmlString(),
-		VM: compilationResult.vmInstructions?.join('\n'),
-		ASM: compilationResult.assemblyInstructions?.join('\n'),
-		HACK: compilationResult.hackInstructions?.join('\n')
-	} as const satisfies Record<(typeof tabs)[number], string | undefined>;
+	let selectedTab = $state<(typeof tabs)[number]>('TOKENS');
 
-	let selectedTab = $state<keyof typeof tabToOutput>('TOKENS');
+	let output = $derived(
+		(() => {
+			switch (selectedTab) {
+				case 'TOKENS':
+					return compilationResult.tokens
+						?.map(({ type, token }) => `${type} '${token}'`)
+						.join('\n');
+				case 'PARSE TREE':
+					return compilationResult.jackParseTree?.toXmlString();
+				case 'VM':
+					return compilationResult.vmInstructions?.join('\n');
+				case 'ASM':
+					return compilationResult.assemblyInstructions?.join('\n');
+				case 'HACK':
+					return compilationResult.hackInstructions?.join('\n');
+			}
+		})() ?? (compilationResult.success ? '' : compilationResult.message)
+	);
 </script>
 
 <div id="output">
@@ -37,7 +48,7 @@
   -->
 	<textarea
 		spellcheck="false"
-		value={tabToOutput[selectedTab]}
+		value={output}
 		readonly
 		style:color={compilationResult.success ? '' : 'var(--color-red)'}
 	></textarea>

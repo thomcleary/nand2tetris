@@ -13,16 +13,38 @@
 	let compilationResult = $derived(jackCompiler.compile({ jackFileContents }));
 </script>
 
-<Explorer
-	fileNames={['Main.jack', 'FizzBuzz.jack']}
-	onSelectFile={(fileName) => {
-		jackFileContents = fileName === 'Main.jack' ? empty : fizzBuzz ?? empty;
-	}}
-/>
-<Editor
-	fileContents={jackFileContents}
-	onInput={(value) => {
-		jackFileContents = value;
-	}}
-/>
-<Output {compilationResult} />
+<div id="code-layout">
+	<Explorer
+		fileNames={['Main.jack', 'FizzBuzz.jack']}
+		onSelectFile={(fileName) => {
+			jackFileContents = fileName === 'Main.jack' ? empty : fizzBuzz ?? empty;
+		}}
+	/>
+	<Editor
+		fileContents={jackFileContents}
+		onInput={(value) => {
+			jackFileContents = value;
+		}}
+	/>
+	<Output {compilationResult} />
+</div>
+
+<style>
+	#code-layout {
+		flex: 1;
+
+		display: grid;
+		grid-template-columns: minmax(max-content, 10%) 1fr 0.75fr;
+		grid-template-areas: 'explorer editor output';
+	}
+
+	@media (width <= 1280px) {
+		#code-layout {
+			grid-template-columns: minmax(max-content, 10%) 1fr;
+			grid-template-rows: auto;
+			grid-template-areas:
+				'explorer editor'
+				'output output';
+		}
+	}
+</style>

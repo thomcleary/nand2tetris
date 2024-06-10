@@ -2,12 +2,9 @@
 
 ## layout
 
-- refactor top layout to not specify the grid layout
-  - make top level +page.svelte decide what the grid layout will be
-    - if we want to show components and hide the output pane this will make it easier
-  - add header and footer to top level layout
-    - add 3 mac window circles to header
-    - add info to footer (like vscode)
+- add header and footer to top level layout
+  - add 3 mac window circles to header
+  - add info to footer (like vscode)
 - make explorer look like vscode explorer
   - separate folders for jack/vm/asm
   - top level files for README and info files

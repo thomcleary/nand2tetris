@@ -4,8 +4,10 @@
 	const { children } = $props();
 </script>
 
-<div id="layout">
+<div id="code-window">
+	<div id="code-header">Header</div>
 	{@render children()}
+	<div id="code-footer">Footer</div>
 </div>
 
 <style>
@@ -26,16 +28,17 @@
 		);
 	}
 
-	#layout {
+	#code-window {
 		flex: 1;
+
+		display: flex;
+		flex-direction: column;
+
 		min-height: min(95%, 1440px);
 		max-width: min(95%, 2560px);
-		display: grid;
-		grid-template-columns: minmax(max-content, 10%) 1fr 0.75fr;
-		grid-template-areas: 'explorer editor output';
+
 		background-color: var(--color-bg-dark);
-		padding-top: 2rem;
-		padding-bottom: 1.5rem;
+
 		border: 2px solid var(--color-grey-border);
 		border-radius: 1rem;
 		/* https://shadows.brumm.af **/
@@ -48,13 +51,13 @@
 			100px 100px 80px rgba(0, 0, 0, 0.21);
 	}
 
-	@media (width <= 1280px) {
-		#layout {
-			grid-template-columns: minmax(max-content, 10%) 1fr;
-			grid-template-rows: auto;
-			grid-template-areas:
-				'explorer editor'
-				'output output';
-		}
+	#code-header {
+		color: var(--color-white);
+		height: 2rem;
+	}
+
+	#code-footer {
+		color: var(--color-white);
+		height: 1.5rem;
 	}
 </style>
