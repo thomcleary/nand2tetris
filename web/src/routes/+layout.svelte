@@ -1,12 +1,19 @@
 <script lang="ts">
+	import { quintOut } from 'svelte/easing';
+	import { scale } from 'svelte/transition';
 	import '../app.css';
 
 	const { children } = $props();
+
+	let visible = $state(false);
+	setTimeout(() => (visible = true));
 </script>
 
-<div id="code-window">
-	{@render children()}
-</div>
+{#if visible}
+	<div id="code-window" in:scale={{ easing: quintOut, duration: 1000 }}>
+		{@render children()}
+	</div>
+{/if}
 
 <style>
 	:global(body) {
