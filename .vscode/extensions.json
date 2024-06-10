@@ -4,9 +4,12 @@
 
   // List of extensions which should be recommended for users of this workspace.
   "recommendations": [
-    "roblourens.vscode-nand2tetris-hdl",
     "amadeann.jack-language-syntax-highlighting",
-    "pomdtr.excalidraw-editor"
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "pomdtr.excalidraw-editor",
+    "roblourens.vscode-nand2tetris-hdl",
+    "svelte.svelte-vscode"
   ],
   // List of extensions recommended by VS Code that should not be recommended for users of this workspace.
   "unwantedRecommendations": []

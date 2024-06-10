@@ -1,13 +1,15 @@
 :root {
-	/* TODO: find a better naming scheme for color variables **/
+	/* TODO: find a better naming scheme for color variables */
 	--color-bg-dark: rgb(31, 34, 39);
 	--color-bg-light: rgb(36, 39, 45);
+
+	--color-black: rgb(24, 26, 31);
 
 	--color-white: rgb(172, 178, 190);
 	--color-white-bright: rgb(180, 180, 180);
 
 	--color-grey: rgb(117, 119, 122);
-	--color-grey-border: rgb(75, 78, 83);
+	--color-grey-border: rgba(78, 86, 102, 0.38);
 	--color-grey-dim: rgb(74, 80, 96);
 
 	--color-red: rgb(210, 115, 120);
@@ -26,6 +28,12 @@
 	font-size: 16px;
 }
 
+@media (width <= 400px) {
+	* {
+		font-size: 12px;
+	}
+}
+
 *,
 *:before,
 *:after {
@@ -36,8 +44,35 @@ html {
 	box-sizing: border-box;
 }
 
-@media (width <= 400px) {
-	* {
-		font-size: 12px;
-	}
+/* TODO: make this match VSCode better */
+/* Scrollbar */
+/* width */
+::-webkit-scrollbar {
+	width: 14px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+	background: var(--color-bg-light);
+	border-left: 1px solid var(--color-grey-border);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+	background: var(--color-grey-border); /* Inspected VSCode in browser */
+}
+
+::-webkit-scrollbar-thumb:horizontal:hover,
+::-webkit-scrollbar-thumb:vertical:hover {
+	background: rgba(90, 99, 117, 0.5); /* Inspected VSCode in browser */
+}
+
+::-webkit-scrollbar-thumb:horizontal:active,
+::-webkit-scrollbar-thumb:vertical:active {
+	background: rgba(116, 125, 145, 0.5); /* Inspected VSCode in browser */
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+	background: #555;
 }

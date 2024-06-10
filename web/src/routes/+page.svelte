@@ -131,6 +131,7 @@
 		background-color: var(--color-bg-light);
 		color: var(--color-white-bright);
 		border-bottom: 2px solid var(--color-white-bright);
+		border-right: 1px solid var(--color-black);
 	}
 
 	#explorer {
@@ -143,7 +144,7 @@
 
 	#output {
 		grid-area: output;
-		border-left: 1px solid var(--color-grey-dim);
+		border-left: 1px solid var(--color-grey-border);
 	}
 
 	#editor,
