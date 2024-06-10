@@ -85,11 +85,12 @@
 	}
 
 	.tab {
+		font-family: var(--font-system);
 		background-color: var(--color-bg-dark);
 		color: var(--color-grey);
 		min-width: 10%;
 		font-size: 1rem;
-		padding: 0.5rem;
+		padding: 0.5rem 1rem;
 	}
 
 	.tab:hover {

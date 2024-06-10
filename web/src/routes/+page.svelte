@@ -1,6 +1,8 @@
 <script lang="ts">
 	import Editor from '$lib/components/Editor.svelte';
 	import Explorer from '$lib/components/Explorer.svelte';
+	import Footer from '$lib/components/Footer.svelte';
+	import Header from '$lib/components/Header.svelte';
 	import Output from '$lib/components/Output.svelte';
 	import JackCompiler from '../../../projects/10-11/src/compiler/JackCompiler';
 
@@ -13,6 +15,7 @@
 	let compilationResult = $derived(jackCompiler.compile({ jackFileContents }));
 </script>
 
+<Header />
 <div id="code-layout">
 	<Explorer
 		fileNames={['Main.jack', 'FizzBuzz.jack']}
@@ -28,6 +31,7 @@
 	/>
 	<Output {compilationResult} />
 </div>
+<Footer />
 
 <style>
 	#code-layout {

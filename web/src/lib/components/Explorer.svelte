@@ -28,6 +28,7 @@
 		color: var(--color-white);
 		font-size: 0.8rem;
 		border: none;
+		font-family: var(--font-system);
 	}
 
 	#explorer {

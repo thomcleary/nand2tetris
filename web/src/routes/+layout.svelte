@@ -5,9 +5,7 @@
 </script>
 
 <div id="code-window">
-	<div id="code-header">Header</div>
 	{@render children()}
-	<div id="code-footer">Footer</div>
 </div>
 
 <style>
@@ -49,15 +47,5 @@
 			22.3px 22.3px 17.9px rgba(0, 0, 0, 0.125),
 			41.8px 41.8px 33.4px rgba(0, 0, 0, 0.151),
 			100px 100px 80px rgba(0, 0, 0, 0.21);
-	}
-
-	#code-header {
-		color: var(--color-white);
-		height: 2rem;
-	}
-
-	#code-footer {
-		color: var(--color-white);
-		height: 1.5rem;
 	}
 </style>

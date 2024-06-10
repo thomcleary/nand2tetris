@@ -13,6 +13,8 @@
 	--color-grey-dim: rgb(74, 80, 96);
 
 	--color-red: rgb(210, 115, 120);
+
+	--font-system: -apple-system, 'system-ui', sans-serif;
 }
 
 @font-face {

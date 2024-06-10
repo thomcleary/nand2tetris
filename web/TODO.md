@@ -2,9 +2,8 @@
 
 ## layout
 
-- add header and footer to top level layout
-  - add 3 mac window circles to header
-  - add info to footer (like vscode)
+- make tabs from editor/output into shared component
+- add info to footer (like vscode)
 - make explorer look like vscode explorer
   - separate folders for jack/vm/asm
   - top level files for README and info files
