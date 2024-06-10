@@ -39,7 +39,7 @@
 		display: flex;
 		flex-direction: column;
 
-		min-height: min(95%, 1440px);
+		height: 90%;
 		max-width: min(95%, 2560px);
 
 		background-color: var(--color-bg-dark);

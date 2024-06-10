@@ -107,9 +107,6 @@
 	#output {
 		grid-area: output;
 		border-left: 1px solid var(--color-grey-border);
-	}
-
-	#output {
 		display: flex;
 		flex-direction: column;
 	}
