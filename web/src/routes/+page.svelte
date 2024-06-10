@@ -2,7 +2,8 @@
 	import JackCompiler, {
 		type CompilationResult
 	} from '../../../projects/10-11/src/compiler/JackCompiler';
-	import Explorer from './components/Explorer/Explorer.svelte';
+	import Editor from './components/Editor.svelte';
+	import Explorer from './components/Explorer.svelte';
 
 	const { data } = $props();
 	const { empty, fizzBuzz } = data;
@@ -44,13 +45,16 @@
 
 <Explorer
 	fileNames={['Main.jack', 'FizzBuzz.jack']}
-	onSelectFile={(fileName) =>
-		(jackFileContents = fileName === 'Main.jack' ? empty : fizzBuzz ?? empty)}
+	onSelectFile={(fileName) => {
+		jackFileContents = fileName === 'Main.jack' ? empty : fizzBuzz ?? empty;
+	}}
 />
-<div id="editor">
-	<div class="tabs"><div class="tab tab-selected">🟧 Test</div></div>
-	<textarea spellcheck="false" bind:value={jackFileContents}></textarea>
-</div>
+<Editor
+	fileContents={jackFileContents}
+	onInput={(value) => {
+		jackFileContents = value;
+	}}
+/>
 <div id="output">
 	<div class="tabs">
 		{#each ['tokens', 'jackParseTree', 'vmInstructions', 'assemblyInstructions', 'hackInstructions'] as const satisfies (typeof selectedOutput)[] as option}
@@ -118,16 +122,11 @@
 		border-right: 1px solid var(--color-black);
 	}
 
-	#editor {
-		grid-area: editor;
-	}
-
 	#output {
 		grid-area: output;
 		border-left: 1px solid var(--color-grey-border);
 	}
 
-	#editor,
 	#output {
 		display: flex;
 		flex-direction: column;
