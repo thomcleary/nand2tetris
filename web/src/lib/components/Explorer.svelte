@@ -1,16 +1,40 @@
-<script lang="ts">
+<script lang="ts" context="module">
+	export type File<T extends string> =
+		| { type: 'directory'; name: T; children: File<T>[] }
+		| { type: 'file'; name: T };
+</script>
+
+<script lang="ts" generics="TodoFixGenerics extends string">
+	// eslint-disable-next-line no-undef
+	type T = TodoFixGenerics;
 	type ExplorerProps = {
-		fileNames: string[];
-		onSelectFile: (fileName: string) => void;
+		files: readonly File<T>[];
+		onSelectFile?: (fileName: T) => void;
 	};
 
-	const { fileNames, onSelectFile }: ExplorerProps = $props();
+	const { files, onSelectFile }: ExplorerProps = $props();
 </script>
+
+<!-- {#snippet directoryTree(file: )} -->
+
+<!-- {/snippet} -->
 
 <div id="explorer">
 	<ul>
-		{#each fileNames as fileName}
-			<li><button onclick={() => onSelectFile(fileName)}>{fileName}</button></li>
+		{#each files as file}
+			{#if file.type === 'file'}
+				<li><button onclick={() => onSelectFile?.(file.name)}>{file.name}</button></li>
+			{:else}
+				<li>
+					<button>{file.name}</button>
+					<ul>
+						{#each file.children as child}
+							<!-- TODO: need to make this recursive -->
+							<li><button>{child.name}</button></li>
+						{/each}
+					</ul>
+				</li>
+			{/if}
 		{/each}
 	</ul>
 </div>
