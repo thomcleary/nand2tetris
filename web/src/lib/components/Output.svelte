@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type JackCompiler from '../../../../projects/10-11/src/compiler/JackCompiler';
+	import Tabs from './Tabs.svelte';
 
 	type OutputProps = {
 		compilationResult: ReturnType<JackCompiler['compile']>;
@@ -9,11 +10,9 @@
 
 	const tabs = ['TOKENS', 'PARSE TREE', 'VM', 'ASM', 'HACK'] as const;
 
-	let selectedTab = $state<(typeof tabs)[number]>('TOKENS');
-
-	let output = $derived(
+	const getOutput = ({ tab }: { tab: (typeof tabs)[number] }) =>
 		(() => {
-			switch (selectedTab) {
+			switch (tab) {
 				case 'TOKENS':
 					return compilationResult.tokens
 						?.map(({ type, token }) => `${type} '${token}'`)
@@ -27,25 +26,14 @@
 				case 'HACK':
 					return compilationResult.hackInstructions?.join('\n');
 			}
-		})() ?? (compilationResult.success ? 'No output' : compilationResult.message)
-	);
+		})() ?? (compilationResult.success ? 'No output' : compilationResult.message);
+
+	let output = $state(getOutput({ tab: tabs[0] }));
 </script>
 
 <div id="output">
-	<div class="tabs">
-		{#each tabs as tab}
-			<button
-				class="tab"
-				class:tab-selected={selectedTab === tab}
-				onclick={() => {
-					selectedTab = tab;
-				}}>{tab}</button
-			>
-		{/each}
-	</div>
-	<!--
-  TODO: instead of using textarea, render a component with syntax highlighting
-  -->
+	<Tabs {tabs} onSelectTab={(tab) => (output = getOutput({ tab }))} />
+	<!-- TODO: instead of using textarea, render a component with syntax highlighting -->
 	<textarea
 		spellcheck="false"
 		value={output}
@@ -55,13 +43,6 @@
 </div>
 
 <style>
-	/* TODO: dont copy paste these button styles */
-	button {
-		background-color: transparent;
-		color: var(--color-white);
-		border: none;
-	}
-
 	textarea {
 		min-height: 24ch;
 		flex: 1;
@@ -75,33 +56,6 @@
 
 	textarea:focus {
 		outline: none;
-	}
-
-	/* TODO: don't duplicate tabs (see Output component)*/
-	.tabs {
-		display: flex;
-		justify-content: flex-start;
-		text-wrap: nowrap;
-	}
-
-	.tab {
-		min-width: 10%;
-		font-family: var(--font-system);
-		font-size: 1rem;
-		background-color: var(--color-bg-dark);
-		color: var(--color-grey);
-		padding: 0.5rem 1rem;
-	}
-
-	.tab:hover {
-		cursor: pointer;
-	}
-
-	.tab-selected {
-		background-color: var(--color-bg-light);
-		color: var(--color-white-bright);
-		border-bottom: 2px solid var(--color-white-bright);
-		border-right: 1px solid var(--color-black);
 	}
 
 	#output {

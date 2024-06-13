@@ -22,7 +22,6 @@
 		list-style-type: none;
 	}
 
-	/* TODO: dont copy paste these button styles */
 	button {
 		font-family: var(--font-system);
 		font-size: 0.8rem;

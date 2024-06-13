@@ -14,6 +14,8 @@
 
 	--color-red: rgb(210, 115, 120);
 
+	/* TODO: Consolidate all colors here */
+
 	--font-system: -apple-system, 'system-ui', sans-serif;
 }
 
@@ -46,9 +48,6 @@ html {
 	box-sizing: border-box;
 }
 
-/* TODO: make this match VSCode better */
-/* Scrollbar */
-/* width */
 ::-webkit-scrollbar {
 	width: 8px;
 }

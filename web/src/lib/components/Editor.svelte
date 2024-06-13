@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Tabs from './Tabs.svelte';
+
 	type EditorProps = {
 		fileContents: string;
 		onInput?: (value: string) => void;
@@ -8,7 +10,7 @@
 </script>
 
 <div id="editor">
-	<div class="tabs"><div class="tab tab-selected">Test.jack</div></div>
+	<Tabs tabs={['TodoTabs.jack']} />
 	<textarea
 		spellcheck="false"
 		value={fileContents}
@@ -19,7 +21,6 @@
 </div>
 
 <style>
-	/* TODO: don't duplicate textarea styles (see Output component)*/
 	textarea {
 		flex: 1;
 		min-height: 24ch;
@@ -33,29 +34,6 @@
 
 	textarea:focus {
 		outline: none;
-	}
-
-	/* TODO: don't duplicate tabs (see Output component)*/
-	.tabs {
-		display: flex;
-		justify-content: flex-start;
-		text-wrap: nowrap;
-	}
-
-	.tab {
-		min-width: 10%;
-		font-family: var(--font-system);
-		font-size: 1rem;
-		background-color: var(--color-bg-dark);
-		color: var(--color-grey);
-		padding: 0.5rem 1rem;
-	}
-
-	.tab-selected {
-		background-color: var(--color-bg-light);
-		color: var(--color-white-bright);
-		border-bottom: 2px solid var(--color-white-bright);
-		border-right: 1px solid var(--color-black);
 	}
 
 	#editor {
