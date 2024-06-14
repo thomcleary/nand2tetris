@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type JackCompiler from '../../../../projects/10-11/src/compiler/JackCompiler';
-	import Tabs from './Tabs.svelte';
+	import type JackCompiler from '../../../../../projects/10-11/src/compiler/JackCompiler';
+	import Tabs from '../shared/Tabs.svelte';
 
 	type OutputProps = {
 		compilationResult: ReturnType<JackCompiler['compile']>;
@@ -8,9 +8,9 @@
 
 	const { compilationResult }: OutputProps = $props();
 
-	const tabs = ['TOKENS', 'PARSE TREE', 'VM', 'ASM', 'HACK'] as const;
+	const tabs = ['TOKENS', 'PARSE TREE', 'VM', 'ASM', 'HACK'];
 
-	const getOutput = ({ tab }: { tab: (typeof tabs)[number] }) =>
+	const getOutput = ({ tab }: { tab: string }) =>
 		(() => {
 			switch (tab) {
 				case 'TOKENS':
@@ -25,6 +25,8 @@
 					return compilationResult.assemblyInstructions?.join('\n');
 				case 'HACK':
 					return compilationResult.hackInstructions?.join('\n');
+				default:
+					return 'Something went wrong';
 			}
 		})() ?? (compilationResult.success ? 'No output' : compilationResult.message);
 

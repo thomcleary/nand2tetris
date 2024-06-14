@@ -1,10 +1,10 @@
 import { assemble } from "../../../06/src/assembler.js";
-import { AssemblyInstruction } from "../../../07-08/src/types.js";
+import type { AssemblyInstruction } from "../../../07-08/src/types.js";
 import { translate } from "../../../07-08/src/vmTranslator.js";
 import JackParseTree, { JackParseTreeNode } from "../parser/JackParseTree.js";
 import JackParser from "../parser/JackParser.js";
 import tokenize from "../tokenizer/index.js";
-import {
+import type {
   IdentifierToken,
   IntegerConstantToken,
   KeywordConstantToken,
@@ -13,8 +13,8 @@ import {
   Token,
   UnaryOperator,
 } from "../types/Token.js";
-import { VmInstruction } from "../types/VmInstruction.js";
-import { Result } from "../types/index.js";
+import type { VmInstruction } from "../types/VmInstruction.js";
+import type { Result } from "../types/index.js";
 import { toJackProgram } from "../utils/index.js";
 import {
   isClassVarKeyword,
@@ -28,7 +28,7 @@ import {
   isUnaryOperator,
 } from "../utils/predicates.js";
 import JackCompilerError from "./JackCompilerError.js";
-import SymbolTable, { ClassSymbolKind, SubroutineSymbolKind } from "./SymbolTable.js";
+import SymbolTable, { type ClassSymbolKind, type SubroutineSymbolKind } from "./SymbolTable.js";
 
 type ClassContext = {
   readonly symbolTable: SymbolTable<ClassSymbolKind>;

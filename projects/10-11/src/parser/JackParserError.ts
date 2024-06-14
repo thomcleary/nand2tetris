@@ -1,4 +1,4 @@
-import { Token } from "../types/Token.js";
+import type { Token } from "../types/Token.js";
 
 export class JackParserError extends Error {
   constructor({

@@ -1,5 +1,5 @@
-import { KeywordToken, SymbolToken, Token } from "../types/Token.js";
-import { Result } from "../types/index.js";
+import type { KeywordToken, SymbolToken, Token } from "../types/Token.js";
+import type { Result } from "../types/index.js";
 import { error } from "../utils/index.js";
 import {
   isClassVarKeyword,

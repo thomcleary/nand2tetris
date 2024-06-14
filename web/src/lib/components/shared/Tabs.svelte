@@ -1,12 +1,10 @@
-<script lang="ts" generics="TodoFixGenerics">
-	// eslint-disable-next-line no-undef
-	type T = TodoFixGenerics;
-	type TabsProps<T> = {
-		tabs: readonly T[];
-		onSelectTab?: (tab: T) => void;
+<script lang="ts">
+	type TabsProps = {
+		tabs: readonly string[];
+		onSelectTab?: (tab: string) => void;
 	};
 
-	const { tabs, onSelectTab }: TabsProps<T> = $props();
+	const { tabs, onSelectTab }: TabsProps = $props();
 
 	let selectedTab = $state(tabs[0]);
 </script>

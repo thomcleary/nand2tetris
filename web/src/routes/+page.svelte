@@ -1,9 +1,9 @@
 <script lang="ts">
-	import Editor from '$lib/components/Editor.svelte';
-	import Explorer from '$lib/components/Explorer.svelte';
-	import Footer from '$lib/components/Footer.svelte';
-	import Header from '$lib/components/Header.svelte';
-	import Output from '$lib/components/Output.svelte';
+	import Editor from '$lib/components/editor/Editor.svelte';
+	import Explorer from '$lib/components/explorer/Explorer.svelte';
+	import Footer from '$lib/components/footer/Footer.svelte';
+	import Header from '$lib/components/header/Header.svelte';
+	import Output from '$lib/components/output/Output.svelte';
 	import { quintOut } from 'svelte/easing';
 	import { scale } from 'svelte/transition';
 	import JackCompiler from '../../../projects/10-11/src/compiler/JackCompiler';
@@ -35,6 +35,7 @@
 					]}
 				] as const}
 				onSelectFile={(fileName) => {
+					console.log({ fileName });
 					jackFileContents = fileName === 'Main.jack' ? empty : fizzBuzz ?? empty;
 				}}
 			/>

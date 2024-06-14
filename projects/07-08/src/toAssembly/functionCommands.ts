@@ -1,5 +1,5 @@
 import { Symbol } from "../constants.js";
-import { AssemblyInstruction, CallInstruction, FunctionInstruction, ToAssembly } from "../types.js";
+import type { AssemblyInstruction, CallInstruction, FunctionInstruction, ToAssembly } from "../types.js";
 import { toLabel } from "../utils.js";
 
 export const functionToAssembly = ({

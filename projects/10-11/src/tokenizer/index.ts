@@ -1,6 +1,6 @@
 import { KEYWORDS, SYMBOLS } from "../constants.js";
-import { Identifier, Keyword, Symbol, Token } from "../types/Token.js";
-import { Result } from "../types/index.js";
+import type { Identifier, Keyword, Symbol, Token } from "../types/Token.js";
+import type { Result } from "../types/index.js";
 import { error } from "../utils/index.js";
 
 export const tokenize = (jackProgram: string[]): Result<{ tokens: readonly Token[] }> => {

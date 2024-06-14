@@ -1,6 +1,6 @@
-import { JackParseTreeNodeValue } from "../parser/JackParseTree.js";
-import { StatementRule } from "../types/GrammarRule.js";
-import {
+import { type JackParseTreeNodeValue } from "../parser/JackParseTree.js";
+import type { StatementRule } from "../types/GrammarRule.js";
+import type {
   IdentifierToken,
   IntegerConstantToken,
   KeywordConstantToken,

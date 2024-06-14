@@ -3,7 +3,7 @@ import { arithmeticLogicalToAssembly } from "./toAssembly/arithmeticLogicalComma
 import { gotoToAssembly, ifGotoToAssembly, labelToAssembly } from "./toAssembly/branchCommands.js";
 import { callToAssembly, functionToAssembly, returnToAssembly } from "./toAssembly/functionCommands.js";
 import { popToAssembly, pushToAssembly } from "./toAssembly/stackCommands.js";
-import { AssemblyInstruction, Result, ToAssembly, TranslationContext, VmInstruction } from "./types.js";
+import type { AssemblyInstruction, Result, ToAssembly, TranslationContext, VmInstruction } from "./types.js";
 import {
   error,
   isArithemticLogicalCommand,

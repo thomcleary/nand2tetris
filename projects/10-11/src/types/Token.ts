@@ -1,5 +1,5 @@
 import { KEYWORDS, SYMBOLS } from "../constants.js";
-import { Split } from "./index.js";
+import type { Split } from "./index.js";
 
 type Digits = "0123456789";
 type Letters = "abcdefghijklmnopqrstuvwxyz";

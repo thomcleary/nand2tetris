@@ -1,5 +1,5 @@
 import { Segment, StackCommand, Symbol, TEMP_OFFSET } from "../constants.js";
-import { AssemblyInstruction, StackInstruction, ToAssembly } from "../types.js";
+import type { AssemblyInstruction, StackInstruction, ToAssembly } from "../types.js";
 import { segmentToSymbol, toVariableSymbol } from "../utils.js";
 
 export const pushToAssembly = ({

@@ -1,4 +1,4 @@
-import { Segment } from "../types/VmInstruction.js";
+import type { Segment } from "../types/VmInstruction.js";
 
 export type ClassSymbolKind = "field" | "static";
 export type SubroutineSymbolKind = "arg" | "var";

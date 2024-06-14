@@ -1,5 +1,5 @@
 import { BranchCommand, Symbol } from "../constants.js";
-import { AssemblyInstruction, BranchInstruction, ToAssembly } from "../types.js";
+import type { AssemblyInstruction, BranchInstruction, ToAssembly } from "../types.js";
 import { toLabel } from "../utils.js";
 
 export const labelToAssembly = ({
