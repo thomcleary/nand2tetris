@@ -1,9 +1,5 @@
 # TODO
 
-# layout
-
-- make clicking the green window button toggle fullscreen
-
 ## file explorer
 
 - make explorer look like vscode explorer

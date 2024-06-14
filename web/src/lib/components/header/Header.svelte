@@ -1,5 +1,11 @@
 <script lang="ts">
-	const colors = {
+	type HeaderProps = {
+		onWindowButtonClick?: (colour: keyof typeof colours) => void;
+	};
+
+	const { onWindowButtonClick }: HeaderProps = $props();
+
+	const colours = {
 		red: '#EC695E',
 		yellow: '#F5BE4F',
 		green: '#60C253'
@@ -7,10 +13,12 @@
 </script>
 
 {#snippet windowButtons()}
-	{#snippet circle(color: keyof typeof colors)}
-		<svg fill={colors[color]} viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-			<circle cx="50" cy="50" r="50" />
-		</svg>
+	{#snippet circle(colour: keyof typeof colours)}
+		<button onclick={() => onWindowButtonClick?.(colour)}>
+			<svg fill={colours[colour]} viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+				<circle cx="50" cy="50" r="50" />
+			</svg>
+		</button>
 	{/snippet}
 
 	<div id="window-buttons">
@@ -35,12 +43,19 @@
 		border-top-right-radius: 1rem;
 	}
 
-	svg {
-		width: 0.8rem;
+	button {
+		padding: 0;
+		border: 0;
+		background-color: transparent;
 	}
 
-	svg:hover {
-		opacity: 0.85;
+	button:hover > svg {
+		opacity: 0.8;
+		cursor: pointer;
+	}
+
+	svg {
+		width: 0.8rem;
 	}
 
 	a {
@@ -64,6 +79,7 @@
 	#window-buttons {
 		height: 2rem;
 		display: flex;
+		align-items: center;
 		gap: 0.5rem;
 		padding-left: 0.6rem;
 	}
