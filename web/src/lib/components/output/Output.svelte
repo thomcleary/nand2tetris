@@ -10,31 +10,32 @@
 
 	const tabs = ['TOKENS', 'PARSE TREE', 'VM', 'ASM', 'HACK'];
 
-	const getOutput = ({ tab }: { tab: string }) =>
-		(() => {
-			switch (tab) {
-				case 'TOKENS':
-					return compilationResult.tokens
-						?.map(({ type, token }) => `${type} '${token}'`)
-						.join('\n');
-				case 'PARSE TREE':
-					return compilationResult.jackParseTree?.toXmlString();
-				case 'VM':
-					return compilationResult.vmInstructions?.join('\n');
-				case 'ASM':
-					return compilationResult.assemblyInstructions?.join('\n');
-				case 'HACK':
-					return compilationResult.hackInstructions?.join('\n');
-				default:
-					return 'Something went wrong';
-			}
-		})() ?? (compilationResult.success ? 'No output' : compilationResult.message);
-
-	let output = $state(getOutput({ tab: tabs[0] }));
+	let selectedTab = $state(tabs[0]);
+	let output = $derived.by(
+		() =>
+			(() => {
+				switch (selectedTab) {
+					case 'TOKENS':
+						return compilationResult.tokens
+							?.map(({ type, token }) => `${type} '${token}'`)
+							.join('\n');
+					case 'PARSE TREE':
+						return compilationResult.jackParseTree?.toXmlString();
+					case 'VM':
+						return compilationResult.vmInstructions?.join('\n');
+					case 'ASM':
+						return compilationResult.assemblyInstructions?.join('\n');
+					case 'HACK':
+						return compilationResult.hackInstructions?.join('\n');
+					default:
+						return 'Something went wrong';
+				}
+			})() ?? (compilationResult.success ? 'No output' : compilationResult.message)
+	);
 </script>
 
 <div id="output">
-	<Tabs {tabs} onSelectTab={(tab) => (output = getOutput({ tab }))} />
+	<Tabs {tabs} onSelectTab={(tab) => (selectedTab = tab)} />
 	<!-- TODO: instead of using textarea, render a component with syntax highlighting -->
 	<textarea
 		spellcheck="false"

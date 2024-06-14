@@ -84,7 +84,6 @@ const cToHack = (instruction: string): Result<{ hackInstruction: string }> => {
     return { success: false, message: `instruction ${instruction} is missing comp symbol` };
   }
   if (!isValidCompCode(comp)) {
-    console.log({ comp });
     return { success: false, message: `${comp} is not a valid comp symbol` };
   }
 

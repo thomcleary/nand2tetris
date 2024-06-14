@@ -99,11 +99,6 @@ export class JackCompiler {
       const hackInstructionsResult = assemble({ assemblyInstructions });
 
       if (!hackInstructionsResult.success) {
-        assemblyInstructions.forEach((i, index) => {
-          if (i.includes("M&D")) {
-            console.log({ i, index });
-          }
-        });
         return { ...hackInstructionsResult, tokens, jackParseTree, vmInstructions, assemblyInstructions };
       }
 

@@ -1,8 +1,13 @@
 # TODO
 
+# layout
+
+- make clicking the green window button toggle fullscreen
+
 ## file explorer
 
 - make explorer look like vscode explorer
+  - add hamburger button to show/hide explorer on small screens
 - separate folders for jack/vm/asm
   - add more code files for jack/vm/asm from projects
 - top level files for README and info files (placeholders)
@@ -10,6 +15,10 @@
   - show logo and help message eg "open a file to compile"
 - allow adding new files to the file explorer (saving them to local storage etc)
 - allow closing the currently opened file
+
+## state management
+
+- Make the state management for the compilation result sane across components
 
 ## output
 
