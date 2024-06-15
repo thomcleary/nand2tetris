@@ -55,7 +55,7 @@
 					{ type: 'directory', name: 'test-dir', children: [
 						{ type: "file", name: "child1.txt" }, 
 						{ type: "file", name: "child2.txt" }, 
-						{ type: "directory", name: "test-child-dirsdafsdfdsfadsfdsfdsfds", children: [ { type: "file", name: "innerChild.txt"}] }
+						{ type: "directory", name: "test-child-dir", children: [ { type: "file", name: "innerChild.txt"}] }
 					]}
 				] as const}
 				onSelectFile={(fileName) => {

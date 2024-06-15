@@ -1,5 +1,12 @@
 # TODO
 
+## explorer styling
+
+- make explorer look like vscode explorer
+  - style file names like vscode (selected / unselected / hover etc.)
+  - get vscode explorer tab icons
+  - file icons in explorer and tabs
+
 ## state management
 
 - make the state management sane
@@ -8,11 +15,8 @@
 
 - only show currently open app (nand2tetris) in menu bar when window is open
 
-## explorer
+## file management
 
-- make explorer look like vscode explorer
-  - get vscode explorer tab icons
-  - file icons in explorer and tabs
 - don't have any file in editor on initial load
   - show logo and help message eg "open a file to compile"
 - allow closing the currently opened file

@@ -56,6 +56,7 @@
 
 	svg {
 		width: 0.8rem;
+		overflow: visible;
 	}
 
 	a {
