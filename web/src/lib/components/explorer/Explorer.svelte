@@ -1,7 +1,5 @@
 <script lang="ts" generics="T extends string">
 	import type { ComponentProps } from 'svelte';
-	import { quintOut } from 'svelte/easing';
-	import { slide } from 'svelte/transition';
 	import FileTree from './FileTree.svelte';
 
 	type ExplorerProps = Pick<ComponentProps<FileTree>, 'files' | 'onSelectFile'> & {};
@@ -9,8 +7,6 @@
 	const { files, onSelectFile }: ExplorerProps = $props();
 
 	let selectedTab = $state<'EXPLORER' | 'SEARCH' | 'SETTINGS' | undefined>('EXPLORER');
-
-	let showFileTree = $state(true);
 
 	const handleTabClick = (tab: typeof selectedTab) =>
 		(selectedTab = tab === selectedTab ? undefined : tab);
@@ -37,18 +33,10 @@
 		<div id="explorer-content">
 			<div id="explorer-heading">{selectedTab}</div>
 			{#if selectedTab === 'EXPLORER'}
-				<button id="file-tree-options" onclick={() => (showFileTree = !showFileTree)}
-					>{showFileTree ? 'v' : '>'} NAND2TETRIS</button
-				>
-				{#if showFileTree}
-					<div
-						style:padding-left="0.5rem"
-						in:slide={{ duration: 250, easing: quintOut }}
-						out:slide={{ duration: 250, easing: quintOut }}
-					>
-						<FileTree {files} {onSelectFile} />
-					</div>
-				{/if}
+				<span id="file-tree-options">NAND2TETRIS</span>
+				<div style:padding-left="0.5rem">
+					<FileTree {files} {onSelectFile} />
+				</div>
 			{:else if selectedTab === 'SEARCH'}
 				<input placeholder="Search" />
 			{/if}
@@ -101,7 +89,6 @@
 	#explorer {
 		grid-area: explorer;
 		display: flex;
-		justify-content: space-between;
 		color: var(--color-white);
 	}
 
@@ -113,6 +100,7 @@
 	}
 
 	#explorer-content {
+		flex: 1;
 		display: flex;
 		flex-direction: column;
 	}
@@ -123,17 +111,20 @@
 		font-family: var(--font-system);
 		font-size: 0.6rem;
 		color: var(--color-white);
-		padding: 0.5rem 3rem 0.5rem 1em;
+		padding: 0.5rem 3rem 0.5rem 1rem;
 		text-align: left;
 	}
 
 	#file-tree-options {
+		width: 100%;
 		font-family: var(--font-system);
 		font-weight: 600;
 		font-size: 0.6rem;
 		background-color: var(--color-bg-light);
 		color: var(--color-white);
+		padding: 0.5rem;
 		border: none;
 		text-align: left;
+		text-wrap: nowrap;
 	}
 </style>

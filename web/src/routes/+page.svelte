@@ -1,10 +1,10 @@
 <script lang="ts">
 	import appleTouchLogo from '$lib/assets/images/apple-touch-icon.png';
-	import Editor from '$lib/components/editor/Editor.svelte';
-	import Explorer from '$lib/components/explorer/Explorer.svelte';
-	import Footer from '$lib/components/footer/Footer.svelte';
-	import Header from '$lib/components/header/Header.svelte';
-	import Output from '$lib/components/output/Output.svelte';
+	import Editor from '$lib/components/Editor/Editor.svelte';
+	import Explorer from '$lib/components/Explorer/Explorer.svelte';
+	import Footer from '$lib/components/Footer/Footer.svelte';
+	import Header from '$lib/components/Header/Header.svelte';
+	import Output from '$lib/components/Output/Output.svelte';
 	import { quintInOut, quintOut } from 'svelte/easing';
 	import { scale } from 'svelte/transition';
 	import JackCompiler from '../../../projects/10-11/src/compiler/JackCompiler';
@@ -55,11 +55,10 @@
 					{ type: 'directory', name: 'test-dir', children: [
 						{ type: "file", name: "child1.txt" }, 
 						{ type: "file", name: "child2.txt" }, 
-						{ type: "directory", name: "test-child-dir", children: [ { type: "file", name: "innerChild.txt"}] }
+						{ type: "directory", name: "test-child-dirsdafsdfdsfadsfdsfdsfds", children: [ { type: "file", name: "innerChild.txt"}] }
 					]}
 				] as const}
 				onSelectFile={(fileName) => {
-					console.log({ fileName });
 					jackFileContents = fileName === 'Main.jack' ? empty : fizzBuzz ?? empty;
 				}}
 			/>
@@ -133,14 +132,14 @@
 	#code-layout {
 		flex: 1;
 		display: grid;
-		grid-template-columns: max-content 1fr 0.75fr;
+		grid-template-columns: min-content 1fr 0.75fr;
 		grid-template-areas: 'explorer editor output';
 	}
 
 	@media (width <= 1280px) {
 		#code-layout {
-			grid-template-columns: max-content 1fr;
-			grid-template-rows: auto;
+			grid-template-columns: min-content 1fr;
+			grid-template-rows: 1fr 0.66fr;
 			grid-template-areas:
 				'explorer editor'
 				'output output';

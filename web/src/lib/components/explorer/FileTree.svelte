@@ -22,7 +22,7 @@
 	{#each files as file}
 		<li>
 			{#if file.type === 'directory'}
-				<button onclick={() => (open = !open)}>{'> '}{file.name}</button>
+				<button onclick={() => (open = !open)}>{open ? 'v ' : '> '}{file.name}</button>
 				{#if open}
 					<svelte:self {onSelectFile} files={file.children} depth={depth + 1} />
 				{/if}
@@ -40,6 +40,7 @@
 		margin: 0;
 		padding: 0;
 		list-style-type: none;
+		text-wrap: nowrap;
 	}
 
 	button {

@@ -1,10 +1,12 @@
 # TODO
 
-## layout
+## state management
 
-- add bar to top of screen like mac
-  - battery percentage of device in top right
-  - currently open app or no app when on desktop
+- make the state management sane
+
+## menubar
+
+- only show currently open app (nand2tetris) in menu bar when window is open
 
 ## explorer
 
@@ -22,10 +24,6 @@
     - Vm examples
     - Asm examples
   - top level files for README and info files for asm/vm/jack (placeholders)
-
-## state management
-
-- Make the state management for the compilation result sane across components
 
 ## output
 

@@ -47,7 +47,6 @@
 
 <style>
 	textarea {
-		min-height: 24ch;
 		flex: 1;
 		background-color: var(--color-bg-light);
 		color: var(--color-white);
