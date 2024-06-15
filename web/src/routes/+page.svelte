@@ -129,13 +129,13 @@
 	#code-layout {
 		flex: 1;
 		display: grid;
-		grid-template-columns: minmax(max-content, 10%) 1fr 0.75fr;
+		grid-template-columns: max-content 1fr 0.75fr;
 		grid-template-areas: 'explorer editor output';
 	}
 
 	@media (width <= 1280px) {
 		#code-layout {
-			grid-template-columns: minmax(max-content, 10%) 1fr;
+			grid-template-columns: max-content 1fr;
 			grid-template-rows: auto;
 			grid-template-areas:
 				'explorer editor'

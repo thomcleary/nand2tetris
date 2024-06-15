@@ -70,7 +70,7 @@
 
 	@media (width <= 1280px) {
 		#output {
-			border-top: 1px solid var(--color-grey-dim);
+			border-top: 1px solid var(--color-grey-border);
 			border-left: none;
 		}
 	}

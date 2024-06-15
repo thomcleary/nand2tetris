@@ -1,16 +1,28 @@
 # TODO
 
-## file explorer
+## layout
+
+- add bar to top of screen like mac
+  - currently open app or no app when on desktop
+  - date and time in the top right
+  - battery percentage of device in top right
+
+## explorer
 
 - make explorer look like vscode explorer
-  - add hamburger button to show/hide explorer on small screens
-- separate folders for jack/vm/asm
-  - add more code files for jack/vm/asm from projects
-- top level files for README and info files (placeholders)
+  - get vscode explorer tab icons
+  - file icons in explorer and tabs
 - don't have any file in editor on initial load
   - show logo and help message eg "open a file to compile"
-- allow adding new files to the file explorer (saving them to local storage etc)
 - allow closing the currently opened file
+- add more files/folders
+  - separate folders for project 6/7/8/10/11
+  - separete folder for /examples
+    - Main.jack (empty class)
+    - FizzBuzz.jack
+    - Vm examples
+    - Asm examples
+  - top level files for README and info files for asm/vm/jack (placeholders)
 
 ## state management
 
@@ -40,6 +52,27 @@
 - allow having multiple tabs open
   - show path to file in top between textare and tab (like vscode)
 - add line numbers to editor
+
+## persistance
+
+- add a /local-storage folder
+  - allow adding files to this folder
+  - allow saving to local storage
+    - show save icon when changed
+    - closing tab when not saved shows alert to save or not
+    - ctrl+s saves the file
+  - allow deleting files from local storage folder
+
+## search
+
+- allow searching files
+
+## settings
+
+- change theme
+  - light
+  - dark
+- change font
 
 ## error styling
 

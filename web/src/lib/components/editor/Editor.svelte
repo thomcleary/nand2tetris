@@ -38,7 +38,9 @@
 
 	#editor {
 		grid-area: editor;
+		min-width: 0;
 		display: flex;
 		flex-direction: column;
+		border-left: 1px solid var(--color-grey-border);
 	}
 </style>
