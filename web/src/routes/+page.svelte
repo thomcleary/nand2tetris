@@ -85,6 +85,8 @@
 
 <style>
 	button {
+		align-self: center;
+		justify-self: center;
 		height: 64px;
 		width: 64px;
 		display: flex;
@@ -101,6 +103,8 @@
 	}
 
 	#code-window {
+		align-self: center;
+		justify-self: center;
 		display: flex;
 		flex-direction: column;
 		height: 90%;

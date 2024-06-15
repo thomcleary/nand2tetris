@@ -3,9 +3,8 @@
 ## layout
 
 - add bar to top of screen like mac
-  - currently open app or no app when on desktop
-  - date and time in the top right
   - battery percentage of device in top right
+  - currently open app or no app when on desktop
 
 ## explorer
 
