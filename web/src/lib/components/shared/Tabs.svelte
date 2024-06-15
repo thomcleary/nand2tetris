@@ -9,11 +9,10 @@
 	let selectedTab = $state(tabs[0]);
 </script>
 
-<div class="tabs">
+<div>
 	{#each tabs as tab}
 		<button
-			class="tab"
-			class:tab-selected={selectedTab === tab}
+			class:selected={selectedTab === tab}
 			onclick={() => {
 				selectedTab = tab;
 				onSelectTab?.(tab);
@@ -23,35 +22,35 @@
 </div>
 
 <style>
-	button {
-		background-color: transparent;
-		color: var(--color-white);
-		border: none;
-	}
-
-	.tabs {
+	div {
 		display: flex;
 		justify-content: flex-start;
 		text-wrap: nowrap;
 	}
 
-	.tab {
+	button {
 		min-width: 10%;
-		font-family: var(--font-system);
-		font-size: 0.8rem;
 		background-color: var(--color-bg-dark);
 		color: var(--color-grey);
+		font-family: var(--font-system);
+		font-size: 0.8rem;
 		padding: 0.5rem 1rem;
+		border: none;
 	}
 
-	.tab:hover {
+	button:hover {
+		background-color: rgb(51, 56, 65);
 		cursor: pointer;
 	}
 
-	.tab-selected {
+	.selected {
 		background-color: var(--color-bg-light);
 		color: var(--color-white-bright);
 		border-bottom: 2px solid var(--color-white-bright);
 		border-right: 1px solid var(--color-black);
+	}
+
+	.selected:hover {
+		background-color: var(--color-bg-light);
 	}
 </style>
