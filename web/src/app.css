@@ -7,6 +7,7 @@
 
 	--color-white: rgb(172, 178, 190);
 	--color-white-bright: rgb(180, 180, 180);
+	--color-white-brightest: rgb(216, 218, 224);
 
 	--color-grey: rgb(117, 119, 122);
 	--color-grey-border: rgba(78, 86, 102, 0.38);
@@ -32,7 +33,7 @@
 	font-size: 16px;
 }
 
-@media (width <= 400px) {
+@media (width <= 600px) {
 	* {
 		font-size: 12px;
 	}

@@ -31,7 +31,6 @@
 	}
 
 	#code-footer {
-		height: 1.5rem;
 		display: flex;
 		justify-content: flex-start;
 		align-items: center;

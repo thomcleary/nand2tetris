@@ -81,7 +81,7 @@
 		height: 2rem;
 		display: flex;
 		align-items: center;
-		gap: 0.5rem;
+		gap: 0.6rem;
 		padding-left: 0.6rem;
 	}
 </style>

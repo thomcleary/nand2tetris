@@ -15,7 +15,7 @@
 	const handleTabClick = (tab: typeof selectedTab) =>
 		(selectedTab = tab === selectedTab ? undefined : tab);
 
-	const iconProps = { width: '1rem', height: '1rem' } as const satisfies IconProps;
+	const iconProps = { width: '1.25rem', height: '1.25rem' } as const satisfies IconProps;
 </script>
 
 <div id="explorer">
@@ -55,14 +55,14 @@
 		font-size: 1rem;
 		background-color: transparent;
 		fill: var(--color-grey);
-		padding: 0.5rem;
+		padding: 0.75rem;
 		border: none;
 		border-left: 2px solid transparent;
 		cursor: pointer;
 	}
 
 	button:hover {
-		fill: var(--color-white-bright);
+		fill: var(--color-white-brightest);
 	}
 
 	input {
@@ -82,8 +82,8 @@
 	}
 
 	.selected {
-		fill: var(--color-white-bright);
-		border-left: 2px solid var(--color-white-bright);
+		fill: var(--color-white-brightest);
+		border-left: 2px solid var(--color-white-brightest);
 	}
 
 	.tab-buttons {
@@ -91,7 +91,6 @@
 		flex-direction: column;
 		gap: 0.25rem;
 	}
-
 	#explorer {
 		grid-area: explorer;
 		display: flex;
