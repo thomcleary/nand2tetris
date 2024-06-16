@@ -9,10 +9,13 @@
 ## state management
 
 - make the state management sane
-
-## menubar
-
-- only show currently open app (nand2tetris) in menu bar when window is open
+  - context at layout level for open window
+    - only show currently open app (nand2tetris) in menu bar when window is open
+  - context at page level for currently selected file
+    - file contents
+    - file name
+    - compilation result
+    - setter to change selected file
 
 ## file management
 

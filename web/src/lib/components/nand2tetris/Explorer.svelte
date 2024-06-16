@@ -1,4 +1,4 @@
-<script lang="ts" generics="T extends string">
+<script lang="ts">
 	import type { ComponentProps } from 'svelte';
 	import FileIcon from '../icons/FileIcon.svelte';
 	import GearIcon from '../icons/GearIcon.svelte';
@@ -40,7 +40,7 @@
 			<div id="explorer-heading">{selectedTab}</div>
 			{#if selectedTab === 'EXPLORER'}
 				<span id="file-tree-options">NAND2TETRIS</span>
-				<div style:padding-left="0.5rem">
+				<div style:padding="0.5rem 2rem 0.5rem 0.5rem">
 					<FileTree {files} {onSelectFile} />
 				</div>
 			{:else if selectedTab === 'SEARCH'}

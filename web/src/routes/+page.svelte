@@ -8,6 +8,8 @@
 	import { quintInOut, quintOut } from 'svelte/easing';
 	import { scale } from 'svelte/transition';
 	import JackCompiler from '../../../projects/10-11/src/compiler/JackCompiler';
+	import { File, Directory } from '$lib/components/nand2tetris/FileTree.svelte';
+	import type { ComponentProps } from 'svelte';
 
 	const { data } = $props();
 	const { empty, fizzBuzz } = data;
@@ -22,6 +24,22 @@
 
 	let fullscreen = $state(false);
 	let outDuration = $state(0);
+
+	const files = [
+		new Directory({
+			name: 'jack',
+			files: [new File({ name: 'Main.jack' }), new File({ name: 'FizzBuzz.jack' })]
+		}),
+		new Directory({
+			name: 'vm',
+			files: [new File({ name: 'test1.vm' }), new File({ name: 'test2.vm' })]
+		}),
+		new Directory({
+			name: 'asm',
+			files: [new File({ name: 'test1.asm' }), new File({ name: 'test2.asm' })]
+		}),
+		new File({ name: 'README.md' })
+	] as const satisfies ComponentProps<Explorer>['files'];
 </script>
 
 {#if showWindow}
@@ -49,15 +67,7 @@
 		/>
 		<div id="code-layout">
 			<Explorer
-				files={[
-					{ type: 'file', name: 'Main.jack' },
-					{ type: 'file', name: 'FizzBuzz.jack' },
-					{ type: 'directory', name: 'test-dir', children: [
-						{ type: "file", name: "child1.txt" }, 
-						{ type: "file", name: "child2.txt" }, 
-						{ type: "directory", name: "test-child-dir", children: [ { type: "file", name: "innerChild.txt"}] }
-					]}
-				] as const}
+				{files}
 				onSelectFile={(fileName) => {
 					jackFileContents = fileName === 'Main.jack' ? empty : fizzBuzz ?? empty;
 				}}
