@@ -110,7 +110,7 @@
 		width: min(95%, 2560px);
 		background-color: var(--color-bg-dark);
 		border: 2px solid var(--color-grey-border);
-		border-radius: 1rem;
+		border-radius: 0.75rem;
 		/* https://shadows.brumm.af **/
 		box-shadow:
 			2.8px 2.8px 2.2px rgba(0, 0, 0, 0.059),

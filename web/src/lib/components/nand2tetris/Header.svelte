@@ -82,6 +82,6 @@
 		display: flex;
 		align-items: center;
 		gap: 0.6rem;
-		padding-left: 0.6rem;
+		padding-left: 0.8rem;
 	}
 </style>

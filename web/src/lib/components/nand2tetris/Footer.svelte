@@ -15,8 +15,8 @@
 		align-items: center;
 		justify-content: flex-start;
 		gap: 0.5rem;
-		padding: 0.5rem 0.5rem;
-		border-bottom-left-radius: 0.8rem;
+		padding: 0.4rem 0.8rem;
+		border-bottom-left-radius: 0.6rem;
 		color: var(--color-white);
 		text-decoration: none;
 	}
