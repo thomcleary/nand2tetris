@@ -1,11 +1,5 @@
 # TODO
 
-## explorer styling
-
-- make explorer look like vscode explorer
-  - style file names like vscode (selected / unselected / hover etc.)
-  - file icons in explorer and tabs
-
 ## state management
 
 - make the state management sane
@@ -17,6 +11,19 @@
     - compilation result
     - currently selected file (explorer highlighting)
     - setter to change selected file
+
+## cleanup markup and styling
+
+- cleanup component markup/html
+  - refactor into smaller components where required
+- cleanup component styles
+  - move inline styles to style tage where possible
+  - organise styles
+    - depend on IDs less
+    - organize colours
+      - convert all rgb()s into css variables
+      - consistent naming convention of css color variables
+    - make spacing consistent across and within components
 
 ## file management
 

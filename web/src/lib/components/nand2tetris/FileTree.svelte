@@ -27,6 +27,7 @@
 <script lang="ts">
 	import ChevronIcon from '../icons/ChevronIcon.svelte';
 	import FolderIcon from '../icons/FolderIcon.svelte';
+	import FileTypeIcon from '../icons/FileTypeIcon.svelte';
 	type FileTreeProps = {
 		files: readonly (File | Directory)[];
 		onSelectFile?: (fileName: File['name']) => void;
@@ -50,8 +51,8 @@
 						direction={file.open ? 'down' : 'right'}
 					/><FolderIcon
 						open={file.open}
-						width="0.6rem"
-						height="0.6rem"
+						width="0.8rem"
+						height="0.8rem"
 						fill="rgb(148, 164, 173)"
 					/>{file.name}</button
 				>
@@ -61,6 +62,7 @@
 			{:else}
 				<button
 					style:padding-left={`${spacing}rem`}
+					style:padding-right={`${spacing / 2}rem`}
 					class:selected={file.selected}
 					onclick={() => {
 						// TODO: handle this in context state
@@ -70,7 +72,12 @@
 						file.selected = true;
 						selectedFile = file;
 						onSelectFile?.(file.name);
-					}}>{file.name}</button
+					}}
+					><FileTypeIcon
+						width="0.8rem"
+						height="0.8rem"
+						fileType={file.name.split('.').pop() ?? ''}
+					/>{file.name}</button
 				>
 			{/if}
 		</li>
@@ -100,7 +107,7 @@
 		font-family: var(--font-system);
 		font-size: 0.8rem;
 		background-color: transparent;
-		color: var(--color-white);
+		color: rgb(162, 168, 180);
 		padding: 0.4rem;
 		border: none;
 	}
@@ -108,6 +115,7 @@
 	button:hover,
 	.selected {
 		background-color: rgb(51, 56, 65);
+		color: var(--color-white-brightest);
 		cursor: pointer;
 	}
 </style>
