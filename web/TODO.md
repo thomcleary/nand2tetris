@@ -5,6 +5,8 @@
 - make the state management sane
   - context at layout level for open window
     - only show currently open app (nand2tetris) in menu bar when window is open
+    - <https://joyofcode.xyz/svelte-stores-guide#signals-are-the-future>
+    - <https://joyofcode.xyz/svelte-context-with-stores#using-the-context-api>
   - context at page level for currently selected file
     - file contents
     - file name
@@ -31,13 +33,9 @@
   - show logo and help message eg "open a file to compile"
 - allow closing the currently opened file
 - add more files/folders
-  - separate folders for project 6/7/8/10/11
-  - separete folder for /examples
-    - Main.jack (empty class)
-    - FizzBuzz.jack
-    - Vm examples
-    - Asm examples
-  - top level files for README and info files for asm/vm/jack (placeholders)
+  - jack examples
+  - vm examples
+  - asm examples
 
 ## output
 
@@ -50,12 +48,12 @@
 
 ## information files
 
-- add hack/asm/vm/ instruction set info (add a file to explorer that displays a component)
 - add jack grammar info (add a file to explorer that displays a component)
+- add vm instruction set info (add a file to explorer that displays a component)
+- add asm instruction set info (add a file to explorer that displays a component)
 - README.md (add file to explorer)
-
-  - list tech used (svelte/sveltekit)
   - list learning resources used (nand2tetris.org)
+  - list tech used (svelte/sveltekit)
   - link to github repo / profile
 
 ## editor

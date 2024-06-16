@@ -29,6 +29,7 @@
 		padding: 1rem;
 		border: none;
 		resize: none;
+		text-wrap: nowrap;
 	}
 
 	textarea:focus {

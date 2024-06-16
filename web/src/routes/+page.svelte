@@ -28,15 +28,27 @@
 	const files = [
 		new Directory({
 			name: 'jack',
-			files: [new File({ name: 'Main.jack' }), new File({ name: 'FizzBuzz.jack' })]
+			files: [
+				new File({ name: 'Main.jack' }),
+				new File({ name: 'FizzBuzz.jack' }),
+				new File({ name: 'jack-grammar.md' })
+			]
 		}),
 		new Directory({
 			name: 'vm',
-			files: [new File({ name: 'test1.vm' }), new File({ name: 'test2.vm' })]
+			files: [
+				new File({ name: 'test1.vm' }),
+				new File({ name: 'test2.vm' }),
+				new File({ name: 'vm-instructions.md' })
+			]
 		}),
 		new Directory({
 			name: 'asm',
-			files: [new File({ name: 'test1.asm' }), new File({ name: 'test2.asm' })]
+			files: [
+				new File({ name: 'test1.asm' }),
+				new File({ name: 'test2.asm' }),
+				new File({ name: 'asm-instructions.md' })
+			]
 		}),
 		new File({ name: 'README.md' })
 	] as const satisfies ComponentProps<Explorer>['files'];
