@@ -4,7 +4,6 @@
 
 - make explorer look like vscode explorer
   - style file names like vscode (selected / unselected / hover etc.)
-  - get vscode explorer tab icons
   - file icons in explorer and tabs
 
 ## state management

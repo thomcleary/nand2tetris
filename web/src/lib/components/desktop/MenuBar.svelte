@@ -1,4 +1,5 @@
 <script lang="ts">
+	import PepperIcon from '../icons/PepperIcon.svelte';
 	import WifiIcon from '../icons/WifiIcon.svelte';
 
 	const getLongDate = (date: Date) => {
@@ -38,7 +39,8 @@
 
 <div id="menu-bar">
 	<div class="menu-items">
-		<span>🍐<b>nand2tetris</b></span>
+		<PepperIcon height="0.8rem" fill="white" />
+		<b>nand2tetris</b>
 	</div>
 	<div class="menu-items">
 		<WifiIcon height="0.8rem" fill={`rgba(255, 255, 255, ${connection ? '1' : '0.25'})`} />
@@ -49,7 +51,6 @@
 <style>
 	b {
 		font-weight: 800;
-		padding-left: 0.5rem;
 	}
 
 	.menu-items {

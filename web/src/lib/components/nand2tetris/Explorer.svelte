@@ -1,5 +1,9 @@
 <script lang="ts" generics="T extends string">
 	import type { ComponentProps } from 'svelte';
+	import FileIcon from '../icons/FileIcon.svelte';
+	import GearIcon from '../icons/GearIcon.svelte';
+	import MagnifyingGlassIcon from '../icons/MagnifyingGlassIcon.svelte';
+	import type { IconProps } from '../icons/types';
 	import FileTree from './FileTree.svelte';
 
 	type ExplorerProps = Pick<ComponentProps<FileTree>, 'files' | 'onSelectFile'> & {};
@@ -10,21 +14,23 @@
 
 	const handleTabClick = (tab: typeof selectedTab) =>
 		(selectedTab = tab === selectedTab ? undefined : tab);
+
+	const iconProps = { width: '1rem', height: '1rem' } as const satisfies IconProps;
 </script>
 
 <div id="explorer">
 	<div id="explorer-tabs">
 		<div class="tab-buttons">
 			<button class:selected={selectedTab === 'EXPLORER'} onclick={() => handleTabClick('EXPLORER')}
-				>📑</button
+				><FileIcon {...iconProps} /></button
 			>
 			<button class:selected={selectedTab === 'SEARCH'} onclick={() => handleTabClick('SEARCH')}
-				>🔍</button
+				><MagnifyingGlassIcon {...iconProps} /></button
 			>
 		</div>
 		<div class="tab-buttons">
 			<button class:selected={selectedTab === 'SETTINGS'} onclick={() => handleTabClick('SETTINGS')}
-				>⚙️</button
+				><GearIcon {...iconProps} /></button
 			>
 		</div>
 	</div>
@@ -48,7 +54,7 @@
 	button {
 		font-size: 1rem;
 		background-color: transparent;
-		color: var(--color-grey);
+		fill: var(--color-grey);
 		padding: 0.5rem;
 		border: none;
 		border-left: 2px solid transparent;
@@ -56,7 +62,7 @@
 	}
 
 	button:hover {
-		color: var(--color-white-bright);
+		fill: var(--color-white-bright);
 	}
 
 	input {
@@ -76,7 +82,7 @@
 	}
 
 	.selected {
-		color: var(--color-white-bright);
+		fill: var(--color-white-bright);
 		border-left: 2px solid var(--color-white-bright);
 	}
 
