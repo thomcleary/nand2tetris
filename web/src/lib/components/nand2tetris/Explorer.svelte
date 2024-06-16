@@ -40,9 +40,7 @@
 			<div id="explorer-heading">{selectedTab}</div>
 			{#if selectedTab === 'EXPLORER'}
 				<span id="file-tree-options">NAND2TETRIS</span>
-				<div style:padding="0.5rem 2rem 0.5rem 0.5rem">
-					<FileTree {files} {onSelectFile} />
-				</div>
+				<FileTree {files} {onSelectFile} />
 			{:else if selectedTab === 'SEARCH'}
 				<input placeholder="Search" />
 			{/if}

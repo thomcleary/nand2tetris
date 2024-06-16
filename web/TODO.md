@@ -15,6 +15,7 @@
     - file contents
     - file name
     - compilation result
+    - currently selected file (explorer highlighting)
     - setter to change selected file
 
 ## file management
