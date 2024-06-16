@@ -1,5 +1,5 @@
 <script lang="ts">
-	import MenuBar from '$lib/components/MenuBar/MenuBar.svelte';
+	import MenuBar from '$lib/components/desktop/MenuBar.svelte';
 	import '../app.css';
 
 	const { children } = $props();

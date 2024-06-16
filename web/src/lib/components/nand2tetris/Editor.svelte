@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Tabs from '../shared/Tabs.svelte';
+	import Tabs from './Tabs.svelte';
 
 	type EditorProps = {
 		fileContents: string;

@@ -1,10 +1,10 @@
 <script lang="ts">
 	import appleTouchLogo from '$lib/assets/images/apple-touch-icon.png';
-	import Editor from '$lib/components/Editor/Editor.svelte';
-	import Explorer from '$lib/components/Explorer/Explorer.svelte';
-	import Footer from '$lib/components/Footer/Footer.svelte';
-	import Header from '$lib/components/Header/Header.svelte';
-	import Output from '$lib/components/Output/Output.svelte';
+	import Editor from '$lib/components/nand2tetris/Editor.svelte';
+	import Explorer from '$lib/components/nand2tetris/Explorer.svelte';
+	import Footer from '$lib/components/nand2tetris/Footer.svelte';
+	import Header from '$lib/components/nand2tetris/Header.svelte';
+	import Output from '$lib/components/nand2tetris/Output.svelte';
 	import { quintInOut, quintOut } from 'svelte/easing';
 	import { scale } from 'svelte/transition';
 	import JackCompiler from '../../../projects/10-11/src/compiler/JackCompiler';
