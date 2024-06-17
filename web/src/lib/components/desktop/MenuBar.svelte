@@ -13,13 +13,12 @@
 </script>
 
 <script lang="ts">
-	import { getDesktopContext } from '$lib/contexts/desktopContext.svelte';
+	import { DesktopContext } from '$lib/contexts/DesktopContext.svelte';
 
 	import PepperIcon from '../icons/PepperIcon.svelte';
 	import WifiIcon from '../icons/WifiIcon.svelte';
 
 	let dateTime = $state(getLongDate(new Date()));
-	let desktop = getDesktopContext();
 
 	$effect(() => {
 		const interval = setInterval(() => (dateTime = getLongDate(new Date())), 1000);
@@ -45,8 +44,8 @@
 <div id="menu-bar">
 	<div class="menu-items">
 		<PepperIcon height="0.8rem" fill="white" />
-		{#if desktop.currentApplication}
-			<b>{desktop.currentApplication}</b>
+		{#if DesktopContext.currentApplication}
+			<b>{DesktopContext.currentApplication}</b>
 		{/if}
 	</div>
 	<div class="menu-items">

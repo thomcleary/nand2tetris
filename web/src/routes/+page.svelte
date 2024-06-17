@@ -6,16 +6,14 @@
 	import Footer from '$lib/components/nand2tetris/Footer.svelte';
 	import Header from '$lib/components/nand2tetris/Header.svelte';
 	import Output from '$lib/components/nand2tetris/Output.svelte';
-	import { getDesktopContext } from '$lib/contexts/desktopContext.svelte';
 	import type { ComponentProps } from 'svelte';
 	import { quintInOut, quintOut } from 'svelte/easing';
 	import { scale } from 'svelte/transition';
 	import JackCompiler from '../../../projects/10-11/src/compiler/JackCompiler';
+	import { DesktopContext } from '$lib/contexts/DesktopContext.svelte';
 
 	const { data } = $props();
 	const { empty, fizzBuzz } = data;
-
-	const { setCurrentApplication, closeCurrentApplication } = getDesktopContext();
 
 	const jackCompiler = new JackCompiler();
 
@@ -66,7 +64,7 @@
 		onoutroend={() => {
 			if (!showWindow) {
 				showDesktop = true;
-				closeCurrentApplication();
+				DesktopContext.currentApplication = undefined;
 			}
 		}}
 	>
@@ -104,7 +102,7 @@
 		onclick={() => {
 			showDesktop = false;
 			showWindow = true;
-			setCurrentApplication('nand2tetris');
+			DesktopContext.currentApplication = 'nand2tetris';
 		}}><img src={appleTouchLogo} height={64} width={64} alt="nand2tetris" />nand2tetris</button
 	>
 {/if}

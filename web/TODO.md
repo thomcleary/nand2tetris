@@ -3,11 +3,9 @@
 ## state management
 
 - make the state management sane
-  - context at nand2tetris window level
-    - currently selected file (for explorer highlighting)
-      - file name
-      - file contents
-      - setter to change selected file
+  - currently selected file
+  - file name
+  - file contents
 
 ## cleanup markup and styling
 

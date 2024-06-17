@@ -1,11 +1,8 @@
 <script lang="ts">
 	import MenuBar from '$lib/components/desktop/MenuBar.svelte';
-	import { createDesktopContext } from '$lib/contexts/desktopContext.svelte';
 	import '../app.css';
 
 	const { children } = $props();
-
-	createDesktopContext();
 </script>
 
 <MenuBar />
