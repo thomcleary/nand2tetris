@@ -8,34 +8,31 @@
     - <https://joyofcode.xyz/svelte-stores-guide#signals-are-the-future>
     - <https://joyofcode.xyz/svelte-context-with-stores#using-the-context-api>
   - context at page level for currently selected file
-    - file contents
-    - file name
-    - compilation result
     - currently selected file (explorer highlighting)
+    - file name
+    - file contents
     - setter to change selected file
 
 ## cleanup markup and styling
 
-- cleanup component markup/html
-  - refactor into smaller components where required
+- cleanup component markup
 - cleanup component styles
   - move inline styles to style tage where possible
-  - organise styles
-    - depend on IDs less
-    - organize colours
-      - convert all rgb()s into css variables
-      - consistent naming convention of css color variables
-    - make spacing consistent across and within components
+  - organise colours
+    - convert all rgb()s into css variables
+    - consistent naming convention of css color variables
 
 ## file management
 
 - don't have any file in editor on initial load
   - show logo and help message eg "open a file to compile"
 - allow closing the currently opened file
-- add more files/folders
-  - jack examples
-  - vm examples
-  - asm examples
+
+## code files
+
+- add jack files
+- add vm files
+- add asm files
 
 ## output
 
@@ -58,9 +55,14 @@
 
 ## editor
 
-- allow having multiple tabs open
-  - show path to file in top between textare and tab (like vscode)
-- add line numbers to editor
+- replace with a code editor component (external package)
+
+## output error styling
+
+- make tab color highlighting red when there is an error with that tab
+- make the error message appear like what it looks like in vscode PROBLEMS tab
+- disable tabs that will not have output (eg, if failure generating vmInstructions, disable .asm/.hack tabs)
+- Add line number and info to error messages
 
 ## persistance
 
@@ -78,29 +80,8 @@
 
 ## settings
 
-- change theme
-  - light
-  - dark
-- change font
+- TODO ideas
 
-## error styling
+## other
 
-- make tab color highlighting red when there is an error with that tab
-- make the error message appear like what it looks like in vscode PROBLEMS tab
-- disable tabs that will not have output (eg, if failure generating vmInstructions, disable .asm/.hack tabs)
-
-## ux
-
-- keyboard shortucts
-  - show and hide explorer ctr+b
-- syntax highlight output
-- style scrollbars to look like vscode to be consistent across browsers / devices
-- nicer typing experience in code box
-- syntax highlight editor
-- highlight code in editor with tokens from tokenizer output (checkbox to toggle on)
-  - hover over token shows tooltip with token information
-
-## error messages
-
-- Add line number and info to error messages
 - highlight errors in input with squiggle red line?
