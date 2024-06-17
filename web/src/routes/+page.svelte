@@ -85,7 +85,7 @@
 			<Explorer
 				{files}
 				onSelectFile={(fileName) => {
-					jackFileContents = fileName === 'Main.jack' ? empty : fizzBuzz ?? empty;
+					jackFileContents = fileName === 'Main.jack' ? empty : fizzBuzz;
 				}}
 			/>
 			<Editor
