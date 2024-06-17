@@ -1,7 +1,4 @@
-<script lang="ts">
-	import PepperIcon from '../icons/PepperIcon.svelte';
-	import WifiIcon from '../icons/WifiIcon.svelte';
-
+<script lang="ts" context="module">
 	const getLongDate = (date: Date) => {
 		const [dayOfWeek, month, day] = date.toString().split(' ');
 		return [
@@ -13,8 +10,16 @@
 				.toLocaleUpperCase()
 		].join(' ');
 	};
+</script>
+
+<script lang="ts">
+	import { getDesktopContext } from '$lib/contexts/desktopContext.svelte';
+
+	import PepperIcon from '../icons/PepperIcon.svelte';
+	import WifiIcon from '../icons/WifiIcon.svelte';
 
 	let dateTime = $state(getLongDate(new Date()));
+	let desktop = getDesktopContext();
 
 	$effect(() => {
 		const interval = setInterval(() => (dateTime = getLongDate(new Date())), 1000);
@@ -40,7 +45,9 @@
 <div id="menu-bar">
 	<div class="menu-items">
 		<PepperIcon height="0.8rem" fill="white" />
-		<b>nand2tetris</b>
+		{#if desktop.currentApplication}
+			<b>{desktop.currentApplication}</b>
+		{/if}
 	</div>
 	<div class="menu-items">
 		<WifiIcon height="0.8rem" fill={`rgba(255, 255, 255, ${connection ? '1' : '0.25'})`} />

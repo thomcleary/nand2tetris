@@ -3,15 +3,11 @@
 ## state management
 
 - make the state management sane
-  - context at layout level for open window
-    - only show currently open app (nand2tetris) in menu bar when window is open
-    - <https://joyofcode.xyz/svelte-stores-guide#signals-are-the-future>
-    - <https://joyofcode.xyz/svelte-context-with-stores#using-the-context-api>
-  - context at page level for currently selected file
-    - currently selected file (explorer highlighting)
-    - file name
-    - file contents
-    - setter to change selected file
+  - context at nand2tetris window level
+    - currently selected file (for explorer highlighting)
+      - file name
+      - file contents
+      - setter to change selected file
 
 ## cleanup markup and styling
 
