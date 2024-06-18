@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { ComponentProps } from 'svelte';
 	import Window from '../Window.svelte';
+	import Footer from './Footer.svelte';
 
 	let {
 		...windowProps
@@ -9,13 +10,25 @@
 
 <Window {...windowProps}>
 	{#snippet headerCenter()}
-		<a href="https://www.nand2tetris.org/" target="_blank" rel="noreferrer">nand2tetris</a>
+		<a class="header-link" href="https://www.nand2tetris.org/" target="_blank" rel="noreferrer"
+			>nand2tetris</a
+		>
 	{/snippet}
-	<h1>nand2tetris</h1>
+	<div class="nand2tetris">
+		<h1 style:background-color="red" style:grid-area="explorer">explorer</h1>
+		<h1 style:background-color="green" style:grid-area="editor">editor</h1>
+		<h1 style:background-color="blue" style:grid-area="output">output</h1>
+		<Footer />
+	</div>
 </Window>
 
 <style>
-	a {
+	h1 {
+		color: white;
+		margin: 0;
+	}
+
+	.header-link {
 		font-family: var(--font-system);
 		font-size: 0.8rem;
 		background-color: rgb(47, 50, 57);
@@ -28,8 +41,28 @@
 		text-decoration: none;
 	}
 
-	a:hover {
+	.header-link:hover {
 		color: rgb(159, 165, 179);
 		border: 1px solid rgb(69, 73, 80);
+	}
+
+	.nand2tetris {
+		display: grid;
+		grid-template-columns: min-content 1fr 0.75fr;
+		grid-template-rows: 1fr min-content;
+		grid-template-areas:
+			'explorer editor output'
+			'footer footer footer';
+	}
+
+	@media (width <= 1280px) {
+		.nand2tetris {
+			grid-template-columns: min-content 1fr;
+			grid-template-rows: 1fr 0.66fr min-content;
+			grid-template-areas:
+				'explorer editor'
+				'output output'
+				'footer footer';
+		}
 	}
 </style>

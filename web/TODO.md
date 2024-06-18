@@ -9,14 +9,10 @@
   {#snippet heading()}
     <a>nand2Tetris</a>
   {/snippet}
-  <div>
-    <div>
-      <Explorer />
-      <Editor />
-      <Output />
-    </div>
-    <Footer />
-  </div>
+  <Explorer />
+  <Editor />
+  <Output />
+  <Footer />
 </Window>
 
 ```

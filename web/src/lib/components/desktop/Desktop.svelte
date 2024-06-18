@@ -55,6 +55,5 @@
 		padding: 0;
 		border: none;
 		border-radius: 1rem;
-		cursor: pointer;
 	}
 </style>

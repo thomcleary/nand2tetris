@@ -15,7 +15,7 @@
 		height: 100%;
 		display: grid;
 		grid-template-columns: 1fr;
-		grid-template-rows: max-content 1fr;
+		grid-template-rows: min-content 1fr;
 
 		/* https://cssgradient.io/ **/
 		background: linear-gradient(

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { _$online } from '$lib/runes/_$online.svelte';
 	import type { Snippet } from 'svelte';
 	import { quintInOut, quintOut } from 'svelte/easing';
 	import { scale } from 'svelte/transition';
