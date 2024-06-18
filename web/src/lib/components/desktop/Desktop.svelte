@@ -11,16 +11,16 @@
 	} = $props();
 
 	let open = $state(false);
+
+	const handleClose = () => {
+		open = false;
+		onCloseApp?.('nand2tetris');
+	};
 </script>
 
 <main>
 	{#if open}
-		<Nand2Tetris
-			onClose={() => {
-				open = false;
-				onCloseApp?.('nand2tetris');
-			}}
-		/>
+		<Nand2Tetris onClose={handleClose} onMinimise={handleClose} />
 	{:else}
 		<button
 			onclick={() => {
@@ -36,7 +36,9 @@
 
 <style>
 	main {
-		justify-self: center;
-		align-self: center;
+		display: grid;
+		grid-template: 1fr / 1fr;
+		align-items: center;
+		justify-items: center;
 	}
 </style>

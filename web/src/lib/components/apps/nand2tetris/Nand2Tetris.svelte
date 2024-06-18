@@ -1,5 +1,15 @@
 <script lang="ts">
-	let { onMinimise, onClose }: { onMinimise?: () => void; onClose?: () => void } = $props();
+	import type { ComponentProps } from 'svelte';
+	import Window from '../Window.svelte';
+
+	let {
+		...windowProps
+	}: Pick<ComponentProps<Window>, 'onClose' | 'onMinimise' | 'onMaximise'> = $props();
 </script>
 
-<button onclick={onClose}>nand2tetris</button>
+<Window {...windowProps}>
+	{#snippet header()}
+		<h1>header</h1>
+	{/snippet}
+	<h1>nand2tetris</h1>
+</Window>

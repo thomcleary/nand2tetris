@@ -16,7 +16,11 @@ const getLongDate = (date: Date) => {
 		month,
 		day,
 		date
-			.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
+			.toLocaleTimeString([], {
+				hour: 'numeric',
+				minute: '2-digit',
+				hour12: true
+			})
 			.toLocaleUpperCase()
 	].join(' ');
 };
