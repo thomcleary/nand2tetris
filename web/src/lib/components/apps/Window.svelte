@@ -1,5 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import { quintInOut, quintOut } from 'svelte/easing';
+	import { scale } from 'svelte/transition';
 
 	const colours = {
 		red: '#EC695E',
@@ -23,7 +25,15 @@
 		children: Snippet;
 	} = $props();
 
+	let show = $state(false);
+	$effect(() => {
+		show = true;
+	});
+
 	let fullscreen = $state(false);
+
+	let outroType = $state<'close' | 'minimise'>();
+	let outroDuration = $derived(outroType === 'close' ? 0 : 750);
 </script>
 
 {#snippet circle({colour, onClick}: {colour: keyof typeof colours, onClick: (() => void) | undefined})}
@@ -34,24 +44,44 @@
 	</button>
 {/snippet}
 
-<div class="window" class:fullscreen>
-	<header>
-		<div class="window-buttons">
-			{@render circle({ colour: 'red', onClick: onClose })}
-			{@render circle({ colour: 'yellow', onClick: onMinimise })}
-			{@render circle({
-				colour: 'green',
-				onClick: () => {
-					fullscreen = !fullscreen;
-					onMaximise?.();
-				}
-			})}
-		</div>
-		{@render headerCenter?.()}
-		{@render headerRight?.()}
-	</header>
-	{@render children()}
-</div>
+{#if show}
+	<div
+		class="window"
+		class:fullscreen
+		in:scale={{ easing: quintOut, duration: 1000, opacity: 0.5 }}
+		out:scale={{ easing: quintInOut, duration: outroDuration, opacity: 0.5 }}
+		onoutroend={() => (outroType === 'close' ? onClose?.() : onMinimise?.())}
+	>
+		<header>
+			<div class="window-buttons">
+				{@render circle({
+					colour: 'red',
+					onClick: () => {
+						outroType = 'close';
+						show = false;
+					}
+				})}
+				{@render circle({
+					colour: 'yellow',
+					onClick: () => {
+						outroType = 'minimise';
+						show = false;
+					}
+				})}
+				{@render circle({
+					colour: 'green',
+					onClick: () => {
+						fullscreen = !fullscreen;
+						onMaximise?.();
+					}
+				})}
+			</div>
+			{@render headerCenter?.()}
+			{@render headerRight?.()}
+		</header>
+		{@render children()}
+	</div>
+{/if}
 
 <style>
 	header {
