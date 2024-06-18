@@ -2,32 +2,6 @@
 
 ## refactor components and state
 
-- `layout.svelte` only for importing `app.css`
-
-  - move any `:global(body)` styles into `app.css`
-
-- `+page.svelte` for creating global contexts
-
-  - context create/get functions in `lib/context/someContext.svelte.ts` files
-  - only renders 2 components
-
-  ```svelte
-  <script>
-  	// create app contexts for desktop
-  </script>
-
-  <MenuBar />
-  <Desktop />
-  ```
-
-  - `MenuBar.svelte` largely unchanged, use `<header>` element instead?
-
-  - `Desktop.svelte`
-    - list of applications {component: Component, name: string, icon: Component}[]
-    - renders desktop icons if `context.currentApplication` is undefined (each applications as app)
-      - will set `context.currentApplication` to app when clicked
-    - renders currentApplication if `context.currentApplication` is defined
-
 - `Window.svelte` as container component to wrap applications in
 
   - `<Window app="nand2tetris" />`

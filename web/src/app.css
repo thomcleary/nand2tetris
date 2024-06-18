@@ -28,6 +28,12 @@
 	src: url('$lib/assets/fonts/fira-code/FiraCode-VariableFont_wght.ttf') format('truetype');
 }
 
+*,
+*:before,
+*:after {
+	box-sizing: border-box;
+}
+
 * {
 	font-family: 'Fira Code', monospace;
 	font-size: 16px;
@@ -39,14 +45,10 @@
 	}
 }
 
-*,
-*:before,
-*:after {
-	box-sizing: inherit;
-}
-
-html {
-	box-sizing: border-box;
+body {
+	height: 100dvh;
+	width: 100dvw;
+	margin: 0;
 }
 
 button {

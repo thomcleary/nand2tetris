@@ -1,71 +1,34 @@
-<script lang="ts" context="module">
-	const getLongDate = (date: Date) => {
-		const [dayOfWeek, month, day] = date.toString().split(' ');
-		return [
-			dayOfWeek,
-			month,
-			day,
-			date
-				.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
-				.toLocaleUpperCase()
-		].join(' ');
-	};
-</script>
-
 <script lang="ts">
-	import { DesktopContext } from '$lib/contexts/DesktopContext.svelte';
+	import WifiIcon from '../../../lib/components/icons/WifiIcon.svelte';
+	import SvelteIcon from '../icons/SvelteIcon.svelte';
+	import { _$dateTime } from '$lib/runes/_$dateTime.svelte';
+	import { _$online } from '$lib/runes/_$online.svelte';
 
-	import PepperIcon from '../icons/PepperIcon.svelte';
-	import WifiIcon from '../icons/WifiIcon.svelte';
+	let { currentApp }: { currentApp: string | undefined } = $props();
 
-	let dateTime = $state(getLongDate(new Date()));
-
-	$effect(() => {
-		const interval = setInterval(() => (dateTime = getLongDate(new Date())), 1000);
-		return () => clearInterval(interval);
-	});
-
-	let connection = $state(navigator.onLine);
-
-	$effect(() => {
-		const offline = () => (connection = false);
-		const online = () => (connection = true);
-
-		window.addEventListener('offline', offline);
-		window.addEventListener('online', online);
-
-		return () => {
-			window.removeEventListener('offline', offline);
-			window.removeEventListener('online', online);
-		};
-	});
+	let dateTime = _$dateTime();
+	let online = _$online();
 </script>
 
-<div id="menu-bar">
-	<div class="menu-items">
-		<PepperIcon height="0.8rem" fill="white" />
-		{#if DesktopContext.currentApplication}
-			<b>{DesktopContext.currentApplication}</b>
+<header class="menu-bar">
+	<div class="menu-bar-items">
+		<SvelteIcon height="0.8rem" fill="white" />
+		{#if currentApp}
+			<b>{currentApp}</b>
 		{/if}
 	</div>
-	<div class="menu-items">
-		<WifiIcon height="0.8rem" fill={`rgba(255, 255, 255, ${connection ? '1' : '0.25'})`} />
-		<span id="menu-bar-datetime">{dateTime}</span>
+	<div class="menu-bar-items">
+		<WifiIcon height="0.8rem" fill={`rgba(255, 255, 255, ${online() ? '1' : '0.25'})`} />
+		<span class="menu-bar-datetime">{dateTime()}</span>
 	</div>
-</div>
+</header>
 
 <style>
 	b {
 		font-weight: 800;
 	}
 
-	.menu-items {
-		display: flex;
-		align-items: center;
-		gap: 1rem;
-	}
-
-	#menu-bar {
+	.menu-bar {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
@@ -75,12 +38,18 @@
 	}
 
 	b,
-	#menu-bar span {
+	.menu-bar span {
 		font-family: var(--font-system);
 		font-size: 0.8rem;
 	}
 
-	#menu-bar-datetime {
+	.menu-bar-items {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+	}
+
+	.menu-bar-datetime {
 		opacity: 0.5;
 	}
 </style>
