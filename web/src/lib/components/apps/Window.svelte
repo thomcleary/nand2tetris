@@ -11,13 +11,15 @@
 		onClose,
 		onMinimise,
 		onMaximise,
-		header,
+		headerCenter,
+		headerRight,
 		children
 	}: {
 		onClose?: () => void;
 		onMinimise?: () => void;
 		onMaximise?: () => void;
-		header?: Snippet;
+		headerCenter?: Snippet;
+		headerRight?: Snippet;
 		children: Snippet;
 	} = $props();
 
@@ -45,19 +47,28 @@
 				}
 			})}
 		</div>
-		{@render header?.()}
+		{@render headerCenter?.()}
+		{@render headerRight?.()}
 	</header>
 	{@render children()}
 </div>
 
 <style>
+	header {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		align-items: center;
+		border-top-left-radius: 0.75rem;
+		border-top-right-radius: 0.75rem;
+	}
+
 	.window {
 		display: grid;
 		grid-template: min-content 1fr / 1fr;
 		height: 90%;
 		width: min(95%, 2560px);
-		background-color: var(--color-bg-dark);
-		border: 2px solid var(--color-grey-border);
+		background-color: var(--bg-color, var(--color-bg-dark));
+		border: 2px solid var(--border-color, var(--color-grey-border));
 		border-radius: 0.75rem;
 		/* https://shadows.brumm.af **/
 		box-shadow:

@@ -41,4 +41,20 @@
 		align-items: center;
 		justify-items: center;
 	}
+
+	button {
+		height: 4rem;
+		width: 4rem;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.25rem;
+		font-family: Arial, Helvetica, sans-serif;
+		background-color: transparent;
+		color: white;
+		padding: 0;
+		border: none;
+		border-radius: 1rem;
+		cursor: pointer;
+	}
 </style>

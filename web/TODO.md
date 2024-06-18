@@ -2,32 +2,6 @@
 
 ## refactor components and state
 
-- `Window.svelte` as container component to wrap applications in
-
-  - `<Window app="nand2tetris" />`
-
-  ```svelte
-  <script>
-  	let { onClose, onMinimise, onMaximise, heading, children } = $props();
-  </script>
-
-  {#snippet windowButtons()}
-  	<button onclick={() => { onClose?.(); close();}>red</button>
-  	<button onclick={() => { onMinimise?.(); minimise();}>yellow</button>
-  	<button onclick={() => { onMaximise?.(); (fullscreen = !fullscreen);}}>green</button>
-  {/snippet}
-
-  <div>
-  	<header style:display="flex">
-  		{@render windowButtons()}
-  		{@render heading()}
-  	</header>
-  	{@render children()}
-  </div>
-  ```
-
-  - <https://svelte.dev/docs/component-directives#style-props/>
-
 - `Nand2Tetris.svelte` renders the vscode knock off
 
 ```svelte
