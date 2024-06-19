@@ -151,7 +151,11 @@ export const translate = ({
       currentFunction = vmInstruction.func;
     }
 
-    const context = { fileName, currentFunction, lineNumber } as const satisfies TranslationContext;
+    const context = {
+      fileName: fileName.replace(".vm", ""),
+      currentFunction,
+      lineNumber,
+    } as const satisfies TranslationContext;
 
     assemblyInstructions.push(toComment(line));
     assemblyInstructions.push(...toAssembly({ vmInstruction, context }));

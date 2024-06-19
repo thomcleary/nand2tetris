@@ -4,8 +4,6 @@
 
 	const context = getNand2TetrisContext();
 	const finder = getFinder();
-
-	$inspect(context);
 </script>
 
 <div class="explorer">

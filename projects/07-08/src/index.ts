@@ -2,7 +2,7 @@ import { existsSync, lstatSync, readFileSync, readdirSync, writeFileSync } from 
 import path from "path";
 import { bootstrap } from "./bootstrap.js";
 import { Result } from "./types.js";
-import { error } from "./utils.js";
+import { error, toVmInstructions } from "./utils.js";
 import { translate } from "./vmTranslator.js";
 
 const getVmFiles = (): Result<{ vmFiles: readonly string[]; outfile: string }> => {
@@ -38,11 +38,7 @@ const getVmInstructions = (filePath: string): Result<{ vmInstructions: readonly 
   try {
     return {
       success: true,
-      vmInstructions: readFileSync(filePath)
-        .toString()
-        .trim()
-        .split("\n")
-        .map((line) => line.trim()),
+      vmInstructions: toVmInstructions(readFileSync(filePath).toString()),
     };
   } catch {
     return { success: false, message: error(`unable to read file ${filePath}`) };
@@ -69,8 +65,7 @@ const main = () => {
     }
 
     const { vmInstructions } = vmInstructionsResult;
-    const fileName = path.basename(vmFilePath).replace(".vm", "");
-    const translateResult = translate({ vmInstructions, fileName });
+    const translateResult = translate({ vmInstructions, fileName: path.basename(vmFilePath) });
 
     if (!translateResult.success) {
       console.log(translateResult.message);

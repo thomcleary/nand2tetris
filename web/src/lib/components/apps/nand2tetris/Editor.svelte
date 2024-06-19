@@ -40,14 +40,18 @@
 		margin: 0;
 		padding: 1rem;
 		border: none;
-		outline: none;
 		resize: none;
 		text-wrap: nowrap;
+	}
+
+	textarea:focus {
+		outline: none;
 	}
 
 	.editor {
 		grid-area: editor;
 		display: flex;
 		flex-direction: column;
+		border-left: 1px solid var(--color-grey-border);
 	}
 </style>

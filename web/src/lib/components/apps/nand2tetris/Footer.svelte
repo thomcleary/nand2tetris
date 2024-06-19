@@ -34,5 +34,6 @@
 		display: flex;
 		justify-content: flex-start;
 		align-items: center;
+		border-top: 1px solid var(--color-grey-border);
 	}
 </style>

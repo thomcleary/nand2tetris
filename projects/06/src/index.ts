@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "fs";
 import { assemble } from "./assembler.js";
 import { Result } from "./types.js";
-import { error } from "./utils.js";
+import { error, toAssemblyInstructions } from "./utils.js";
 
 const getAssemblyFilePath = (): Result<{ filePath: string }> => {
   const filePath = process.argv[2];
@@ -24,11 +24,7 @@ const getAssemblyInstructions = (filePath: string): Result<{ assemblyInstruction
   try {
     return {
       success: true,
-      assemblyInstructions: readFileSync(filePath)
-        .toString()
-        .trim()
-        .split("\n")
-        .map((line) => line.trim().replaceAll(" ", "")),
+      assemblyInstructions: toAssemblyInstructions(readFileSync(filePath).toString()),
     };
   } catch {
     return { success: false, message: error({ message: `unable to read file ${filePath}` }) };

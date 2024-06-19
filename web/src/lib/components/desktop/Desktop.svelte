@@ -45,8 +45,6 @@
 	}
 
 	button {
-		/* height: 4rem; */
-		/* width: 4rem; */
 		display: flex;
 		flex-direction: column;
 		align-items: center;

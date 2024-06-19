@@ -17,6 +17,20 @@
 
 ```
 
+## purge
+
+- delete old components / stuff
+
+## layout
+
+- dynamically adjust grid layouts based on selected file state
+  - if no selected file then output area should be 0
+
+## refactor output generation
+
+- move code that generates output result into separate file
+- make the return type change based on the file extension of the File being passed in
+
 ## cleanup markup and styling
 
 - (mainly internal nand2tetris components that haven't been touched during refactor)

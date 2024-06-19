@@ -65,3 +65,9 @@ export const toLabel = ({
 
   return label ? `${prefix}$${suffix}` : prefix;
 };
+
+export const toVmInstructions = (vmFileContents: string) =>
+  vmFileContents
+    .trim()
+    .split("\n")
+    .map((line) => line.trim());
