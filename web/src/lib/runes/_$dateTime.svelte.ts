@@ -2,7 +2,10 @@ export const _$dateTime = () => {
 	let dateTime = $state(getLongDate(new Date()));
 
 	$effect(() => {
-		const interval = setInterval(() => (dateTime = getLongDate(new Date())), 1000);
+		const interval = setInterval(() => {
+			dateTime = getLongDate(new Date());
+		}, 1000);
+
 		return () => clearInterval(interval);
 	});
 

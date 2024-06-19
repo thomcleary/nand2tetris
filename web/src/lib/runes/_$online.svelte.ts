@@ -1,4 +1,10 @@
+import { browser } from '$app/environment';
+
 export const _$online = () => {
+	if (!browser) {
+		return () => false;
+	}
+
 	let online = $state(navigator.onLine);
 
 	const handleOffline = () => (online = false);

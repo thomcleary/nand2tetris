@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { _$dateTime } from '$lib/runes/_$dateTime.svelte';
 	import { _$online } from '$lib/runes/_$online.svelte';
+	import { fade } from 'svelte/transition';
 	import WifiIcon from '../../../lib/components/icons/WifiIcon.svelte';
 	import SvelteIcon from '../icons/SvelteIcon.svelte';
 
@@ -14,7 +15,7 @@
 	<div class="menu-bar-items">
 		<SvelteIcon height="0.8rem" fill="white" />
 		{#if currentApp}
-			<b>{currentApp}</b>
+			<b transition:fade={{ duration: 250 }}>{currentApp}</b>
 		{/if}
 	</div>
 	<div class="menu-bar-items">
@@ -34,7 +35,7 @@
 		align-items: center;
 		justify-content: space-between;
 		padding: 0.25rem 1rem;
-		background-color: rgba(0, 0, 0, 0.2);
+		background-color: rgba(0, 0, 0, 0.3);
 		color: white;
 	}
 

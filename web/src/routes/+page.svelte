@@ -4,9 +4,9 @@
 
 	const { data } = $props();
 
-	for (const file of data.files) {
-		console.log(file);
-	}
+	// for (const file of data.files) {
+	// 	console.log(file);
+	// }
 
 	// TODO: create a FileTree structure from data.files
 	// TODO: expose the FileTree as state via context
