@@ -46,6 +46,7 @@
 	}
 
 	.editor {
+		grid-area: editor;
 		display: flex;
 		flex-direction: column;
 	}

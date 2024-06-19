@@ -51,8 +51,6 @@ html {
 }
 
 body {
-	height: 100dvh;
-	width: 100dvw;
 	margin: 0;
 }
 
@@ -62,8 +60,8 @@ button {
 }
 
 ::-webkit-scrollbar {
-	width: 4px;
-	height: 4px;
+	width: 8px;
+	height: 8px;
 }
 
 /* Track */
@@ -82,6 +80,11 @@ button {
 /* Handle */
 ::-webkit-scrollbar-thumb {
 	background: var(--color-grey-border); /* Inspected VSCode in browser */
+}
+
+::-webkit-scrollbar-track:hover,
+::-webkit-scrollbar-thumb:hover {
+	cursor: default;
 }
 
 /* Corner */

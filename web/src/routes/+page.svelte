@@ -17,7 +17,7 @@
 
 <style>
 	.screen {
-		height: 100%;
+		min-height: 100dvh;
 		display: grid;
 		grid-template-columns: 1fr;
 		grid-template-rows: min-content 1fr;

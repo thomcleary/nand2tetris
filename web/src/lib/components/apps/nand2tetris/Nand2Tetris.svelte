@@ -34,6 +34,7 @@
 	import Editor from './Editor.svelte';
 	import Explorer from './Explorer.svelte';
 	import Footer from './Footer.svelte';
+	import Output from './Output.svelte';
 
 	let {
 		...windowProps
@@ -51,17 +52,12 @@
 	<div class="nand2tetris">
 		<Explorer />
 		<Editor />
-		<h1 style:background-color="blue" style:grid-area="output">output</h1>
+		<Output />
 		<Footer />
 	</div>
 </Window>
 
 <style>
-	h1 {
-		color: white;
-		margin: 0;
-	}
-
 	.header-link {
 		font-size: 0.8rem;
 		background-color: rgb(47, 50, 57);

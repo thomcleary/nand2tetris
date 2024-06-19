@@ -27,4 +27,8 @@
 		color: white;
 		padding: 1rem;
 	}
+
+	.explorer {
+		grid-area: explorer;
+	}
 </style>

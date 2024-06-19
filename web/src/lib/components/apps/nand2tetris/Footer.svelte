@@ -2,20 +2,13 @@
 	import GithubIcon from '$lib/components/icons/GithubIcon.svelte';
 </script>
 
-<div>
+<div class="footer">
 	<a href="https://github.com/thomcleary" target="_blank" rel="noreferrer"
 		><GithubIcon width="1rem" height="1rem" fill="var(--color-white)" /><span>thomcleary</span></a
 	>
 </div>
 
 <style>
-	div {
-		grid-area: 'footer';
-		display: flex;
-		justify-content: flex-start;
-		align-items: center;
-	}
-
 	a {
 		height: 100%;
 		display: flex;
@@ -34,5 +27,12 @@
 
 	a > span {
 		font-size: 0.7rem;
+	}
+
+	.footer {
+		grid-area: footer;
+		display: flex;
+		justify-content: flex-start;
+		align-items: center;
 	}
 </style>
