@@ -1,15 +1,11 @@
 <script lang="ts">
 	import Desktop from '$lib/components/desktop/Desktop.svelte';
 	import MenuBar from '$lib/components/desktop/MenuBar.svelte';
+	import { setFinder } from '$lib/contexts/finder.svelte.js';
 
 	const { data } = $props();
 
-	// for (const file of data.files) {
-	// 	console.log(file);
-	// }
-
-	// TODO: create a FileTree structure from data.files
-	// TODO: expose the FileTree as state via context
+	setFinder({ files: data.files });
 
 	let currentApp = $state<string>();
 </script>

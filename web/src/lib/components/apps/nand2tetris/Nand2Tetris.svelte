@@ -1,11 +1,45 @@
+<script lang="ts" context="module">
+	import type { File } from '$lib/types';
+
+	export type Nand2TetrisContext = {
+		selectedFile: File | undefined;
+	};
+
+	const contextKey = 'nand2tetris';
+
+	const setNand2TetrisContext = () => {
+		const context = $state<Nand2TetrisContext>({ selectedFile: undefined });
+
+		setContext(contextKey, context);
+
+		return context;
+	};
+
+	export const getNand2TetrisContext = () => {
+		const context = getContext<ReturnType<typeof setNand2TetrisContext> | undefined>(contextKey);
+
+		if (!context) {
+			throw new Error(
+				'getNand2TetrisContext must be called from within a component that has called setNand2TetrisContext'
+			);
+		}
+
+		return context;
+	};
+</script>
+
 <script lang="ts">
-	import type { ComponentProps } from 'svelte';
+	import { getContext, setContext, type ComponentProps } from 'svelte';
 	import Window from '../Window.svelte';
+	import Editor from './Editor.svelte';
+	import Explorer from './Explorer.svelte';
 	import Footer from './Footer.svelte';
 
 	let {
 		...windowProps
 	}: Pick<ComponentProps<Window>, 'onClose' | 'onMinimise' | 'onMaximise'> = $props();
+
+	setNand2TetrisContext();
 </script>
 
 <Window {...windowProps}>
@@ -15,8 +49,8 @@
 		>
 	{/snippet}
 	<div class="nand2tetris">
-		<h1 style:background-color="red" style:grid-area="explorer">explorer</h1>
-		<h1 style:background-color="green" style:grid-area="editor">editor</h1>
+		<Explorer />
+		<Editor />
 		<h1 style:background-color="blue" style:grid-area="output">output</h1>
 		<Footer />
 	</div>

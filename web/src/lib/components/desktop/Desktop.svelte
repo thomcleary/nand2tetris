@@ -1,6 +1,7 @@
 <script lang="ts">
+	import appleTouchLogo from '$lib/assets/images/apple-touch-icon.png';
+	import { fade } from 'svelte/transition';
 	import Nand2Tetris from '../apps/nand2tetris/Nand2Tetris.svelte';
-	import TPieceIcon from '../icons/TPieceIcon.svelte';
 
 	let {
 		onOpenApp,
@@ -23,12 +24,13 @@
 		<Nand2Tetris onClose={handleClose} onMinimise={handleClose} />
 	{:else}
 		<button
+			in:fade={{ duration: 250 }}
 			onclick={() => {
 				open = true;
 				onOpenApp?.('nand2tetris');
 			}}
 		>
-			<TPieceIcon />
+			<img src={appleTouchLogo} height={64} width={64} alt="nand2tetris" />
 			nand2tetris
 		</button>
 	{/if}
@@ -43,8 +45,8 @@
 	}
 
 	button {
-		height: 4rem;
-		width: 4rem;
+		/* height: 4rem; */
+		/* width: 4rem; */
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -53,6 +55,12 @@
 		color: white;
 		padding: 0;
 		border: none;
+		border-radius: 1rem;
+	}
+
+	img {
+		background-color: rgba(0, 0, 0, 0.3);
+		padding: 0.25rem 0.25rem 0.5rem 0.25rem;
 		border-radius: 1rem;
 	}
 </style>
