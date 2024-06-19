@@ -46,6 +46,10 @@
 	}
 }
 
+html {
+	background-color: black;
+}
+
 body {
 	height: 100dvh;
 	width: 100dvw;

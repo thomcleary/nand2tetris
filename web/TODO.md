@@ -29,11 +29,8 @@
 
 ## code files
 
-- add jack files
-- add vm files
-  - only use vmTranslator and assembler (eg. dont show VM tab)
-- add asm files
-  - only use assembler (eg. dont show VM and ASM tabs)
+- only use vmTranslator and assembler when .vm files is open (eg. dont show VM tab)
+- only use assembler when .asm file is open (eg. dont show VM and ASM tabs)
 
 ## editor
 
@@ -56,13 +53,16 @@
 
 ## information files
 
-- add `jack-grammar.md` (add a file to explorer that displays a component)
-- add `vm-instructions.md` (add a file to explorer that displays a component)
-- add `asm-instructions.md` (add a file to explorer that displays a component)
-- README.md (add file to explorer)
+- add `/docs` folder to $lib/assets/files
+  - add `jack-grammar.md`
+  - add `vm-instructions.md`
+  - add `asm-instructions.md`
+- add README.md to $liba/assets/files
   - list learning resources used (nand2tetris.org)
   - list tech used (svelte/sveltekit)
   - link to github repo / profile
+- show markdown file content in output as rendered html
+  - dont show editor (readonly)
 
 ## output error styling
 

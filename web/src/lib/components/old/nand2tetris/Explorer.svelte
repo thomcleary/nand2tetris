@@ -1,9 +1,9 @@
 <script lang="ts">
 	import type { ComponentProps } from 'svelte';
-	import FileIcon from '../icons/FileIcon.svelte';
-	import GearIcon from '../icons/GearIcon.svelte';
-	import MagnifyingGlassIcon from '../icons/MagnifyingGlassIcon.svelte';
-	import type { IconProps } from '../icons/types';
+	import FileIcon from '../../icons/FileIcon.svelte';
+	import GearIcon from '../../icons/GearIcon.svelte';
+	import MagnifyingGlassIcon from '../../icons/MagnifyingGlassIcon.svelte';
+	import type { IconProps } from '../../icons/types';
 	import FileTree from './FileTree.svelte';
 
 	type ExplorerProps = Pick<ComponentProps<FileTree>, 'files' | 'onSelectFile'> & {};

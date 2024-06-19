@@ -1,6 +1,4 @@
-export const ssr = false;
+export const ssr = true;
+export const prerender = true;
 
-// Use
-// export const prerender = true;
-// export const ssr = true;
-// to render portions of the app as static html at build time
+// see: https://kit.svelte.dev/docs/page-options

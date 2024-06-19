@@ -1,5 +1,5 @@
 <script>
-	import GithubIcon from '../icons/GithubIcon.svelte';
+	import GithubIcon from '../../icons/GithubIcon.svelte';
 </script>
 
 <div id="code-footer">

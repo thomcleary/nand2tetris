@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type JackCompiler from '../../../../../projects/10-11/src/compiler/JackCompiler';
+	import type JackCompiler from '../../../../../../projects/10-11/src/compiler/JackCompiler';
 	import Tabs from './Tabs.svelte';
 
 	type OutputProps = {

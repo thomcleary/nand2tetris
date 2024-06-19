@@ -2,7 +2,14 @@
 	import Desktop from '$lib/components/desktop/Desktop.svelte';
 	import MenuBar from '$lib/components/desktop/MenuBar.svelte';
 
-	// TODO: create a FileTree context that apps can access
+	const { data } = $props();
+
+	for (const file of data.files) {
+		console.log(file);
+	}
+
+	// TODO: create a FileTree structure from data.files
+	// TODO: expose the FileTree as state via context
 
 	let currentApp = $state<string>();
 </script>

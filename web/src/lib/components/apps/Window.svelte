@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { _$online } from '$lib/runes/_$online.svelte';
 	import type { Snippet } from 'svelte';
 	import { quintInOut, quintOut } from 'svelte/easing';
 	import { scale } from 'svelte/transition';
@@ -91,6 +90,11 @@
 		align-items: center;
 		border-top-left-radius: 0.75rem;
 		border-top-right-radius: 0.75rem;
+	}
+
+	button {
+		display: flex;
+		align-items: center;
 	}
 
 	.window {

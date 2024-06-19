@@ -1,16 +1,10 @@
-import { readFileSync } from 'fs';
+export const load = async () => {
+	const fileAssets = import.meta.glob('../lib/assets/files/**', { query: '?raw' });
 
-const emptyProgramFileContents =
-	'class Main {\n  function void main() {\n    // Your code here\n\n    return;\n  }\n}';
+	const files = Object.keys(fileAssets).map(async (filePath) => ({
+		filePath: filePath.replace('../lib/assets/files/', ''),
+		contents: (await (fileAssets[filePath]() as Promise<{ default: string }>)).default
+	}));
 
-const getFileContents = (filePath: string) =>
-	readFileSync(filePath).toString().replaceAll('\t', '  ');
-
-export const load = () => {
-	return {
-		empty: emptyProgramFileContents,
-		fizzBuzz: getFileContents('./src/lib/jack/FizzBuzz.jack')
-	};
+	return { files: await Promise.all(files) };
 };
-
-export const prerender = true;

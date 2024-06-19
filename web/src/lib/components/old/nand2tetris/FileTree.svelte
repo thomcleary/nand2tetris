@@ -25,9 +25,9 @@
 </script>
 
 <script lang="ts">
-	import ChevronIcon from '../icons/ChevronIcon.svelte';
-	import FileTypeIcon from '../icons/FileTypeIcon.svelte';
-	import FolderIcon from '../icons/FolderIcon.svelte';
+	import ChevronIcon from '../../icons/ChevronIcon.svelte';
+	import FileTypeIcon from '../../icons/FileTypeIcon.svelte';
+	import FolderIcon from '../../icons/FolderIcon.svelte';
 	type FileTreeProps = {
 		files: readonly (File | Directory)[];
 		onSelectFile?: (fileName: File['name']) => void;
