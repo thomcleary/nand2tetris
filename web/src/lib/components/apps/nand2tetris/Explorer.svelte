@@ -8,11 +8,13 @@
 	$inspect(context);
 </script>
 
-<ul>
-	{#each finder.files as file}
-		<li><button onclick={() => (context.selectedFile = file)}>{file.path}</button></li>
-	{/each}
-</ul>
+<div class="explorer">
+	<ul>
+		{#each finder.files as file}
+			<li><button onclick={() => (context.selectedFile = file)}>{file.path}</button></li>
+		{/each}
+	</ul>
+</div>
 
 <style>
 	ul {

@@ -1,1 +1,5 @@
-export type File = { path: string; contents: string };
+export type File = {
+	path: string;
+	name: string;
+	contents: string;
+};

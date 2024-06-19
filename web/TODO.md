@@ -35,6 +35,8 @@
 ## editor
 
 - replace with a code editor component (external package)
+- only update nand2tetris context with file changes on save
+  - keyboard shortcut?
 
 ## file management
 
