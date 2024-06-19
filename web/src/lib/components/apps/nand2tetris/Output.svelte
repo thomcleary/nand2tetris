@@ -137,6 +137,7 @@
 		display: flex;
 		flex-direction: column;
 		border-left: 1px solid var(--color-grey-border);
+		overflow: auto;
 	}
 
 	@media (width <= 1280px) {

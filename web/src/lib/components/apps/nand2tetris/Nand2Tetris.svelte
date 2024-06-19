@@ -76,8 +76,9 @@
 	}
 
 	.nand2tetris {
+		min-height: 100%; /* This was very important to make the window height work on landscape mobile 🙃 */
 		display: grid;
-		grid-template-columns: min-content 1fr 0.75fr;
+		grid-template-columns: min-content 4fr 3fr;
 		grid-template-rows: 1fr min-content;
 		grid-template-areas:
 			'explorer editor output'
@@ -87,7 +88,7 @@
 	@media (width <= 1280px) {
 		.nand2tetris {
 			grid-template-columns: min-content 1fr;
-			grid-template-rows: 1fr 0.66fr min-content;
+			grid-template-rows: 3fr 2fr min-content;
 			grid-template-areas:
 				'explorer editor'
 				'output output'

@@ -18,6 +18,7 @@
 <style>
 	.screen {
 		min-height: 100dvh;
+		min-width: 100dvw;
 		display: grid;
 		grid-template-columns: 1fr;
 		grid-template-rows: min-content 1fr;

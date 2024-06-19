@@ -28,5 +28,6 @@
 
 	.explorer {
 		grid-area: explorer;
+		overflow: auto;
 	}
 </style>

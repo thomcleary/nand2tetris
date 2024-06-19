@@ -53,5 +53,6 @@
 		display: flex;
 		flex-direction: column;
 		border-left: 1px solid var(--color-grey-border);
+		overflow: auto;
 	}
 </style>
