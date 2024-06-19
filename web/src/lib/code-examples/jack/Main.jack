@@ -1,0 +1,7 @@
+class Main {  
+  function void main() {    
+    // Your code here...    
+    
+    return;  
+  }
+}
