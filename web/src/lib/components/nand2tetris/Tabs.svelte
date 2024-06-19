@@ -32,7 +32,6 @@
 		min-width: 10%;
 		background-color: var(--color-bg-dark);
 		color: var(--color-grey);
-		font-family: var(--font-system);
 		font-size: 0.8rem;
 		padding: 0.5rem 1rem;
 		border: none;

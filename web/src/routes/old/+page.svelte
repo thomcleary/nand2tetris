@@ -10,7 +10,7 @@
 	import { quintInOut, quintOut } from 'svelte/easing';
 	import { scale } from 'svelte/transition';
 	import JackCompiler from '../../../../projects/10-11/src/compiler/JackCompiler';
-	import { DesktopContext } from '$lib/contexts/DesktopContext.svelte';
+	// import { DesktopContext } from '$lib/contexts/DesktopContext.svelte';
 
 	const { data } = $props();
 	const { empty, fizzBuzz } = data;
@@ -64,7 +64,7 @@
 		onoutroend={() => {
 			if (!showWindow) {
 				showDesktop = true;
-				DesktopContext.currentApplication = undefined;
+				// DesktopContext.currentApplication = undefined;
 			}
 		}}
 	>
@@ -102,7 +102,7 @@
 		onclick={() => {
 			showDesktop = false;
 			showWindow = true;
-			DesktopContext.currentApplication = 'nand2tetris';
+			// DesktopContext.currentApplication = 'nand2tetris';
 		}}><img src={appleTouchLogo} height={64} width={64} alt="nand2tetris" />nand2tetris</button
 	>
 {/if}
@@ -122,7 +122,6 @@
 		border-radius: 1rem;
 		background-color: transparent;
 		color: white;
-		font-family: Arial, Helvetica, sans-serif;
 		cursor: pointer;
 	}
 

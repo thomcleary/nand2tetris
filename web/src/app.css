@@ -1,3 +1,11 @@
+@font-face {
+	font-family: 'FiraCode';
+	font-optical-sizing: auto;
+	font-style: normal;
+	font-weight: 400;
+	src: url('$lib/assets/fonts/fira-code/FiraCode-VariableFont_wght.ttf') format('truetype');
+}
+
 :root {
 	/* TODO: find a better naming scheme for color variables */
 	--color-bg-dark: rgb(31, 34, 39);
@@ -17,15 +25,8 @@
 
 	/* TODO: Consolidate all colors here */
 
-	--font-system: -apple-system, 'system-ui', sans-serif;
-}
-
-@font-face {
-	font-family: 'Fira Code';
-	font-optical-sizing: auto;
-	font-style: normal;
-	font-weight: 400;
-	src: url('$lib/assets/fonts/fira-code/FiraCode-VariableFont_wght.ttf') format('truetype');
+	--font-system: sans-serif;
+	--font-code: 'FiraCode';
 }
 
 *,
@@ -35,7 +36,7 @@
 }
 
 * {
-	font-family: 'Fira Code', monospace;
+	font-family: var(--font-system);
 	font-size: 16px;
 }
 

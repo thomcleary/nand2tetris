@@ -29,7 +29,6 @@
 	}
 
 	.header-link {
-		font-family: var(--font-system);
 		font-size: 0.8rem;
 		background-color: rgb(47, 50, 57);
 		color: rgb(108, 113, 124);

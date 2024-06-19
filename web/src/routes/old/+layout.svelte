@@ -1,5 +1,5 @@
 <script lang="ts">
-	import MenuBar from '../components/desktop/MenuBar.svelte';
+	// import MenuBar from '../components/desktop/MenuBar.svelte';
 	import '../app.css';
 
 	const { children } = $props();
@@ -7,7 +7,7 @@
 	console.log('test');
 </script>
 
-<MenuBar />
+<!-- <MenuBar /> -->
 {@render children()}
 
 <style>

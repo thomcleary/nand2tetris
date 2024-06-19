@@ -49,7 +49,6 @@
 		flex-direction: column;
 		align-items: center;
 		gap: 0.25rem;
-		font-family: Arial, Helvetica, sans-serif;
 		background-color: transparent;
 		color: white;
 		padding: 0;

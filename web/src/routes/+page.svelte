@@ -2,6 +2,8 @@
 	import Desktop from '$lib/components/desktop/Desktop.svelte';
 	import MenuBar from '$lib/components/desktop/MenuBar.svelte';
 
+	// TODO: create a FileTree context that apps can access
+
 	let currentApp = $state<string>();
 </script>
 

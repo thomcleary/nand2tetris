@@ -26,8 +26,8 @@
 
 <script lang="ts">
 	import ChevronIcon from '../icons/ChevronIcon.svelte';
-	import FolderIcon from '../icons/FolderIcon.svelte';
 	import FileTypeIcon from '../icons/FileTypeIcon.svelte';
+	import FolderIcon from '../icons/FolderIcon.svelte';
 	type FileTreeProps = {
 		files: readonly (File | Directory)[];
 		onSelectFile?: (fileName: File['name']) => void;
@@ -104,7 +104,6 @@
 		display: flex;
 		align-items: center;
 		gap: 0.4rem;
-		font-family: var(--font-system);
 		font-size: 0.8rem;
 		background-color: transparent;
 		color: rgb(162, 168, 180);

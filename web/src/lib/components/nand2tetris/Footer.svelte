@@ -26,7 +26,6 @@
 	}
 
 	a > span {
-		font-family: var(--font-system);
 		font-size: 0.7rem;
 	}
 

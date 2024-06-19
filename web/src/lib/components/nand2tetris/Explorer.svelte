@@ -64,7 +64,6 @@
 	}
 
 	input {
-		font-family: var(--font-system);
 		font-size: 0.8rem;
 		background-color: rgb(29, 31, 35);
 		color: var(--color-white);
@@ -111,7 +110,6 @@
 	#explorer-heading {
 		display: flex;
 		align-items: center;
-		font-family: var(--font-system);
 		font-size: 0.6rem;
 		color: var(--color-white);
 		padding: 0.5rem 3rem 0.5rem 1rem;
@@ -120,7 +118,6 @@
 
 	#file-tree-options {
 		width: 100%;
-		font-family: var(--font-system);
 		font-weight: 600;
 		font-size: 0.6rem;
 		background-color: var(--color-bg-light);

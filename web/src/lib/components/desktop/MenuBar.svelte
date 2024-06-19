@@ -1,8 +1,8 @@
 <script lang="ts">
-	import WifiIcon from '../../../lib/components/icons/WifiIcon.svelte';
-	import SvelteIcon from '../icons/SvelteIcon.svelte';
 	import { _$dateTime } from '$lib/runes/_$dateTime.svelte';
 	import { _$online } from '$lib/runes/_$online.svelte';
+	import WifiIcon from '../../../lib/components/icons/WifiIcon.svelte';
+	import SvelteIcon from '../icons/SvelteIcon.svelte';
 
 	let { currentApp }: { currentApp: string | undefined } = $props();
 
@@ -39,7 +39,6 @@
 
 	b,
 	.menu-bar span {
-		font-family: var(--font-system);
 		font-size: 0.8rem;
 	}
 
