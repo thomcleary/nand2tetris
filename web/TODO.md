@@ -2,34 +2,28 @@
 
 ## refactor components and state
 
-- `Nand2Tetris.svelte` renders the vscode knock off
-
-```svelte
-<Window  />
-  {#snippet heading()}
-    <a>nand2Tetris</a>
-  {/snippet}
-  <Explorer />
-  <Editor />
-  <Output />
-  <Footer />
-</Window>
-
-```
+- refactor Explorer
+  - add side panel buttons back
+    - files
+    - settings
+  - render files as tree
+    - add file icons back
+    - add file icon to editor tab
 
 ## purge
 
 - delete old components / stuff
 
+## file management
+
+- don't have any file in editor on initial load
+  - show logo and help message eg "open a file to compile"
+- allow closing the currently opened file
+
 ## layout
 
 - dynamically adjust grid layouts based on selected file state
   - if no selected file then output area should be 0
-
-## refactor output generation
-
-- move code that generates output result into separate file
-- make the return type change based on the file extension of the File being passed in
 
 ## cleanup markup and styling
 
@@ -41,22 +35,16 @@
     - convert all rgb()s into css variables
     - consistent naming convention of css color variables
 
-## code files
+## refactor output generation
 
-- only use vmTranslator and assembler when .vm files is open (eg. dont show VM tab)
-- only use assembler when .asm file is open (eg. dont show VM and ASM tabs)
+- move code that generates output result into separate file
+- make the return type change based on the file extension of the File being passed in
 
 ## editor
 
 - replace with a code editor component (external package)
 - only update nand2tetris context with file changes on save
   - keyboard shortcut?
-
-## file management
-
-- don't have any file in editor on initial load
-  - show logo and help message eg "open a file to compile"
-- allow closing the currently opened file
 
 ## output
 
