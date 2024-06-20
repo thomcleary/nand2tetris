@@ -1,4 +1,5 @@
 <script lang="ts">
+	import FileTypeIcon from '$lib/components/icons/FileTypeIcon.svelte';
 	import SvelteIcon from '$lib/components/icons/SvelteIcon.svelte';
 	import { getNand2TetrisContext } from './Nand2Tetris.svelte';
 	import Tabs from './Tabs.svelte';
@@ -6,10 +7,15 @@
 	const context = getNand2TetrisContext();
 </script>
 
+{#snippet tabIcon(filename: string)}
+	<FileTypeIcon height="1rem" fileType={filename.split('.').pop() ?? ''} />
+{/snippet}
+
 <div class="editor">
 	{#if context.selectedFile}
 		<Tabs
 			tabs={[context.selectedFile.name]}
+			icon={tabIcon}
 			onCloseTab={() => {
 				context.selectedFile = undefined;
 			}}

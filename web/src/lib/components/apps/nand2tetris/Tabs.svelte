@@ -1,11 +1,14 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
+
 	type TabsProps = {
 		tabs: readonly string[];
+		icon?: Snippet<[string]>;
 		selected?: string;
 		onCloseTab?: (tab: string) => void;
 	};
 
-	let { tabs, selected = $bindable(), onCloseTab }: TabsProps = $props();
+	let { tabs, selected = $bindable(), icon, onCloseTab }: TabsProps = $props();
 
 	$effect(() => {
 		selected = tabs[0];
@@ -20,7 +23,12 @@
 				style:padding={`0.5rem ${onCloseTab ? '0.5' : '1'}rem 0.5rem 1rem`}
 				onclick={() => {
 					selected = tab;
-				}}>{tab}</button
+				}}
+			>
+				{#if icon}
+					{@render icon(tab)}
+				{/if}
+				{tab}</button
 			>{#if onCloseTab}
 				<button onclick={() => onCloseTab(tab)} class="close-btn">x</button>
 			{/if}
@@ -36,6 +44,9 @@
 	}
 
 	button {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
 		background-color: transparent;
 		color: var(--color-grey);
 		padding: 0;
