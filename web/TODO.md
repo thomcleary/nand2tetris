@@ -11,17 +11,6 @@
 
 - delete old components / stuff
 
-## file management
-
-- don't have any file in editor on initial load
-  - show logo and help message eg "open a file to compile"
-- allow closing the currently opened file
-
-## layout
-
-- dynamically adjust grid layouts based on selected file state
-  - if no selected file then output area should be 0
-
 ## cleanup markup and styling
 
 - (mainly internal nand2tetris components that haven't been touched during refactor)
@@ -81,10 +70,6 @@
     - closing tab when not saved shows alert to save or not
     - ctrl+s saves the file
   - allow deleting files from local storage folder
-
-## search
-
-- allow searching files
 
 ## settings
 

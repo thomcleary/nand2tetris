@@ -1,4 +1,5 @@
 <script lang="ts">
+	import SvelteIcon from '$lib/components/icons/SvelteIcon.svelte';
 	import { getNand2TetrisContext } from './Nand2Tetris.svelte';
 	import Tabs from './Tabs.svelte';
 
@@ -23,7 +24,9 @@
 			}}
 		></textarea>
 	{:else}
-		<div>No file selected</div>
+		<div class="default-view">
+			<SvelteIcon width="25%" fillOut="rgba(0, 0, 0, 0.3)" fillIn="var(--color-bg-light)" />
+		</div>
 	{/if}
 </div>
 
@@ -54,5 +57,11 @@
 		flex-direction: column;
 		border-left: 1px solid var(--color-grey-border);
 		overflow: auto;
+	}
+
+	.default-view {
+		flex: 1;
+		display: grid;
+		place-items: center;
 	}
 </style>
