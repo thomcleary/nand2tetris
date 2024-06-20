@@ -3,9 +3,6 @@
 ## refactor components and state
 
 - refactor Explorer
-  - add side panel buttons back
-    - files
-    - settings
   - render files as tree
     - add file icons back
     - add file icon to editor tab

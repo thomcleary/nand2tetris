@@ -40,7 +40,7 @@
 	font-size: 16px;
 }
 
-@media (width <= 600px) {
+@media (width <= 600px) or (height <= 600px) {
 	* {
 		font-size: 12px;
 	}

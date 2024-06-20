@@ -107,13 +107,13 @@
 	});
 </script>
 
-<div class="output">
-	{#if context.selectedFile}
+{#if context.selectedFile}
+	<div class="output">
 		<Tabs {tabs} bind:selected={selectedTab} />
 		<!-- TODO: instead of using textarea, render a component with syntax highlighting -->
 		<textarea spellcheck="false" value={output ?? ''} readonly></textarea>
-	{/if}
-</div>
+	</div>
+{/if}
 
 <style>
 	textarea {

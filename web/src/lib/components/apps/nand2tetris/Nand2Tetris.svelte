@@ -40,7 +40,7 @@
 		...windowProps
 	}: Pick<ComponentProps<Window>, 'onClose' | 'onMinimise' | 'onMaximise'> = $props();
 
-	setNand2TetrisContext();
+	const context = setNand2TetrisContext();
 </script>
 
 <Window {...windowProps}>
@@ -49,7 +49,11 @@
 			>nand2tetris</a
 		>
 	{/snippet}
-	<div class="nand2tetris">
+	<div
+		class="nand2tetris"
+		style:grid-template-columns={context.selectedFile ? '' : 'min-content 1fr'}
+		style:grid-template-rows={context.selectedFile ? '' : '1fr min-content'}
+	>
 		<Explorer />
 		<Editor />
 		<Output />
