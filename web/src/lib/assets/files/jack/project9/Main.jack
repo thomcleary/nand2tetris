@@ -1,0 +1,16 @@
+class Main {
+    function void main() {
+        var Constants constants;
+        var GameOfLife game;
+
+        let constants = Constants.new();
+        let game = GameOfLife.new();
+
+        do game.run();
+
+        do constants.dispose();
+        do game.dispose();
+
+        return;
+    }
+}

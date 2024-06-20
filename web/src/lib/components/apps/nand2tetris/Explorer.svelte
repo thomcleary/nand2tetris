@@ -1,138 +1,89 @@
 <script lang="ts">
-	import FileIcon from '$lib/components/icons/FileIcon.svelte';
-	import GearIcon from '$lib/components/icons/GearIcon.svelte';
+	import ChevronIcon from '$lib/components/icons/ChevronIcon.svelte';
 	import { getFinder } from '$lib/contexts/finder.svelte';
-	import type { IconProps } from '../../icons/types';
-	import { getNand2TetrisContext } from './Nand2Tetris.svelte';
+	import FolderIcon from '../../icons/FolderIcon.svelte';
+	import { FileTree, type Directory, type File } from './FileTree.svelte';
 
-	const context = getNand2TetrisContext();
 	const finder = getFinder();
+	const fileTree = new FileTree({ files: finder.files });
 
-	let selectedTab = $state<'EXPLORER' | 'SETTINGS' | undefined>('EXPLORER');
-
-	const handleTabClick = (tab: typeof selectedTab) =>
-		(selectedTab = tab === selectedTab ? undefined : tab);
-
-	const iconProps = { width: '1.25rem', height: '1.25rem' } as const satisfies IconProps;
-
-	$inspect(selectedTab);
+	const dirSpacing = (depth: number) => (1.5 + 1 * depth) / 2;
+	const fileSpacing = (depth: number) => dirSpacing(depth - 1) / 2 + 1.25;
 </script>
 
-<div class="explorer">
-	<div class="tabs">
-		<div class="tab-btns">
-			<button class:selected={selectedTab === 'EXPLORER'} onclick={() => handleTabClick('EXPLORER')}
-				><FileIcon {...iconProps} /></button
-			>
-		</div>
-		<div class="tab-btns">
-			<button class:selected={selectedTab === 'SETTINGS'} onclick={() => handleTabClick('SETTINGS')}
-				><GearIcon {...iconProps} /></button
-			>
-		</div>
-	</div>
-	{#if selectedTab}
-		<div class="content">
-			<div class="content-heading">{selectedTab}</div>
-			{#if selectedTab === 'EXPLORER'}
-				<ul>
-					{#each finder.files as file}
-						<li><button onclick={() => (context.selectedFile = file)}>{file.path}</button></li>
-					{/each}
-				</ul>
-			{:else}
-				<div class="settings">
-					<label for="settings-todo"
-						><input type="checkbox" id="settings-todo" name="settings-todo" />settings todo</label
-					>
-				</div>
-			{/if}
-		</div>
+{#snippet filesSnippet({files, depth}: {files: typeof fileTree.files; depth: number})}
+	<ul>
+		{#each files as file}
+			<li>
+				{#if file.isDir}
+					{@render directorySnippet({ dir: file, depth })}
+				{:else}
+					{@render fileSnippet({ file, depth })}
+				{/if}
+			</li>
+		{/each}
+	</ul>
+{/snippet}
+
+{#snippet fileSnippet({file, depth}: {file: File, depth: number})}
+	<button
+		style:padding={`0.4rem ${fileSpacing(depth)}rem`}
+		class:selected={file.selected}
+		onclick={() => file.select()}>{file.name}</button
+	>
+{/snippet}
+
+{#snippet directorySnippet({dir, depth}: {dir: Directory, depth: number})}
+	<button style:padding={`0.4rem ${dirSpacing(depth)}rem`} onclick={() => (dir.open = !dir.open)}
+		><ChevronIcon
+			width="0.6rem"
+			height="0.6rem"
+			fill="var(--color-white)"
+			direction={dir.open ? 'down' : 'right'}
+		/><FolderIcon
+			open={dir.open}
+			width="0.8rem"
+			height="0.8rem"
+			fill="rgb(148, 164, 173)"
+		/>{dir.name}</button
+	>
+	{#if dir.open}
+		{@render filesSnippet({ files: dir.files, depth: depth + 1 })}
 	{/if}
-</div>
+{/snippet}
+
+{@render filesSnippet({ files: fileTree.files, depth: 0 })}
 
 <style>
 	ul {
-		list-style: none;
+		display: flex;
+		flex-direction: column;
 		margin: 0;
 		padding: 0;
-	}
-
-	li {
-		padding: 0.5rem 0rem;
-	}
-
-	li > button {
-		color: var(--color-white);
-		background-color: transparent;
-		font-size: 0.8rem;
-		padding: 0;
-		border: none;
-	}
-
-	label {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		color: var(--color-grey);
+		list-style-type: none;
 		text-wrap: nowrap;
 	}
 
-	input {
-		margin: 0;
+	li {
+		width: 100%;
 	}
 
-	.explorer {
-		grid-area: explorer;
-		display: flex;
-	}
-
-	.tabs {
-		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
-		background-color: var(--color-bg-light);
-	}
-
-	.tab-btns {
-		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
-	}
-
-	.tab-btns > button {
-		font-size: 1rem;
-		background-color: transparent;
-		fill: var(--color-grey);
-		padding: 0.75rem;
-		border: none;
-		border-left: 2px solid transparent;
-		cursor: pointer;
-	}
-
-	.tab-btns > button.selected {
-		fill: var(--color-white-brightest);
-		border-left: 2px solid var(--color-white-brightest);
-	}
-
-	.tab-btns > button:hover {
-		fill: var(--color-white-brightest);
-	}
-
-	.content {
-		padding: 0.5rem 1rem;
-	}
-
-	.content-heading {
+	button {
+		width: 100%;
+		flex: 1;
 		display: flex;
 		align-items: center;
-		font-size: 0.6rem;
-		color: var(--color-white);
-		padding-right: 3rem;
-		text-align: left;
+		gap: 0.4rem;
+		font-size: 0.8rem;
+		background-color: transparent;
+		color: rgb(162, 168, 180);
+		border: none;
 	}
 
-	.settings {
-		padding: 0.5rem 0rem;
+	button:hover,
+	.selected {
+		background-color: rgb(51, 56, 65);
+		color: var(--color-white-brightest);
+		cursor: pointer;
 	}
 </style>

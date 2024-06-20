@@ -32,15 +32,17 @@
 	import { getContext, setContext, type ComponentProps } from 'svelte';
 	import Window from '../Window.svelte';
 	import Editor from './Editor.svelte';
-	import Explorer from './Explorer.svelte';
 	import Footer from './Footer.svelte';
 	import Output from './Output.svelte';
+	import Sidebar from './Sidebar.svelte';
 
 	let {
 		...windowProps
 	}: Pick<ComponentProps<Window>, 'onClose' | 'onMinimise' | 'onMaximise'> = $props();
 
 	const context = setNand2TetrisContext();
+
+	$inspect(context.selectedFile);
 </script>
 
 <Window {...windowProps}>
@@ -54,7 +56,7 @@
 		style:grid-template-columns={context.selectedFile ? '' : 'min-content 1fr'}
 		style:grid-template-rows={context.selectedFile ? '' : '1fr min-content'}
 	>
-		<Explorer />
+		<Sidebar />
 		<Editor />
 		<Output />
 		<Footer />
