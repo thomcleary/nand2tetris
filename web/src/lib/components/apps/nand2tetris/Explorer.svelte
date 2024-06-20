@@ -8,8 +8,16 @@
 	const finder = getFinder();
 	const fileTree = new FileTree({ files: finder.files });
 
+	let open = $state(true);
+
 	const dirSpacing = (depth: number) => (1.5 + 1 * depth) / 2;
 	const fileSpacing = (depth: number) => dirSpacing(depth - 1) / 2 + 1.25;
+
+	const dirPadding = (depth: number) =>
+		`0.4rem ${dirSpacing(depth) * 2}rem 0.4rem ${dirSpacing(depth)}rem`;
+
+	const filePadding = (depth: number) =>
+		`0.4rem ${fileSpacing(depth) * 2}rem 0.4rem ${fileSpacing(depth)}rem`;
 </script>
 
 {#snippet filesSnippet({files, depth}: {files: typeof fileTree.files; depth: number})}
@@ -28,7 +36,7 @@
 
 {#snippet fileSnippet({file, depth}: {file: File, depth: number})}
 	<button
-		style:padding={`0.4rem ${fileSpacing(depth)}rem`}
+		style:padding={filePadding(depth)}
 		class:selected={file.selected}
 		onclick={() => file.select()}
 		><FileTypeIcon
@@ -40,7 +48,7 @@
 {/snippet}
 
 {#snippet directorySnippet({dir, depth}: {dir: Directory, depth: number})}
-	<button style:padding={`0.4rem ${dirSpacing(depth)}rem`} onclick={() => (dir.open = !dir.open)}
+	<button style:padding={dirPadding(depth)} onclick={() => (dir.open = !dir.open)}
 		><ChevronIcon
 			width="0.6rem"
 			height="0.6rem"
@@ -58,7 +66,17 @@
 	{/if}
 {/snippet}
 
-{@render filesSnippet({ files: fileTree.files, depth: 0 })}
+<button class="toggle" onclick={() => (open = !open)}
+	><ChevronIcon
+		width="0.8rem"
+		height="0.8rem"
+		fill="var(--color-white)"
+		direction={open ? 'down' : 'right'}
+	/>nand2tetris</button
+>
+{#if open}
+	{@render filesSnippet({ files: fileTree.files, depth: 0 })}
+{/if}
 
 <style>
 	ul {
@@ -91,5 +109,11 @@
 		background-color: rgb(51, 56, 65);
 		color: var(--color-white-brightest);
 		cursor: pointer;
+	}
+
+	.toggle {
+		font-weight: 600;
+		background-color: rgb(36, 39, 46);
+		padding: 0.5rem 0.25rem;
 	}
 </style>

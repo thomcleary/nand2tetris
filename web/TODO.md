@@ -1,45 +1,27 @@
 # TODO
 
-## refactor components and state
-
-- refactor Explorer
-  - render files as tree
-    - add file icons back
-    - add file icon to editor tab
-
-## purge
-
-- delete old components / stuff
-
-## cleanup markup and styling
-
-- (mainly internal nand2tetris components that haven't been touched during refactor)
-- cleanup component markup
-- cleanup component styles
-  - move inline styles to style tage where possible
-  - organise colours
-    - convert all rgb()s into css variables
-    - consistent naming convention of css color variables
-
-## refactor output generation
-
-- move code that generates output result into separate file
-- make the return type change based on the file extension of the File being passed in
-
-## editor
-
-- replace with a code editor component (external package)
-- only update nand2tetris context with file changes on save
-  - keyboard shortcut?
-
 ## output
 
+- move code that generates output result into separate file
+  - fix vm file compilation not stripping comments before translating/assembling
 - change from textarea to custom components
   - render tokens with syntax highlighting for token type / symbol
   - render parse tree like and indented list (instead of xml)
   - render vm instructions with syntax highlighting
   - render asm instructions with syntax highlighting
   - render hack instructions with a cool transition in?
+
+## output error styling
+
+- make tab color highlighting red when there is an error with that tab
+- make the error message appear like what it looks like in vscode PROBLEMS tab
+- disable tabs that will not have output (eg, if failure generating vmInstructions, disable .asm/.hack tabs)
+
+## editor
+
+- replace with a code editor component (external package)
+- only update nand2tetris context with file changes on save
+  - keyboard shortcut?
 
 ## information files
 
@@ -54,27 +36,15 @@
 - show markdown file content in output as rendered html
   - dont show editor (readonly)
 
-## output error styling
-
-- make tab color highlighting red when there is an error with that tab
-- make the error message appear like what it looks like in vscode PROBLEMS tab
-- disable tabs that will not have output (eg, if failure generating vmInstructions, disable .asm/.hack tabs)
-- Add line number and info to error messages
-
-## persistance
-
-- add a /local-storage folder
-  - allow adding files to this folder
-  - allow saving to local storage
-    - show save icon when changed
-    - closing tab when not saved shows alert to save or not
-    - ctrl+s saves the file
-  - allow deleting files from local storage folder
-
 ## settings
 
-- TODO ideas
+- Theme selector
+  - Cleanup css color variables
+  - Create 3 themes from css variables that can be toggled
 
-## other
+## deploy
 
-- highlight errors in input with squiggle red line?
+- deploy to github pages
+- test what happens when going to route that doesnt exist
+  - 404 page or does the `goto` in `+error.svelte` work?
+  - does a fallback need to be set in adapter config? (read docs?)

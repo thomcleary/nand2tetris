@@ -33,7 +33,7 @@
 			{:else}
 				<div class="settings">
 					<label for="settings-todo"
-						><input type="checkbox" id="settings-todo" name="settings-todo" />settings todo</label
+						><input type="checkbox" id="settings-todo" name="settings-todo" />TODO</label
 					>
 				</div>
 			{/if}
@@ -96,7 +96,7 @@
 		align-items: center;
 		font-size: 0.6rem;
 		color: var(--color-white);
-		padding-right: 3rem;
+		padding: 0.5rem 3rem 0.5rem 0.75rem;
 		text-align: left;
 	}
 
