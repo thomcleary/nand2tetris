@@ -31,29 +31,13 @@
 			{#if selectedTab === 'EXPLORER'}
 				<Explorer />
 			{:else}
-				<div class="settings">
-					<label for="settings-todo"
-						><input type="checkbox" id="settings-todo" name="settings-todo" />TODO</label
-					>
-				</div>
+				<div class="settings"></div>
 			{/if}
 		</div>
 	{/if}
 </div>
 
 <style>
-	label {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		color: var(--color-grey);
-		text-wrap: nowrap;
-	}
-
-	input {
-		margin: 0;
-	}
-
 	.explorer {
 		grid-area: explorer;
 		display: flex;

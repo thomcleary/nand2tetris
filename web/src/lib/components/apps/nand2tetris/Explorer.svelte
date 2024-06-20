@@ -11,13 +11,12 @@
 	let open = $state(true);
 
 	const dirSpacing = (depth: number) => (1.5 + 1 * depth) / 2;
-	const fileSpacing = (depth: number) => dirSpacing(depth - 1) / 2 + 1.25;
+	const fileSpacing = (depth: number) =>
+		dirSpacing(depth - 1) / 2 + (1.8 + (depth === 1 ? 0 : 0.5));
 
-	const dirPadding = (depth: number) =>
-		`0.4rem ${dirSpacing(depth) * 2}rem 0.4rem ${dirSpacing(depth)}rem`;
+	const dirPadding = (depth: number) => `0.4rem 3rem 0.4rem ${dirSpacing(depth)}rem`;
 
-	const filePadding = (depth: number) =>
-		`0.4rem ${fileSpacing(depth) * 2}rem 0.4rem ${fileSpacing(depth)}rem`;
+	const filePadding = (depth: number) => `0.4rem 3rem 0.4rem ${fileSpacing(depth)}rem`;
 </script>
 
 {#snippet filesSnippet({files, depth}: {files: typeof fileTree.files; depth: number})}
