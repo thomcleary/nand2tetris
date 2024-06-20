@@ -97,7 +97,7 @@
 			grid-template-rows: 3fr 2fr min-content;
 			grid-template-areas:
 				'explorer editor'
-				'output output'
+				'explorer output'
 				'footer footer';
 		}
 	}

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ChevronIcon from '$lib/components/icons/ChevronIcon.svelte';
+	import FileTypeIcon from '$lib/components/icons/FileTypeIcon.svelte';
 	import { getFinder } from '$lib/contexts/finder.svelte';
 	import FolderIcon from '../../icons/FolderIcon.svelte';
 	import { FileTree, type Directory, type File } from './FileTree.svelte';
@@ -29,7 +30,12 @@
 	<button
 		style:padding={`0.4rem ${fileSpacing(depth)}rem`}
 		class:selected={file.selected}
-		onclick={() => file.select()}>{file.name}</button
+		onclick={() => file.select()}
+		><FileTypeIcon
+			width="0.8rem"
+			height="0.8rem"
+			fileType={file.name.split('.').pop() ?? ''}
+		/>{file.name}</button
 	>
 {/snippet}
 

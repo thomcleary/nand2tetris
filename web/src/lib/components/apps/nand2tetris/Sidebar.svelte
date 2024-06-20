@@ -100,6 +100,10 @@
 		text-align: left;
 	}
 
+	.content {
+		overflow: auto;
+	}
+
 	.settings {
 		padding: 0.5rem 0rem;
 	}

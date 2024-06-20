@@ -22,7 +22,7 @@ const createFile = ({ file }: { file: _FileDetails }): File => {
 };
 
 const createDirectory = ({ name }: { name: string }): Directory => {
-	let open = $state(false);
+	let open = $state(true);
 
 	return {
 		isDir: true,

@@ -13,7 +13,7 @@
 
 <header class="menu-bar">
 	<div class="menu-bar-items">
-		<SvelteIcon height="0.8rem" fill="white" />
+		<SvelteIcon height="0.8rem" />
 		{#if currentApp}
 			<b transition:fade={{ duration: 250 }}>{currentApp}</b>
 		{/if}
