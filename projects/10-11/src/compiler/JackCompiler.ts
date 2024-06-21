@@ -168,7 +168,7 @@ export class JackCompiler {
     classVarDecNode.children
       .slice(2)
       .map((node) => node.value)
-      .filter((token): token is IdentifierToken => token.type === "identifier")
+      .filter((token) => token.type === "identifier")
       .forEach((identifier) => this.#classContext.symbolTable.add({ name: identifier.token, kind, type }));
   }
 

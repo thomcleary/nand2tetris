@@ -47,9 +47,7 @@ export class FileTree {
 			let children = this.files;
 
 			for (const dir of dirs) {
-				const existingDir = children.find(
-					(file): file is Directory => file.isDir && file.name === dir
-				);
+				const existingDir = children.filter((file) => file.isDir).find((file) => file.name === dir);
 
 				if (existingDir) {
 					children = existingDir.files;
