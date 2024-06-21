@@ -22,6 +22,16 @@ const isComment = (line: string) => line.startsWith("//");
 const isLabel = (line: string) => line.startsWith("(");
 const isInstruction = (line: string) => !(isEmptyLine(line) || isComment(line) || isLabel(line));
 
+const stripComment = (instruction: string) => {
+  const commentStart = instruction.search(/\/\//);
+
+  if (commentStart !== -1) {
+    return instruction.slice(0, commentStart);
+  }
+
+  return instruction;
+};
+
 const getSymbolTable = (assemblyInstructions: readonly string[]): Result<{ symbolTable: Map<string, number> }> => {
   const symbolTable = new Map<string, number>(Object.entries(PREDEFINED_SYMBOLS));
 
@@ -113,7 +123,9 @@ const parse = ({
   const hackInstructions: string[] = [];
   let nextVariableAddress = VARIABLE_ADDRESS_START;
 
-  for (const [i, line] of assemblyInstructions.entries()) {
+  const lines = assemblyInstructions.map((instruction) => stripComment(instruction));
+
+  for (const [i, line] of lines.entries()) {
     const lineNumber = i + 1;
 
     if (!isInstruction(line)) {

@@ -2,8 +2,6 @@
 
 ## output
 
-- move code that generates output result into separate file
-  - fix vm file compilation not stripping comments before translating/assembling
 - change from textarea to custom components
   - render tokens with syntax highlighting for token type / symbol
   - render parse tree like and indented list (instead of xml)

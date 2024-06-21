@@ -41,8 +41,6 @@
 	}: Pick<ComponentProps<Window>, 'onClose' | 'onMinimise' | 'onMaximise'> = $props();
 
 	const context = setNand2TetrisContext();
-
-	$inspect(context.selectedFile);
 </script>
 
 <Window {...windowProps}>
