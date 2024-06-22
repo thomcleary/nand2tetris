@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Desktop from '$lib/components/desktop/Desktop.svelte';
 	import MenuBar from '$lib/components/desktop/MenuBar.svelte';
-	import { setFinder } from '$lib/contexts/finder.svelte.js';
+	import { setFinder } from '$lib/components/desktop/context.svelte.js';
 
 	const { data } = $props();
 

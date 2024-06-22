@@ -1,12 +1,12 @@
 import type { File } from '$lib/types';
-import { assemble } from '../../../../../../projects/06/src/assembler';
-import { toAssemblyInstructions } from '../../../../../../projects/06/src/utils';
-import { toVmInstructions } from '../../../../../../projects/07-08/src/utils';
-import { translate } from '../../../../../../projects/07-08/src/vmTranslator';
+import { assemble } from '../../../../../../../projects/06/src/assembler';
+import { toAssemblyInstructions } from '../../../../../../../projects/06/src/utils';
+import { toVmInstructions } from '../../../../../../../projects/07-08/src/utils';
+import { translate } from '../../../../../../../projects/07-08/src/vmTranslator';
 import JackCompiler, {
 	type CompilationResult
-} from '../../../../../../projects/10-11/src/compiler/JackCompiler';
-import type { Result } from '../../../../../../projects/10-11/src/types';
+} from '../../../../../../../projects/10-11/src/compiler/JackCompiler';
+import type { Result } from '../../../../../../../projects/10-11/src/types';
 
 type VmTranslationResult = Pick<CompilationResult, 'assemblyInstructions' | 'hackInstructions'>;
 type AssemblerResult = Pick<CompilationResult, 'hackInstructions'>;

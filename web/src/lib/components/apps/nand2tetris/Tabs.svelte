@@ -107,6 +107,6 @@
 	}
 
 	.close-btn:hover {
-		background-color: var(--color-bg-light);
+		background-color: var(--color-grey-border);
 	}
 </style>

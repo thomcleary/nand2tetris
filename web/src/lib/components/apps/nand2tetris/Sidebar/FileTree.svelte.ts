@@ -1,5 +1,5 @@
 import type { File as FileDetails } from '$lib/types';
-import { getNand2TetrisContext } from './Nand2Tetris.svelte';
+import { getNand2TetrisContext } from '../context.svelte';
 
 export type File = {
 	isDir: false;

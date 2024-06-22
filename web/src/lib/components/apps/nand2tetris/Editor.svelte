@@ -1,8 +1,9 @@
 <script lang="ts">
 	import FileTypeIcon from '$lib/components/icons/FileTypeIcon.svelte';
 	import SvelteIcon from '$lib/components/icons/SvelteIcon.svelte';
-	import { getNand2TetrisContext } from './Nand2Tetris.svelte';
+
 	import Tabs from './Tabs.svelte';
+	import { getNand2TetrisContext } from './context.svelte';
 
 	const context = getNand2TetrisContext();
 </script>

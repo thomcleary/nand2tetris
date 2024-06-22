@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
-	import { type CompilationResult } from '../../../../../../projects/10-11/src/compiler/JackCompiler';
-	import JackParseTree from '../../../../../../projects/10-11/src/parser/JackParseTree';
+	import { type CompilationResult } from '../../../../../../../projects/10-11/src/compiler/JackCompiler';
+	import JackParseTree from '../../../../../../../projects/10-11/src/parser/JackParseTree';
 	import { Compiler } from './Compiler';
 
 	type Tab = 'TOKENS' | 'PARSE TREE' | 'VM' | 'ASM' | 'HACK';
@@ -24,8 +24,8 @@
 </script>
 
 <script lang="ts">
-	import { getNand2TetrisContext } from './Nand2Tetris.svelte';
-	import Tabs from './Tabs.svelte';
+	import Tabs from '../Tabs.svelte';
+	import { getNand2TetrisContext } from '../context.svelte';
 
 	const context = getNand2TetrisContext();
 

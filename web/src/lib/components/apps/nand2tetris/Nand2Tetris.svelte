@@ -1,68 +1,11 @@
-<script lang="ts" context="module">
-	import type { File } from '$lib/types';
-
-	export type Nand2TetrisContext = {
-		openFiles: File[];
-		selectedFile: File | undefined;
-		closeFile: (file: File) => void;
-	};
-
-	const contextKey = 'nand2tetris';
-
-	const setNand2TetrisContext = () => {
-		let openFiles = $state<File[]>([]);
-		let selectedFile = $state<File>();
-
-		const context = {
-			get openFiles() {
-				return openFiles;
-			},
-
-			get selectedFile() {
-				return selectedFile;
-			},
-
-			set selectedFile(file: File | undefined) {
-				if (file && !openFiles.includes(file)) {
-					openFiles.push(file);
-				}
-				selectedFile = file;
-			},
-
-			closeFile(file: File) {
-				openFiles = openFiles.filter((f) => f !== file);
-
-				if (selectedFile === file) {
-					selectedFile = openFiles[0];
-				}
-			}
-		} satisfies Nand2TetrisContext;
-
-		setContext(contextKey, context);
-
-		return context;
-	};
-
-	export const getNand2TetrisContext = () => {
-		const context = getContext<ReturnType<typeof setNand2TetrisContext> | undefined>(contextKey);
-
-		if (!context) {
-			throw new Error(
-				'getNand2TetrisContext must be called from within a component that has called setNand2TetrisContext'
-			);
-		}
-
-		return context;
-	};
-</script>
-
 <script lang="ts">
-	import { getContext, setContext, type ComponentProps } from 'svelte';
+	import type { ComponentProps } from 'svelte';
 	import Window from '../Window.svelte';
 	import Editor from './Editor.svelte';
 	import Footer from './Footer.svelte';
-	import Output from './Output.svelte';
-	import Sidebar from './Sidebar.svelte';
+	import Output from './Output/Output.svelte';
+	import Sidebar from './Sidebar/Sidebar.svelte';
+	import { setNand2TetrisContext } from './context.svelte';
 
 	let {
 		...windowProps

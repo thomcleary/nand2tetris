@@ -1,7 +1,7 @@
 <script lang="ts">
 	import FileIcon from '$lib/components/icons/FileIcon.svelte';
 	import GearIcon from '$lib/components/icons/GearIcon.svelte';
-	import type { IconProps } from '../../icons/types';
+	import type { IconProps } from '../../../icons/types';
 	import Explorer from './Explorer.svelte';
 
 	let selectedTab = $state<'EXPLORER' | 'SETTINGS' | undefined>('EXPLORER');

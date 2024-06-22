@@ -1,8 +1,8 @@
 <script lang="ts">
+	import { getFinder } from '$lib/components/desktop/context.svelte';
 	import ChevronIcon from '$lib/components/icons/ChevronIcon.svelte';
 	import FileTypeIcon from '$lib/components/icons/FileTypeIcon.svelte';
-	import { getFinder } from '$lib/contexts/finder.svelte';
-	import FolderIcon from '../../icons/FolderIcon.svelte';
+	import FolderIcon from '../../../icons/FolderIcon.svelte';
 	import { FileTree, type Directory, type File } from './FileTree.svelte';
 
 	const finder = getFinder();
