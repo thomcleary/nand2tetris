@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: "./web"
+        working-directory: ./web
     steps:
       - name: 🛒 Checkout
         uses: actions/checkout@v4
