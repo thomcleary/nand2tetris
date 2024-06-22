@@ -15,7 +15,7 @@
 	});
 </script>
 
-<div>
+<div class="tabs">
 	{#each tabs as tab}
 		<div class="tab" class:selected={selected === tab}>
 			<button
@@ -37,6 +37,11 @@
 </div>
 
 <style>
+	::-webkit-scrollbar {
+		width: 4px;
+		height: 4px;
+	}
+
 	div {
 		display: flex;
 		justify-content: flex-start;
@@ -51,6 +56,10 @@
 		color: var(--color-grey);
 		padding: 0;
 		border: none;
+	}
+
+	.tabs {
+		overflow: auto;
 	}
 
 	.tab {
