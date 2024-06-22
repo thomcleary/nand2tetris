@@ -1,10 +1,5 @@
 # TODO
 
-## output
-
-- change from textarea to custom components
-  - render parse tree like and indented list (instead of xml)
-
 ## deploy
 
 - deploy to github pages

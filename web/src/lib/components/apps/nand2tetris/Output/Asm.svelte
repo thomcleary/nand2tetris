@@ -14,19 +14,11 @@
 
 	const { instructions }: AsmProps = $props();
 
-	const instructionParts = (instruction: AssemblyInstruction) => {
-		const parts = instruction.split(';');
-		console.log(parts);
-		return parts;
-	};
-
+	const instructionParts = (instruction: AssemblyInstruction) => instruction.split(';');
 	const isAInstruction = (instruction: AssemblyInstruction) => instruction.startsWith('@');
-
 	const isMemoryAddress = (instruction: AssemblyInstruction) => isDigitsOnly(instruction.slice(1));
-
 	const isPredefinedSymbol = (instruction: AssemblyInstruction) =>
 		Object.keys(PREDEFINED_SYMBOLS).includes(instruction.slice(1));
-
 	const isRegister = (c: string) => c === 'A' || c === 'D' || c === 'M';
 </script>
 
@@ -76,7 +68,7 @@
 	}
 
 	.memory-address {
-		color: rgb(210, 115, 120);
+		color: rgb(155, 187, 124);
 	}
 
 	.predefined-symbol {

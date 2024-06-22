@@ -12,7 +12,7 @@
 	const iconProps = { width: '1.25rem', height: '1.25rem' } as const satisfies IconProps;
 </script>
 
-<div class="explorer">
+<div class="sidebar">
 	<div class="tabs">
 		<div class="tab-btns">
 			<button class:selected={selectedTab === 'EXPLORER'} onclick={() => handleTabClick('EXPLORER')}
@@ -38,9 +38,10 @@
 </div>
 
 <style>
-	.explorer {
+	.sidebar {
 		grid-area: explorer;
 		display: flex;
+		border-right: 1px solid var(--color-grey-border);
 	}
 
 	.tabs {

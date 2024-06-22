@@ -1,7 +1,7 @@
 <script lang="ts" context="module">
 	import JackCompiler from '../../../../../../../projects/10-11/src/compiler/JackCompiler';
 
-	type Tab = 'TOKENS' | 'PARSE TREE' | 'VM' | 'ASM' | 'HACK' | 'ERROR';
+	type Tab = 'TOKENS' | 'PARSE TREE' | 'VM' | 'ASM' | 'HACK';
 	const tabConfig = {
 		jack: ['TOKENS', 'PARSE TREE', 'VM', 'ASM', 'HACK'],
 		vm: ['ASM', 'HACK'],
@@ -19,6 +19,7 @@
 	import Asm from './Asm.svelte';
 	import { Compiler } from './Compiler';
 	import Hack from './Hack.svelte';
+	import ParseTree from './ParseTree.svelte';
 	import Tokens from './Tokens.svelte';
 	import Vm from './Vm.svelte';
 
@@ -45,17 +46,15 @@
 	);
 
 	const tabs = $derived.by(() => {
-		return (
-			compilationResult?.success && isValidFileType(selectedFileExtension)
-				? tabConfig[selectedFileExtension]
-				: (['ERROR'] satisfies Tab[])
-		).map((tab) => ({ label: tab, key: tab }));
+		return (isValidFileType(selectedFileExtension) ? tabConfig[selectedFileExtension] : []).map(
+			(tab) => ({ label: tab, key: tab })
+		);
 	});
 
 	let currentTab = $state<Tab>();
 	$effect(() => {
-		if (tabs[0].label !== 'ERROR') {
-			currentTab = tabs[0].label;
+		if (!currentTab || !tabs.some((t) => t.label === currentTab)) {
+			currentTab = tabs[0]?.label;
 		}
 	});
 </script>
@@ -63,27 +62,14 @@
 {#if context.selectedFile}
 	<div class="output">
 		<div class="tabs">
-			<Tabs
-				{tabs}
-				--color={compilationResult?.success ? undefined : 'rgb(210, 115, 120)'}
-				selected={compilationResult?.success ? currentTab : 'ERROR'}
-				onSelectTab={(tab) => {
-					if (tab.label !== 'ERROR') {
-						currentTab = tab.label;
-					}
-				}}
-			/>
+			<Tabs {tabs} selected={currentTab} onSelectTab={(tab) => (currentTab = tab.label)} />
 		</div>
 		<div class="content">
 			{#if compilationResult?.success}
 				{#if currentTab === 'TOKENS' && compilationResult.tokens}
 					<Tokens tokens={compilationResult.tokens} />
 				{:else if currentTab === 'PARSE TREE' && compilationResult.jackParseTree}
-					<textarea
-						spellcheck="false"
-						value={compilationResult.jackParseTree.toXmlString()}
-						readonly
-					></textarea>
+					<ParseTree parseTree={compilationResult.jackParseTree} />
 				{:else if currentTab === 'VM' && compilationResult.vmInstructions}
 					<Vm instructions={compilationResult.vmInstructions} />
 				{:else if currentTab === 'ASM' && compilationResult.assemblyInstructions}
@@ -99,24 +85,6 @@
 {/if}
 
 <style>
-	textarea {
-		height: 100%;
-		width: 100%;
-		flex: 1;
-		font-family: var(--font-code);
-		background-color: var(--color-bg-light);
-		color: var(--color-white);
-		margin: 0;
-		padding: 1rem;
-		border: none;
-		resize: none;
-		text-wrap: nowrap;
-	}
-
-	textarea:focus {
-		outline: none;
-	}
-
 	p {
 		color: rgb(210, 115, 120);
 		margin: 0;

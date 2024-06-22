@@ -16,7 +16,6 @@
 
 	const getClass = (part: string) => {
 		if (part === 'return' || isStackCommand(part) || isBranchCommand(part)) {
-			console.log({ part });
 			return 'keyword';
 		}
 
@@ -53,7 +52,7 @@
 <style>
 	span {
 		font-family: var(--font-code);
-		color: var(--color-white);
+		color: var(--color-grey);
 	}
 
 	.vm {
