@@ -3,11 +3,14 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: "main"
+    branches: ['main']
 
 jobs:
-  build_site:
+  build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: "./web"
     steps:
       - name: 🛒 Checkout
         uses: actions/checkout@v4
