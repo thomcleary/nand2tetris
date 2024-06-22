@@ -13,6 +13,9 @@
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write ."
 	},
+	"dependencies": {
+		"svelte-codemirror-editor": "^1.4.0"
+	},
 	"devDependencies": {
 		"@sveltejs/adapter-static": "^3.0.1",
 		"@sveltejs/kit": "^2.0.0",

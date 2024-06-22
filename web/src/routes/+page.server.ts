@@ -7,10 +7,7 @@ export const load = async () => {
 	const files = Object.keys(fileAssets).map(async (filePath) => ({
 		path: filePath.replace('../lib/assets/files/', ''),
 		name: path.basename(filePath),
-		contents: (await (fileAssets[filePath]() as Promise<{ default: string }>)).default.replaceAll(
-			'\t',
-			'  '
-		)
+		contents: (await (fileAssets[filePath]() as Promise<{ default: string }>)).default
 	}));
 
 	return { files: (await Promise.all(files)) satisfies File[] };
