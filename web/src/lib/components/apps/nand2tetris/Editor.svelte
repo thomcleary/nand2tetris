@@ -25,9 +25,7 @@
 			}}
 			onCloseTab={(tab) => {
 				const file = context.openFiles.find((f) => f.path === tab.key);
-				if (file) {
-					context.closeFile(file);
-				}
+				file && context.closeFile(file);
 			}}
 		/>
 		<textarea

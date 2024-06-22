@@ -1,41 +1,7 @@
 <script lang="ts" context="module">
-	import type { File } from '$lib/types';
-	import { assemble } from '../../../../../../projects/06/src/assembler';
-	import { toAssemblyInstructions } from '../../../../../../projects/06/src/utils';
-	import { toVmInstructions } from '../../../../../../projects/07-08/src/utils';
-	import { translate } from '../../../../../../projects/07-08/src/vmTranslator';
-	import {
-		JackCompiler,
-		type CompilationResult
-	} from '../../../../../../projects/10-11/src/compiler/JackCompiler';
+	import { type CompilationResult } from '../../../../../../projects/10-11/src/compiler/JackCompiler';
 	import JackParseTree from '../../../../../../projects/10-11/src/parser/JackParseTree';
-	import type { Result } from '../../../../../../projects/10-11/src/types';
-
-	// TODO: move this out into separate .ts file
-	// Make the return type change based on the file extension of the File being passed in
-	const jackCompiler = new JackCompiler();
-
-	type VmTranslationResult = Pick<CompilationResult, 'assemblyInstructions' | 'hackInstructions'>;
-
-	const translateVm = (vmFile: File): Result<VmTranslationResult, Partial<VmTranslationResult>> => {
-		const vmInstructions = toVmInstructions(vmFile.contents);
-
-		const translationResult = translate({ vmInstructions, fileName: vmFile.name });
-
-		if (!translationResult.success) {
-			return translationResult;
-		}
-
-		const { assemblyInstructions } = translationResult;
-		const assemblerResult = assemble({ assemblyInstructions });
-
-		return { assemblyInstructions, ...assemblerResult };
-	};
-
-	type AssemblerResult = Pick<CompilationResult, 'hackInstructions'>;
-
-	const assembleAsm = (asmFile: File): Result<AssemblerResult, Partial<AssemblerResult>> =>
-		assemble({ assemblyInstructions: toAssemblyInstructions(asmFile.contents) });
+	import { Compiler } from './Compiler';
 
 	type Tab = 'TOKENS' | 'PARSE TREE' | 'VM' | 'ASM' | 'HACK';
 	const tabConfig = {
@@ -68,43 +34,41 @@
 	const tabs = $derived.by(() => {
 		return isValidFileType(selectedFileExtension) ? tabConfig[selectedFileExtension] : [];
 	});
-	// TODO: fix this, it kinda sucks.
+
 	let currentTab = $state<Tab>();
-	let selectedTab = $derived(
-		isValidFileType(selectedFileExtension)
-			? tabConfig[selectedFileExtension].some((tab) => tab === currentTab)
-				? currentTab
-				: tabs[0]
-			: tabs[0]
-	);
+	$effect(() => {
+		currentTab = tabs[0];
+	});
 
 	const output = $derived.by(() => {
-		if (!context.selectedFile || !isValidFileType(selectedFileExtension) || !selectedTab) {
+		if (!context.selectedFile || !isValidFileType(selectedFileExtension) || !currentTab) {
 			return undefined;
 		}
 
 		if (selectedFileExtension === 'asm') {
-			const result = assembleAsm(context.selectedFile);
+			const result = Compiler.assembleAsm(context.selectedFile);
 			return result.success ? result.hackInstructions.join('\n') : result.message;
 		}
 
 		if (selectedFileExtension === 'vm') {
-			const result = translateVm(context.selectedFile);
+			const result = Compiler.translateVm(context.selectedFile);
 
-			if (selectedTab === 'ASM' || selectedTab === 'HACK') {
-				const tabResult = result[tabToCompilationResultKey[selectedTab]];
+			if (currentTab === 'ASM' || currentTab === 'HACK') {
+				const tabResult = result[tabToCompilationResultKey[currentTab]];
 				return result.success ? tabResult?.join('\n') : result.message;
 			}
 		}
 
-		const result = jackCompiler.compile({ jackFileContents: context.selectedFile.contents });
-		const tabResult = result[tabToCompilationResultKey[selectedTab]];
+		const result = Compiler.jackCompiler.compile({
+			jackFileContents: context.selectedFile.contents
+		});
+		const tabResult = result[tabToCompilationResultKey[currentTab]];
 
 		if (result.success) {
 			if (tabResult instanceof JackParseTree) {
 				return result.jackParseTree.toXmlString();
 			}
-			if (selectedTab === 'TOKENS') {
+			if (currentTab === 'TOKENS') {
 				return result.tokens.map(({ type, token }) => `${type} '${token}'`).join('\n');
 			}
 			return tabResult?.join('\n');
@@ -118,7 +82,7 @@
 	<div class="output">
 		<Tabs
 			tabs={tabs.map((tab) => ({ label: tab, key: tab }))}
-			selected={selectedTab}
+			selected={currentTab}
 			onSelectTab={(tab) => (currentTab = tab.label)}
 		/>
 		<!-- TODO: instead of using textarea, render a component with syntax highlighting -->
