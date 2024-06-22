@@ -13,13 +13,14 @@ type Result<T extends Record<PropertyKey, unknown>> = ({ success: true } & T) | 
 
 const isValidDestCode = (code: string): code is keyof typeof DEST_CODES => Object.keys(DEST_CODES).includes(code);
 const isValidCompCode = (code: string): code is keyof typeof COMP_CODES => Object.keys(COMP_CODES).includes(code);
-const isValidJumpCode = (code: string): code is keyof typeof JUMP_CODES => Object.keys(JUMP_CODES).includes(code);
+export const isValidJumpCode = (code: string): code is keyof typeof JUMP_CODES =>
+  Object.keys(JUMP_CODES).includes(code);
 const isMemoryCompCode = (code: keyof typeof COMP_CODES) => code.includes("M");
 
 const isEmptyLine = (line: string) => /^\s*$/.test(line);
-const isDigitsOnly = (line: string) => /^\d+$/.test(line);
-const isComment = (line: string) => line.startsWith("//");
-const isLabel = (line: string) => line.startsWith("(");
+export const isDigitsOnly = (line: string) => /^\d+$/.test(line);
+export const isComment = (line: string) => line.startsWith("//");
+export const isLabel = (line: string) => line.startsWith("(");
 const isInstruction = (line: string) => !(isEmptyLine(line) || isComment(line) || isLabel(line));
 
 const stripComment = (instruction: string) => {

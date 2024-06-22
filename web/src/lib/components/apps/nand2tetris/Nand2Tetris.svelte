@@ -52,6 +52,9 @@
 
 	.nand2tetris {
 		min-height: 100%; /* This was very important to make the window height work on landscape mobile 🙃 */
+		max-height: calc(
+			100dvh - 4rem
+		); /* constrains grid item heights to a known maximum so content doesn't overflow 🙃*/
 		display: grid;
 		grid-template-columns: min-content 4fr 3fr;
 		grid-template-rows: 1fr min-content;

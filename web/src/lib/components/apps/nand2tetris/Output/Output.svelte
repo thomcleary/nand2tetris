@@ -26,6 +26,9 @@
 <script lang="ts">
 	import Tabs from '../Tabs.svelte';
 	import { getNand2TetrisContext } from '../context.svelte';
+	import Asm from './Asm.svelte';
+	import Hack from './Hack.svelte';
+	import Tokens from './Tokens.svelte';
 
 	const context = getNand2TetrisContext();
 
@@ -47,7 +50,7 @@
 
 		if (selectedFileExtension === 'asm') {
 			const result = Compiler.assembleAsm(context.selectedFile);
-			return result.success ? result.hackInstructions.join('\n') : result.message;
+			return result.success ? result.hackInstructions : result.message;
 		}
 
 		if (selectedFileExtension === 'vm') {
@@ -55,7 +58,7 @@
 
 			if (currentTab === 'ASM' || currentTab === 'HACK') {
 				const tabResult = result[tabToCompilationResultKey[currentTab]];
-				return result.success ? tabResult?.join('\n') : result.message;
+				return result.success ? tabResult : result.message;
 			}
 		}
 
@@ -69,8 +72,13 @@
 				return result.jackParseTree.toXmlString();
 			}
 			if (currentTab === 'TOKENS') {
-				return result.tokens.map(({ type, token }) => `${type} '${token}'`).join('\n');
+				return result.tokens;
+			} else if (currentTab === 'ASM') {
+				return result.assemblyInstructions;
+			} else if (currentTab === 'HACK') {
+				return result.hackInstructions;
 			}
+
 			return tabResult?.join('\n');
 		}
 
@@ -80,18 +88,32 @@
 
 {#if context.selectedFile}
 	<div class="output">
-		<Tabs
-			tabs={tabs.map((tab) => ({ label: tab, key: tab }))}
-			selected={currentTab}
-			onSelectTab={(tab) => (currentTab = tab.label)}
-		/>
-		<!-- TODO: instead of using textarea, render a component with syntax highlighting -->
-		<textarea spellcheck="false" value={output ?? ''} readonly></textarea>
+		<div class="tabs">
+			<Tabs
+				tabs={tabs.map((tab) => ({ label: tab, key: tab }))}
+				selected={currentTab}
+				onSelectTab={(tab) => (currentTab = tab.label)}
+			/>
+		</div>
+		<div class="content">
+			{#if currentTab === 'TOKENS'}
+				<Tokens tokens={output} />
+			{:else if currentTab === 'ASM'}
+				<Asm instructions={output} />
+			{:else if currentTab === 'HACK'}
+				<Hack instructions={output} />
+			{:else}
+				<!-- TODO: instead of using textarea, render a component with syntax highlighting -->
+				<textarea spellcheck="false" value={output ?? ''} readonly></textarea>
+			{/if}
+		</div>
 	</div>
 {/if}
 
 <style>
 	textarea {
+		height: 100%;
+		width: 100%;
 		flex: 1;
 		font-family: var(--font-code);
 		background-color: var(--color-bg-light);
@@ -112,7 +134,7 @@
 		display: flex;
 		flex-direction: column;
 		border-left: 1px solid var(--color-grey-border);
-		overflow: auto;
+		overflow: hidden;
 	}
 
 	@media (width <= 1280px) {
@@ -120,5 +142,12 @@
 			border-top: 1px solid var(--color-grey-border);
 			border-left: none;
 		}
+	}
+
+	.content {
+		flex: 1;
+		background-color: var(--color-bg-light);
+		padding: 1rem;
+		overflow: auto;
 	}
 </style>
