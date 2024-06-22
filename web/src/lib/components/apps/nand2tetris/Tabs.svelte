@@ -54,7 +54,7 @@
 		align-items: center;
 		gap: 0.5rem;
 		background-color: transparent;
-		color: var(--color-grey);
+		color: var(--color, var(--color-grey));
 		padding: 0;
 		border: none;
 	}
@@ -89,7 +89,7 @@
 	}
 
 	.selected > button {
-		color: var(--color-white-bright);
+		color: var(--color, var(--color-white-bright));
 	}
 
 	.selected > .close-btn:hover {

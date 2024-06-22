@@ -53,6 +53,7 @@
 	textarea {
 		flex: 1;
 		font-family: var(--font-code);
+		font-size: 16px; /* Mobile zoom's in on focus if less than 16px */
 		background-color: var(--color-bg-light);
 		color: var(--color-white);
 		margin: 0;

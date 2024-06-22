@@ -1,7 +1,7 @@
 <script lang="ts" context="module">
 	import JackCompiler from '../../../../../../../projects/10-11/src/compiler/JackCompiler';
 
-	type Tab = 'TOKENS' | 'PARSE TREE' | 'VM' | 'ASM' | 'HACK';
+	type Tab = 'TOKENS' | 'PARSE TREE' | 'VM' | 'ASM' | 'HACK' | 'ERROR';
 	const tabConfig = {
 		jack: ['TOKENS', 'PARSE TREE', 'VM', 'ASM', 'HACK'],
 		vm: ['ASM', 'HACK'],
@@ -48,7 +48,7 @@
 		return (
 			compilationResult?.success && isValidFileType(selectedFileExtension)
 				? tabConfig[selectedFileExtension]
-				: (['ERROR'] as const)
+				: (['ERROR'] satisfies Tab[])
 		).map((tab) => ({ label: tab, key: tab }));
 	});
 
@@ -65,6 +65,7 @@
 		<div class="tabs">
 			<Tabs
 				{tabs}
+				--color={compilationResult?.success ? undefined : 'rgb(210, 115, 120)'}
 				selected={compilationResult?.success ? currentTab : 'ERROR'}
 				onSelectTab={(tab) => {
 					if (tab.label !== 'ERROR') {

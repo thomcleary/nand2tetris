@@ -11,21 +11,19 @@
 
 	const { tokens }: TokensProps = $props();
 
-	const isOperatorToken = (token: Token) => isOperator(token) || isUnaryOperator(token);
+	const getClass = (token: Token) => {
+		if (token.type === 'symbol') {
+			return isOperator(token) || isUnaryOperator(token) ? 'operator' : 'symbol';
+		}
+		return token.type;
+	};
 </script>
 
 <div class="tokens">
 	{#each tokens as token}
 		<span
 			>{token.type}
-			<b
-				class:keyword={token.type === 'keyword'}
-				class:identifier={token.type === 'identifier'}
-				class:symbol={token.type === 'symbol' && !isOperatorToken(token)}
-				class:operator={isOperatorToken(token)}
-				class:integerConstant={token.type === 'integerConstant'}
-				class:stringConstant={token.type === 'stringConstant'}>{token.token}</b
-			></span
+			<span class={getClass(token)}>{token.token}</span></span
 		>
 	{/each}
 </div>
@@ -34,10 +32,6 @@
 	span {
 		font-family: var(--font-code);
 		color: rgb(128, 132, 141);
-	}
-
-	b {
-		font-weight: 600;
 	}
 
 	.tokens {
