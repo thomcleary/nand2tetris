@@ -37,6 +37,7 @@
 	<button
 		style:padding={filePadding(depth)}
 		class:selected={file.selected}
+		class:open={file.open}
 		onclick={() => file.select()}
 		><FileTypeIcon
 			width="0.8rem"
@@ -108,6 +109,10 @@
 		background-color: rgb(51, 56, 65);
 		color: var(--color-white-brightest);
 		cursor: pointer;
+	}
+
+	.open {
+		color: var(--color-white-brightest);
 	}
 
 	.toggle {

@@ -1,12 +1,19 @@
+import type { File as FileDetails } from '$lib/types';
 import { getNand2TetrisContext } from './Nand2Tetris.svelte';
 
-type _FileDetails = { path: string; name: string; contents: string };
-export type File = { isDir: false; name: string; selected: boolean; select: () => void };
+export type File = {
+	isDir: false;
+	name: string;
+	selected: boolean;
+	open: boolean;
+	select: () => void;
+};
 export type Directory = { isDir: true; name: string; files: (Directory | File)[]; open: boolean };
 
-const createFile = ({ file }: { file: _FileDetails }): File => {
+const createFile = ({ file }: { file: FileDetails }): File => {
 	const context = getNand2TetrisContext();
 	const selected = $derived(context.selectedFile?.path === file.path);
+	const open = $derived(context.openFiles.some((f) => f.path === file.path));
 
 	return {
 		isDir: false,
@@ -15,6 +22,11 @@ const createFile = ({ file }: { file: _FileDetails }): File => {
 		get selected() {
 			return selected;
 		},
+
+		get open() {
+			return open;
+		},
+
 		select() {
 			context.selectedFile = file;
 		}
