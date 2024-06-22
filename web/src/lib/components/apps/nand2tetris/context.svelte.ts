@@ -24,7 +24,7 @@ export const setNand2TetrisContext = () => {
 
 		set selectedFile(file: File | undefined) {
 			if (file && !openFiles.includes(file)) {
-				openFiles.push(file);
+				openFiles.unshift(file);
 			}
 			selectedFile = file;
 		},

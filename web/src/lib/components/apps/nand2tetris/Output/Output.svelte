@@ -1,7 +1,5 @@
 <script lang="ts" context="module">
-	import { type CompilationResult } from '../../../../../../../projects/10-11/src/compiler/JackCompiler';
-	import JackParseTree from '../../../../../../../projects/10-11/src/parser/JackParseTree';
-	import { Compiler } from './Compiler';
+	import JackCompiler from '../../../../../../../projects/10-11/src/compiler/JackCompiler';
 
 	type Tab = 'TOKENS' | 'PARSE TREE' | 'VM' | 'ASM' | 'HACK';
 	const tabConfig = {
@@ -9,14 +7,6 @@
 		vm: ['ASM', 'HACK'],
 		asm: ['HACK']
 	} as const satisfies Record<'jack' | 'vm' | 'asm', Tab[]>;
-
-	const tabToCompilationResultKey = {
-		TOKENS: 'tokens',
-		'PARSE TREE': 'jackParseTree',
-		VM: 'vmInstructions',
-		ASM: 'assemblyInstructions',
-		HACK: 'hackInstructions'
-	} as const satisfies Record<Tab, keyof CompilationResult>;
 
 	const isValidFileType = (
 		fileExtension: string | undefined
@@ -27,62 +17,46 @@
 	import Tabs from '../Tabs.svelte';
 	import { getNand2TetrisContext } from '../context.svelte';
 	import Asm from './Asm.svelte';
+	import { Compiler } from './Compiler';
 	import Hack from './Hack.svelte';
 	import Tokens from './Tokens.svelte';
+	import Vm from './Vm.svelte';
 
 	const context = getNand2TetrisContext();
 
 	const selectedFileExtension = $derived(context.selectedFile?.name.split('.').pop());
 
+	const compilationResult = $derived.by(
+		(): Partial<ReturnType<JackCompiler['compile']>> | undefined => {
+			if (!context.selectedFile || !isValidFileType(selectedFileExtension)) {
+				return undefined;
+			}
+
+			if (selectedFileExtension === 'asm') {
+				return Compiler.assembleAsm(context.selectedFile);
+			}
+
+			if (selectedFileExtension === 'vm') {
+				return Compiler.translateVm(context.selectedFile);
+			}
+
+			return Compiler.jackCompiler.compile({ jackFileContents: context.selectedFile.contents });
+		}
+	);
+
 	const tabs = $derived.by(() => {
-		return isValidFileType(selectedFileExtension) ? tabConfig[selectedFileExtension] : [];
+		return (
+			compilationResult?.success && isValidFileType(selectedFileExtension)
+				? tabConfig[selectedFileExtension]
+				: (['ERROR'] as const)
+		).map((tab) => ({ label: tab, key: tab }));
 	});
 
 	let currentTab = $state<Tab>();
 	$effect(() => {
-		currentTab = tabs[0];
-	});
-
-	const output = $derived.by(() => {
-		if (!context.selectedFile || !isValidFileType(selectedFileExtension) || !currentTab) {
-			return undefined;
+		if (tabs[0].label !== 'ERROR') {
+			currentTab = tabs[0].label;
 		}
-
-		if (selectedFileExtension === 'asm') {
-			const result = Compiler.assembleAsm(context.selectedFile);
-			return result.success ? result.hackInstructions : result.message;
-		}
-
-		if (selectedFileExtension === 'vm') {
-			const result = Compiler.translateVm(context.selectedFile);
-
-			if (currentTab === 'ASM' || currentTab === 'HACK') {
-				const tabResult = result[tabToCompilationResultKey[currentTab]];
-				return result.success ? tabResult : result.message;
-			}
-		}
-
-		const result = Compiler.jackCompiler.compile({
-			jackFileContents: context.selectedFile.contents
-		});
-		const tabResult = result[tabToCompilationResultKey[currentTab]];
-
-		if (result.success) {
-			if (tabResult instanceof JackParseTree) {
-				return result.jackParseTree.toXmlString();
-			}
-			if (currentTab === 'TOKENS') {
-				return result.tokens;
-			} else if (currentTab === 'ASM') {
-				return result.assemblyInstructions;
-			} else if (currentTab === 'HACK') {
-				return result.hackInstructions;
-			}
-
-			return tabResult?.join('\n');
-		}
-
-		return result.message;
 	});
 </script>
 
@@ -90,21 +64,34 @@
 	<div class="output">
 		<div class="tabs">
 			<Tabs
-				tabs={tabs.map((tab) => ({ label: tab, key: tab }))}
-				selected={currentTab}
-				onSelectTab={(tab) => (currentTab = tab.label)}
+				{tabs}
+				selected={compilationResult?.success ? currentTab : 'ERROR'}
+				onSelectTab={(tab) => {
+					if (tab.label !== 'ERROR') {
+						currentTab = tab.label;
+					}
+				}}
 			/>
 		</div>
 		<div class="content">
-			{#if currentTab === 'TOKENS'}
-				<Tokens tokens={output} />
-			{:else if currentTab === 'ASM'}
-				<Asm instructions={output} />
-			{:else if currentTab === 'HACK'}
-				<Hack instructions={output} />
-			{:else}
-				<!-- TODO: instead of using textarea, render a component with syntax highlighting -->
-				<textarea spellcheck="false" value={output ?? ''} readonly></textarea>
+			{#if compilationResult?.success}
+				{#if currentTab === 'TOKENS' && compilationResult.tokens}
+					<Tokens tokens={compilationResult.tokens} />
+				{:else if currentTab === 'PARSE TREE' && compilationResult.jackParseTree}
+					<textarea
+						spellcheck="false"
+						value={compilationResult.jackParseTree.toXmlString()}
+						readonly
+					></textarea>
+				{:else if currentTab === 'VM' && compilationResult.vmInstructions}
+					<Vm instructions={compilationResult.vmInstructions} />
+				{:else if currentTab === 'ASM' && compilationResult.assemblyInstructions}
+					<Asm instructions={compilationResult.assemblyInstructions} />
+				{:else if currentTab === 'HACK' && compilationResult.hackInstructions}
+					<Hack instructions={compilationResult.hackInstructions} />
+				{/if}
+			{:else if compilationResult?.success === false}
+				<p>{compilationResult.message}</p>
 			{/if}
 		</div>
 	</div>
@@ -127,6 +114,11 @@
 
 	textarea:focus {
 		outline: none;
+	}
+
+	p {
+		color: rgb(210, 115, 120);
+		margin: 0;
 	}
 
 	.output {

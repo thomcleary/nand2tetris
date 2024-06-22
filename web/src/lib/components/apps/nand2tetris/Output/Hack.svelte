@@ -1,6 +1,6 @@
 <script lang="ts">
 	type HackProps = {
-		instructions: string[];
+		instructions: readonly string[];
 	};
 
 	const { instructions }: HackProps = $props();

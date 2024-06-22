@@ -6,7 +6,7 @@
 	} from '../../../../../../../projects/10-11/src/utils/predicates';
 
 	type TokensProps = {
-		tokens: Token[];
+		tokens: readonly Token[];
 	};
 
 	const { tokens }: TokensProps = $props();

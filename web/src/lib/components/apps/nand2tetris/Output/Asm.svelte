@@ -9,7 +9,7 @@
 	import type { AssemblyInstruction } from '../../../../../../../projects/07-08/src/types';
 
 	type AsmProps = {
-		instructions: AssemblyInstruction[];
+		instructions: readonly AssemblyInstruction[];
 	};
 
 	const { instructions }: AsmProps = $props();

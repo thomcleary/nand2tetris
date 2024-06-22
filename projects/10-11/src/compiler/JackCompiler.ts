@@ -5,7 +5,6 @@ import JackParseTree, { JackParseTreeNode } from "../parser/JackParseTree.js";
 import JackParser from "../parser/JackParser.js";
 import tokenize from "../tokenizer/index.js";
 import type {
-  IdentifierToken,
   IntegerConstantToken,
   KeywordConstantToken,
   Operator,
