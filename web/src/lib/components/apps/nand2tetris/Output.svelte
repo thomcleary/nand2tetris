@@ -63,13 +63,20 @@
 
 	const context = getNand2TetrisContext();
 
-	let selectedTab = $state<Tab>();
-
 	const selectedFileExtension = $derived(context.selectedFile?.name.split('.').pop());
 
 	const tabs = $derived.by(() => {
 		return isValidFileType(selectedFileExtension) ? tabConfig[selectedFileExtension] : [];
 	});
+	// TODO: fix this, it kinda sucks.
+	let currentTab = $state<Tab>();
+	let selectedTab = $derived(
+		isValidFileType(selectedFileExtension)
+			? tabConfig[selectedFileExtension].some((tab) => tab === currentTab)
+				? currentTab
+				: tabs[0]
+			: tabs[0]
+	);
 
 	const output = $derived.by(() => {
 		if (!context.selectedFile || !isValidFileType(selectedFileExtension) || !selectedTab) {
@@ -109,7 +116,11 @@
 
 {#if context.selectedFile}
 	<div class="output">
-		<Tabs {tabs} bind:selected={selectedTab} />
+		<Tabs
+			tabs={tabs.map((tab) => ({ label: tab, key: tab }))}
+			selected={selectedTab}
+			onSelectTab={(tab) => (currentTab = tab.label)}
+		/>
 		<!-- TODO: instead of using textarea, render a component with syntax highlighting -->
 		<textarea spellcheck="false" value={output ?? ''} readonly></textarea>
 	</div>

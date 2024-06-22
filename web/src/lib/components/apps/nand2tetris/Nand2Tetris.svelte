@@ -2,13 +2,41 @@
 	import type { File } from '$lib/types';
 
 	export type Nand2TetrisContext = {
+		openFiles: File[];
 		selectedFile: File | undefined;
+		closeFile: (file: File) => void;
 	};
 
 	const contextKey = 'nand2tetris';
 
 	const setNand2TetrisContext = () => {
-		const context = $state<Nand2TetrisContext>({ selectedFile: undefined });
+		let openFiles = $state<File[]>([]);
+		let selectedFile = $state<File>();
+
+		const context = {
+			get openFiles() {
+				return openFiles;
+			},
+
+			get selectedFile() {
+				return selectedFile;
+			},
+
+			set selectedFile(file: File | undefined) {
+				if (file && !openFiles.includes(file)) {
+					openFiles.push(file);
+				}
+				selectedFile = file;
+			},
+
+			closeFile(file: File) {
+				openFiles = openFiles.filter((f) => f !== file);
+
+				if (selectedFile === file) {
+					selectedFile = openFiles[0];
+				}
+			}
+		} satisfies Nand2TetrisContext;
 
 		setContext(contextKey, context);
 

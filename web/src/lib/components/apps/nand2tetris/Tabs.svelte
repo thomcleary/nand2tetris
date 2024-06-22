@@ -1,34 +1,35 @@
-<script lang="ts">
+<script lang="ts" generics="T extends string">
 	import type { Snippet } from 'svelte';
 
-	type TabsProps = {
-		tabs: readonly string[];
+	type Tab<T> = { label: T; key: string };
+
+	type TabsProps<T> = {
+		tabs: Tab<T>[];
 		icon?: Snippet<[string]>;
 		selected?: string;
-		onCloseTab?: (tab: string) => void;
+		onSelectTab?: (tab: Tab<T>) => void;
+		onCloseTab?: (tab: Tab<T>) => void;
 	};
 
-	let { tabs, selected = $bindable(), icon, onCloseTab }: TabsProps = $props();
-
-	$effect(() => {
-		selected = tabs[0];
-	});
+	// ESLint complaining T is not defined
+	// eslint-disable-next-line no-undef
+	let { tabs, icon, selected, onSelectTab, onCloseTab }: TabsProps<T> = $props();
 </script>
 
 <div class="tabs">
 	{#each tabs as tab}
-		<div class="tab" class:selected={selected === tab}>
+		<div class="tab" class:selected={selected === tab.key}>
 			<button
 				class="tab-btn"
 				style:padding={`0.5rem ${onCloseTab ? '0.5' : '1'}rem 0.5rem 1rem`}
 				onclick={() => {
-					selected = tab;
+					onSelectTab?.(tab);
 				}}
 			>
 				{#if icon}
-					{@render icon(tab)}
+					{@render icon(tab.label)}
 				{/if}
-				{tab}</button
+				{tab.label}</button
 			>{#if onCloseTab}
 				<button onclick={() => onCloseTab(tab)} class="close-btn">x</button>
 			{/if}
@@ -91,6 +92,10 @@
 		color: var(--color-white-bright);
 	}
 
+	.selected > .close-btn:hover {
+		background-color: rgb(51, 56, 65);
+	}
+
 	.tab-btn {
 		flex: 1;
 	}
@@ -102,6 +107,6 @@
 	}
 
 	.close-btn:hover {
-		background-color: rgb(51, 56, 65);
+		background-color: var(--color-bg-light);
 	}
 </style>

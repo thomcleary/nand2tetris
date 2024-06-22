@@ -14,10 +14,20 @@
 <div class="editor">
 	{#if context.selectedFile}
 		<Tabs
-			tabs={[context.selectedFile.name]}
+			tabs={context.openFiles.map((file) => ({ label: file.name, key: file.path }))}
 			icon={tabIcon}
-			onCloseTab={() => {
-				context.selectedFile = undefined;
+			selected={context.selectedFile?.path}
+			onSelectTab={(tab) => {
+				const file = context.openFiles.find((f) => f.path === tab.key);
+				if (file) {
+					context.selectedFile = file;
+				}
+			}}
+			onCloseTab={(tab) => {
+				const file = context.openFiles.find((f) => f.path === tab.key);
+				if (file) {
+					context.closeFile(file);
+				}
 			}}
 		/>
 		<textarea
