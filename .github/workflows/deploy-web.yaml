@@ -3,7 +3,12 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: ['main']
+    branches: ["main"]
+    paths:
+      - /web/**
+      - /projects/06/src/**
+      - /projects/07-08/src/**
+      - /projects/10-11/src/**
 
 jobs:
   build:
