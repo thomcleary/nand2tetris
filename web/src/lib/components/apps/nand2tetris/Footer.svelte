@@ -22,7 +22,7 @@
 	}
 
 	a:hover {
-		background-color: rgb(58, 61, 65);
+		background-color: var(--color-grey-dimmer);
 	}
 
 	a > span {

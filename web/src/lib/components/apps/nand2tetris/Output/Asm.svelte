@@ -68,15 +68,15 @@
 	}
 
 	.memory-address {
-		color: rgb(155, 187, 124);
+		color: var(--color-green);
 	}
 
 	.predefined-symbol {
-		color: rgb(200, 155, 110);
+		color: var(--color-orange);
 	}
 
 	.label {
-		color: rgb(116, 174, 234);
+		color: var(--color-blue);
 	}
 
 	.comment {
@@ -84,14 +84,14 @@
 	}
 
 	.register {
-		color: rgb(210, 115, 120);
+		color: var(--color-red);
 	}
 
 	.jump {
-		color: rgb(187, 125, 216);
+		color: var(--color-purple);
 	}
 
 	.number {
-		color: rgb(155, 187, 124);
+		color: var(--color-green);
 	}
 </style>

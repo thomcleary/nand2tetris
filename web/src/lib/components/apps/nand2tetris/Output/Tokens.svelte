@@ -40,26 +40,26 @@
 	}
 
 	.keyword {
-		color: rgb(187, 125, 216);
+		color: var(--color-purple);
 	}
 
 	.identifier {
-		color: rgb(210, 115, 120);
+		color: var(--color-red);
 	}
 
 	.symbol {
-		color: rgb(200, 155, 110);
+		color: var(--color-orange);
 	}
 
 	.operator {
-		color: rgb(102, 164, 176);
+		color: var(--color-turquoise);
 	}
 
 	.integerConstant {
-		color: rgb(223, 193, 133);
+		color: var(--color-yellow);
 	}
 
 	.stringConstant {
-		color: rgb(155, 187, 124);
+		color: var(--color-green);
 	}
 </style>

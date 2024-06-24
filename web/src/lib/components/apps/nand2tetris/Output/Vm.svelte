@@ -61,22 +61,22 @@
 	}
 
 	.keyword {
-		color: rgb(187, 125, 216);
+		color: var(--color-purple);
 	}
 
 	.arithmetic-logical {
-		color: rgb(210, 115, 120);
+		color: var(--color-red);
 	}
 
 	.segment {
-		color: rgb(200, 155, 110);
+		color: var(--color-orange);
 	}
 
 	.function {
-		color: rgb(116, 174, 234);
+		color: var(--color-blue);
 	}
 
 	.number {
-		color: rgb(155, 187, 124);
+		color: var(--color-green);
 	}
 </style>

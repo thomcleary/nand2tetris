@@ -42,6 +42,7 @@
 					}
 				}}
 				styles={{
+					// TODO: style CodeMirror properly
 					'& *': {
 						fontFamily: 'var(--font-code)',
 						fontSize: '16px'

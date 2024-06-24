@@ -86,7 +86,7 @@
 
 <style>
 	p {
-		color: rgb(210, 115, 120);
+		color: var(--color-red);
 		margin: 0;
 	}
 

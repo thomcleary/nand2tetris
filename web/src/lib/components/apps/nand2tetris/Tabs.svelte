@@ -80,7 +80,7 @@
 
 	.selected {
 		background-color: var(--color-bg-light);
-		border-bottom: 2px solid var(--color-white-bright);
+		border-bottom: 2px solid var(--color-white-brighter);
 		border-right: 1px solid var(--color-black);
 	}
 
@@ -89,7 +89,7 @@
 	}
 
 	.selected > button {
-		color: var(--color-white-bright);
+		color: var(--color-white-brighter);
 	}
 
 	.selected > .close-btn:hover {
