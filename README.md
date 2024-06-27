@@ -1,6 +1,6 @@
 # 🔌 🧱 nand2tetris
 
-## Web
+## Interactive Compiler
 
 - <https://thomcleary.github.io/nand2tetris>
 

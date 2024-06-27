@@ -16,7 +16,16 @@ class String {
     /** constructs a new empty string with a maximum length of maxLength
      *  and initial length of 0. */
     constructor String new(int maxLength) {
-        let _chars = Array.new(maxLength);
+        var int arraySize;
+
+        let arraySize = maxLength;
+        if ((arraySize = 0) | (arraySize < 0)) {
+            // Array length must be strictly positive
+            // See Jack OS error codes
+            let arraySize = 1;
+        }
+
+        let _chars = Array.new(arraySize);
         let _maxLength = maxLength;
         let _length = 0;
 
