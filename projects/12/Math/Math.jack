@@ -106,7 +106,23 @@ class Math {
 
     /** Returns the integer part of the square root of x. */
     function int sqrt(int x) {
-        return -1;
+        var int y, j, k, kSquared;
+
+        let y = 0;
+        let j = 7; // (n / 2) - 1;
+
+        while (j > -1) {
+            let k = y + powersOfTwo[j];
+            let kSquared = k * k;
+
+            if (((kSquared < x) | (kSquared = x)) & (kSquared > 0)) {
+                let y = k; 
+            }
+
+            let j = j - 1;
+        }
+        
+        return y;
     }
 
     /** Returns the greater value. */
