@@ -94,8 +94,11 @@ class Math {
 
     /** Returns the absolute value of x. */
     function int abs(int x) {
-        // Integers are in 2'Complement form, just flip the highest bit to 0 to make it non-negative?
-        return -1;
+        if (x < 0) {
+            return -x;
+        }
+
+        return x;
     }
 
     /** Returns true if the ith bit of x is 1, otherwise false. */
