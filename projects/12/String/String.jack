@@ -79,8 +79,36 @@ class String {
     /** Returns the integer value of this string, 
      *  until a non-digit character is detected. */
     method int intValue() {
-        // TODO
-        return -1;
+        var bool isNegative;
+        var int value, i, d;
+
+        let isNegative = charAt(0) = 45; // 45 = "-"
+
+        if (isNegative) {
+            let i = 1;
+        } else {
+            let i = 0;
+        }
+
+        let value = 0;
+
+        while (i < _length) {
+            let d = charAt(i);
+
+            if (d < 48 | d > 57) {
+                // Break loop when character is non-digit (48 = "0", 57 = "9")
+                let i = _length;
+            } else {
+                let value = (value * 10) + (d - 48);
+                let i = i + 1;
+            }
+        }
+
+        if (isNegative) {
+            return -value;
+        }
+
+        return value;
     }
 
     /** Sets this string to hold a representation of the given value. */
