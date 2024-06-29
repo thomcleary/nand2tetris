@@ -8,26 +8,42 @@
  * consists of 32,768 words, each holding a 16-bit binary number.
  */ 
 class Memory {
+    static Array memory;
 
     /** Initializes the class. */
     function void init() {
+        // Jack is a weakly typed language; among other quirks, 
+        // it does not prevent the programmer from assigning a constant to a reference variable. 
+        // This constant can then be treated as an absolute memory address. 
+        // When the reference variable happens to be an array, 
+        // this scheme provides indexed access to every word in the host RAM.
+        let memory = 0;
+
+        return;
     }
 
     /** Returns the RAM value at the given address. */
     function int peek(int address) {
+        return memory[address];
     }
 
     /** Sets the RAM value at the given address to the given value. */
     function void poke(int address, int value) {
+        let memory[address] = value;
+        return;
     }
 
     /** Finds an available RAM block of the given size and returns
      *  a reference to its base address. */
     function int alloc(int size) {
+        // TODO
+        return 2048;
     }
 
     /** De-allocates the given object (cast as an array) by making
      *  it available for future allocations. */
     function void deAlloc(Array o) {
+        // TODO
+        return;
     }    
 }
