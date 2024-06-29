@@ -113,8 +113,32 @@ class String {
 
     /** Sets this string to hold a representation of the given value. */
     method void setInt(int val) {
-        // TODO;
+        let _length = 0;
+        
+        if (val < 0) {
+            do appendChar(45); // "-" = 45
+        }
+
+        do _setInt(Math.abs(val));
+
         return;
+    }
+
+    method void _setInt(int val) {
+        var int lastDigit;
+        var char lastDigitChar;
+
+        let lastDigit = String._mod(val, 10);
+        let lastDigitChar = String._digitToChar(lastDigit);
+
+        if (val > 9) {
+            do _setInt(val / 10);
+        }
+
+        do appendChar(lastDigitChar);
+
+        return;
+
     }
 
     /** Returns the new line character. */
@@ -130,5 +154,13 @@ class String {
     /** Returns the double quote (") character. */
     function char doubleQuote() {
         return 34;
+    }
+
+    function int _mod(int x, int y) {
+        return x - ((x / y) * y);
+    }
+
+    function char _digitToChar(int digit) {
+        return digit + 48; // 0 => 48, 1 => 49 ..., 9 => 57
     }
 }
