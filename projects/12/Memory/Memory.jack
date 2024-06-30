@@ -8,7 +8,7 @@
  * consists of 32,768 words, each holding a 16-bit binary number.
  */ 
 class Memory {
-    static Array memory;
+    static Array memory, free;
 
     /** Initializes the class. */
     function void init() {
@@ -18,6 +18,7 @@ class Memory {
         // When the reference variable happens to be an array, 
         // this scheme provides indexed access to every word in the host RAM.
         let memory = 0;
+        let free = 2048; // The stack is addresses 256 -> 2047
 
         return;
     }
@@ -36,14 +37,20 @@ class Memory {
     /** Finds an available RAM block of the given size and returns
      *  a reference to its base address. */
     function int alloc(int size) {
-        // TODO
-        return 2048;
+        // TODO: improved algorithm
+        var int block;
+
+        let block = free;
+        let free = free + size;
+
+        return block;
+
     }
 
     /** De-allocates the given object (cast as an array) by making
      *  it available for future allocations. */
     function void deAlloc(Array o) {
-        // TODO
+        // TODO: improved algorithm
         return;
     }    
 }
