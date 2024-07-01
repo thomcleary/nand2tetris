@@ -8,7 +8,8 @@
  * consists of 32,768 words, each holding a 16-bit binary number.
  */ 
 class Memory {
-    static Array memory, free;
+    static int heapBase;
+    static Array memory, freeList;
 
     /** Initializes the class. */
     function void init() {
@@ -18,7 +19,11 @@ class Memory {
         // When the reference variable happens to be an array, 
         // this scheme provides indexed access to every word in the host RAM.
         let memory = 0;
-        let free = 2048; // The stack is addresses 256 -> 2047
+
+        let heapBase = 2048;
+        let freeList = heapBase; // the stack is 256 -> 2047;
+        let freeList[0] = 0; // next block pointer (pointer < heapBase represents no next block)
+        let freeList[1] = 14334; // block size ((16384 // SCREEN memory map base) - (2048 // heapBase) - (1 // next block pointer header) - (1 // block size header))
 
         return;
     }
@@ -37,20 +42,52 @@ class Memory {
     /** Finds an available RAM block of the given size and returns
      *  a reference to its base address. */
     function int alloc(int size) {
-        // TODO: improved algorithm
-        var int block;
+        var int requiredSize;
+        var Array freeBlock, newBlock;
 
-        let block = free;
-        let free = free + size;
+        let requiredSize = size + 2; // (1 // block size) + (1 // next block pointer)
+        let freeBlock = freeList;
 
-        return block;
+        while (freeBlock[1] < requiredSize) {
+            let freeBlock = freeBlock[0];
 
+            if (freeBlock < heapBase) {
+                // A block with the required size was not found in the free list
+                // NOTE: could attempt defragmentation at this point
+                do Sys.error(6); // heap overflow error
+            }
+        }
+
+        // eg.
+        // freeBlock = 2048
+        // freeBlock.size = 10
+        // freeBlock -> [[nextBlockHeader, sizeHeader]+[2050, 2051, 2052, ..., 2059]]
+        // requiredSize = 7
+        // newBlock = (2048 + 2) + (10 - 1) - (7)
+        //          = 2050 + 9 - 6
+        //          = 2053
+        //          -> [[headers]+[data]] -> [[2053, 2054]+[2055, 2056, 2057, 2058, 2059]]
+        let newBlock = ((freeBlock + 2) + (freeBlock[1]) - 1) - (requiredSize - 1);
+        let newBlock[1] = size;
+
+        let freeBlock[1] = freeBlock[1] - requiredSize;
+
+        return newBlock;
     }
 
     /** De-allocates the given object (cast as an array) by making
      *  it available for future allocations. */
     function void deAlloc(Array o) {
-        // TODO: improved algorithm
+        var Array currentBlock;
+
+        let currentBlock = freeList;
+
+        while(~(currentBlock[0] < heapBase)) {
+            let currentBlock = currentBlock[0];
+        }
+
+        let currentBlock[0] = o;
+
         return;
     }    
 }
