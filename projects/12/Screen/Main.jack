@@ -15,7 +15,7 @@ class Main {
 
         // Draw vertical line in top left with drawPixel
         while (i < drawPixelLimit) {
-            do Screen.drawPixel(10, 20 + i);
+            do Screen.drawPixel(10, 60 + i);
             let i = i + 1;
         }
 
@@ -23,7 +23,7 @@ class Main {
 
         // Draw diagonal line in top left with drawPixel
         while (i < drawPixelLimit) {
-            do Screen.drawPixel(10 + i, 40 + i);
+            do Screen.drawPixel(10 + i, 60 + i);
             let i = i + 1;
         }
 
