@@ -75,7 +75,84 @@ class Screen {
 
     /** Draws a line from pixel (x1,y1) to pixel (x2,y2), using the current color. */
     function void drawLine(int x1, int y1, int x2, int y2) {
-        // TODO
+        var int dx, dy, a, b, diff;
+        var bool isNegDx, isNegDy;
+
+        let dx = x2 - x1;
+        let dy = y2 - y1;
+
+        // Use more efficient algorithm to draw straight lines
+        if (dy = 0) {
+            do Screen._drawStraightLine(x1, y1, dx, true);
+            return;
+        }
+        if (dx = 0) {
+            do Screen._drawStraightLine(x1, y1, dy, false);
+            return;
+        }
+
+        let isNegDx = dx < 0;
+        let isNegDy = dy < 0;
+
+        let dx = Math.abs(dx);
+        let dy = Math.abs(dy);
+
+        let a = 0;
+        let b = 0;
+        let diff = 0;
+
+        while ((a < dx) & (b < dy)) {
+            if (isNegDx & isNegDy) {
+                do Screen.drawPixel(x1 - a, y1 - b);
+            } else {
+                if (isNegDx) {
+                    do Screen.drawPixel(x1 - a, y1 + b);
+                } else {
+                    if (isNegDy) {
+                        do Screen.drawPixel(x1 + a, y1 - b);
+                    } else {
+                        do Screen.drawPixel(x1 + a, y1 + b);
+                    }
+                }
+            }
+
+            if (diff < 0) {
+                let a = a + 1;
+                let diff = diff + dy;
+            } else {
+                let b = b + 1;
+                let diff = diff - dx;
+            }
+        }
+
+        return;
+    }
+
+    function void _drawStraightLine(int x, int y, int length, bool horizontal) {
+        var bool isNegativeLength, i;
+
+        let isNegativeLength = length < 0;
+        let length = Math.abs(length);
+        let i = 0;
+
+        while (i < length) {
+            if (horizontal) {
+                if (isNegativeLength) {
+                    do Screen.drawPixel(x - i, y);
+                } else {
+                    do Screen.drawPixel(x + i, y);
+                }
+            } else {
+                if (isNegativeLength) {
+                    do Screen.drawPixel(x, y - i);
+                } else {
+                    do Screen.drawPixel(x, y + i);
+                }
+            }
+
+            let i = i + 1;
+        }
+
         return;
     }
 
