@@ -41,7 +41,17 @@ class Screen {
 
     /** Erases the entire screen. */
     function void clearScreen() {
-        // TODO
+        var int wordsToClear, currentWord, i;
+
+        let wordsToClear = powersOfTwo[13]; // 8192 = (512 pixel width / 16 bit word) * 256 rows
+        let i = 0;
+
+        while (i < wordsToClear) {
+            let currentWord = screenBase + i;
+            do Memory.poke(currentWord, 0);
+            let i = i + 1;
+        }
+
         return;
     }
 
