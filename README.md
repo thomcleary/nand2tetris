@@ -24,6 +24,6 @@
 |  9  | High Level Language           | Jack Program (Game of Life)     |    ✅     |
 | 10  | Compiler I: Syntax Analysis   | Jack Compiler (Syntax Analyzer) |    ✅     |
 | 11  | Compiler II: Code Generation  | Jack Compiler (Code Generator)  |    ✅     |
-| 12  | Operating System              | Jack OS                         |           |
+| 12  | Operating System              | Jack OS                         |    ✅     |
 
 <https://www.nand2tetris.org>
