@@ -10,18 +10,64 @@ class Sys {
 
     /** Performs all the initializations required by the OS. */
     function void init() {
+        do Memory.init();
+        do Math.init();
+        do Keyboard.init();
+        do Screen.init();
+        do Output.init();
+
+        do Main.main();
+
+        do Sys.halt();
+
+        return;
     }
 
     /** Halts the program execution. */
     function void halt() {
+        while (true) {
+            // Can be implemented by entering an infinite loop.
+        }
+
+        return;
     }
 
     /** Waits approximately duration milliseconds and returns.  */
     function void wait(int duration) {
+        var int cpuSpecificModifier, i, j, k;
+
+        let cpuSpecificModifier = 10000;
+        let i = 0;
+        let j = 0;
+        let k = 0;
+
+        while (i < cpuSpecificModifier) {
+            while (j < cpuSpecificModifier) {
+                while (k < duration) {
+                    let k = k + 1;
+                }
+                let j = j + 1;
+            }
+            let i = i + 1;
+        }
+
+        return;
     }
 
     /** Displays the given error code in the form "ERR<errorCode>",
      *  and halts the program's execution. */
     function void error(int errorCode) {
+        var String err;
+
+        let err = String.new(6); 
+        do err.setInt(errorCode);
+
+        do Output.printString("ERR<");
+        do Output.printString(err);
+        do Output.printString(">");
+
+        do Sys.halt();
+
+        return;
     }
 }
