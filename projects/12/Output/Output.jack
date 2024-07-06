@@ -287,6 +287,12 @@ class Output {
     /** Displays the given integer starting at the cursor location,
      *  and advances the cursor appropriately. */
     function void printInt(int i) {
+        var String iString;
+
+        let iString = String.new(6); // Max 2's complement number has 5 digits + 1 for '-' negative sign
+        do iString.setInt(i);
+        do Output.printString(iString);
+
         return;
     }
 
@@ -298,7 +304,7 @@ class Output {
         if (cursorRow > 11) {
             let cursorRow = 0;
         }
-        
+
         return;
     }
 
