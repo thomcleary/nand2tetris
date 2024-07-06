@@ -14,12 +14,38 @@
  * as a small filled square, indicates where the next character will be displayed.
  */
 class Output {
-
     // Character map for displaying characters
     static Array charMaps; 
+    static int cursorColumn, cursorRow;
+
+    static Array powersOfTwo; // Stores 2^0, 2^1, 2^2,..., 2^(n-1)
 
     /** Initializes the screen, and locates the cursor at the screen's top-left. */
     function void init() {
+        do Output.initMap();
+
+        let cursorColumn = 0;
+        let cursorRow = 0;
+
+        let powersOfTwo = Array.new(16);
+        let powersOfTwo[0] = 1;
+        let powersOfTwo[1] = 2;
+        let powersOfTwo[2] = 4;
+        let powersOfTwo[3] = 8;
+        let powersOfTwo[4] = 16;
+        let powersOfTwo[5] = 32;
+        let powersOfTwo[6] = 64;
+        let powersOfTwo[7] = 128;
+        let powersOfTwo[8] = 256;
+        let powersOfTwo[9] = 512;
+        let powersOfTwo[10] = 1024;
+        let powersOfTwo[11] = 2048;
+        let powersOfTwo[12] = 4096;
+        let powersOfTwo[13] = 8192;
+        let powersOfTwo[14] = 16384;
+        let powersOfTwo[15] = 32767 + 1; // 2's complement range −32,768 -> 32,767 ((2^15) - 1)
+
+        return;
     }
 
     // Initializes the character map array
@@ -70,7 +96,8 @@ class Output {
         do Output.create(64,30,51,51,59,59,59,27,3,30,0,0);  // @
         do Output.create(63,30,51,51,24,12,12,0,12,12,0,0);  // ?
 
-        do Output.create(65,0,0,0,0,0,0,0,0,0,0,0);          // A ** TO BE FILLED **
+        // do Output.create(65,0,0,0,0,0,0,0,0,0,0,0);          // A ** TO BE FILLED **
+        do Output.create(65,31,51,51,51,31,51,51,51,31,0,0); // TODO: A
         do Output.create(66,31,51,51,51,31,51,51,51,31,0,0); // B
         do Output.create(67,28,54,35,3,3,3,35,54,28,0,0);    // C
         do Output.create(68,15,27,51,51,51,51,51,27,15,0,0); // D
@@ -175,28 +202,103 @@ class Output {
     /** Moves the cursor to the j-th column of the i-th row,
      *  and erases the character displayed there. */
     function void moveCursor(int i, int j) {
+        let cursorRow = i;
+        let cursorColumn = j;
+
+        do Output._printChar(32); // 32 = SPACE;
+
+        return;
     }
 
     /** Displays the given character at the cursor location,
      *  and advances the cursor one column forward. */
     function void printChar(char c) {
+        do Output._printChar(c);
+        do Output._advanceCursor();
+
+        return;
+    }
+
+    function void _printChar(char c) {
+        var Array charMap, i, j, bitRow, mask, rowStart, colStart;
+
+        let charMap = Output.getMap(c);
+        
+        let colStart = 8 * cursorColumn;
+        let rowStart = 11 * cursorRow;
+
+        let i = 0;
+        while (i < 11) {
+            let bitRow = charMap[i];
+
+            // e.g. First row of 'N' is 51 => '11001100'
+            let j = 0;
+            while (j < 8) {
+                let mask = powersOfTwo[j];
+
+                if ((bitRow & mask) > 0) {
+                    do Screen.setColor(true);
+                } else {
+                    do Screen.setColor(false);
+                }
+
+                do Screen.drawPixel(colStart + j, rowStart + i);
+
+                let j = j + 1;
+            }
+
+            let i = i + 1;
+        }
+
+        return;
+    }
+
+    function void _advanceCursor() {
+        let cursorColumn = cursorColumn + 1;
+
+        if (cursorColumn > 63) {
+            let cursorColumn = 0;
+            let cursorRow = cursorRow + 1;
+
+            if (cursorRow > 11) {
+                let cursorRow = 0;
+            }
+        }
+
+        return;
     }
 
     /** displays the given string starting at the cursor location,
      *  and advances the cursor appropriately. */
     function void printString(String s) {
+        return;
     }
 
     /** Displays the given integer starting at the cursor location,
      *  and advances the cursor appropriately. */
     function void printInt(int i) {
+        return;
     }
 
     /** Advances the cursor to the beginning of the next line. */
     function void println() {
+        return;
     }
 
     /** Moves the cursor one column back. */
     function void backSpace() {
+        var int row, col;
+
+        if (cursorColumn = 0) {
+            let col = 63;
+            let row = Math.max(0, cursorRow - 1);
+        } else {
+            let col = cursorColumn - 1;
+            let row = cursorRow;
+        }
+
+        do Output.moveCursor(row, col);
+
+        return;
     }
 }
